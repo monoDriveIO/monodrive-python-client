@@ -1,49 +1,78 @@
+"""sensors.py
+Base sensor class for processing data from the simulator
+"""
 from rx import Observable
 import struct
 import threading
 import traceback
 
-from .client import Client
+from monodrive.client import Client
 
 
 class Sensor(threading.Thread):
+    """Base sensor class for processing sensor data from the simulator."""
 
     def __init__(self, server_ip, config):
+        """ Constructor.
+
+        Args:
+            server_ip(str): The IP address of the server the sensor data is
+            coming from.
+            config(dict): A dictionary of configuration values for this sensor
+        """
         threading.Thread.__init__(self)
-        self.config = config
-        self.id = config['type']+':'+config['id']
-        self.client = Client(server_ip, config['listen_port'])
-        self.source = Observable.create(self._init_rx).publish().auto_connect(1)
+        # The current configuration for this sensor
+        self.__config = config
+        # The unique ID of this sensor
+        self.__id = config['type']+':'+config['id']
+        # The client that is connected to the simulator
+        self.__client = Client(server_ip, config['listen_port'])
+        # The event that is fired off when the sensor data arrives
+        self.__source = \
+            Observable.create(self._init_rx).publish().auto_connect(1)
+        # Flag to determine if the sensor should be connected
+        self.__running = False
+
+    @property
+    def id(self):
+        """Get the unique ID of this sensor.
+
+        Returns:
+            The string representation of the unique id.
+        """
+        return self.__id
 
     def _init_rx(self, observer):
+        """Initialize the reactive publisher"""
         self.observer = observer
 
     def start(self):
-        self.should_stop = False
-        self.client.connect()
+        """Start the client connection for this sensor"""
+        self.__running = True
+        self.__client.connect()
         super().start()
 
     def stop(self):
-        self.should_stop = True
-        self.client.disconnect()
+        """Stop the client connection for this sensor"""
+        self.__running = False
+        self.__client.disconnect()
         self.join()
 
     def run(self):
-        print("{0}: starting".format(self.id))
-        while not self.should_stop:
+        """Overwrite the base Thread run to start the main read loop for this
+        sensor"""
+        while not self.__running:
             try:
-                #print("reading header")
-                header = self.client.read(12)
-                #print("{0}: header = {1}".format(self.id, len(header)))
-
+                # Read the header type of the message
+                header = self.__client.read(12)
                 length, time, gametime = struct.unpack("!IIf", header)
-                #print("{0}: expecting {1} bytes".format(self.id, length))
-
-                data = self.client.read(length - 12)
-                #print("{0}: recv frame {1}".format(self.id, len(data)))
+                data = self.__client.read(length - 12)
+                # Plublish the message to everyone else
                 self.observer.on_next((time, gametime, data))
             except Exception as e:
-                print("{0}: exception {1}".format(self.id, str(e)))
+                print("{0}: exception {1}".format(self.__id, str(e)))
                 traceback.print_exc()
                 break
-        print("{0}: end".format((self.id)))
+
+        # Log that this sensor has stopped running
+        print("{0}: end".format(self.__id))

@@ -14,23 +14,60 @@ class Client:
             ip(str):  The IP address of the simulator
             port(str): The port for the simulator
         """
-        self.ip = ip
-        self.port = port
-        self.sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        self.connected = False
+        # The IP address of the simulator server
+        self.__ip = ip
+        # The port for the simulator server
+        self.__port = port
+        # The socket used to communicate with the server
+        self.__sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        # The status of the connection
+        self.__connected = False
+
+    @property
+    def ip(self):
+        """Get the IP of the server
+
+        Returns:
+            A string of the current server IP address.
+        """
+        return self.__ip
+
+    @property
+    def port(self):
+        """Get the port of the server
+
+        Returns:
+            An integer with the current server port
+        """
+        return self.__port
+
+    @property
+    def connected(self):
+        """Get the current connection status of the server.
+
+        Returns:
+            True if connected, false otherwise.
+        """
+        return self.__connected
 
     def connect(self):
         """ Establish a connection with the server.
 
         Returns:
-            True if the connection was established.
+            True if the server successfully connected, False otherwise.
         """
-        self.connected = self.sock.connect((self.ip, self.port))
+        try:
+            self.__sock.connect((self.__ip, self.__port))
+        except Exception as e:
+            print("There was an error writing to the socket:", e)
+            return False
+        self.__connected = True
         return self.connected
 
     def disconnect(self):
         """Disconnect from the server."""
-        self.sock.close()
+        self.__sock.close()
+        self.__connected = False
 
     def read(self, length):
         """Read data from the server.
@@ -39,17 +76,18 @@ class Client:
             length(int): The length, in bytes, of data to read
 
         Returns:
-            The binary data that was read from the server.
+            The binary data that was read from the server of size `length`
+            or smaller.
         """
         data = b''
         count = 0
         while count < length:
-            b = self.sock.recv(length - count)
-            if not b or len(b) == 0:
+            bytes = self.__sock.recv(length - count)
+            if not bytes or len(b) == 0:
                 break
 
-            data = data + b
-            count = count + len(b)
+            data = data + bytes
+            count = count + len(bytes)
 
         return data
 
@@ -60,4 +98,4 @@ class Client:
             message(bytearray): The binary message to write to the server
 
         """
-        self.sock.sendall(message)
+        self.__sock.sendall(message)
