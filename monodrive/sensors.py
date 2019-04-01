@@ -29,7 +29,7 @@ class Sensor(threading.Thread):
         self.__client = Client(server_ip, config['listen_port'])
         # The event that is fired off when the sensor data arrives
         self.__source = \
-            Observable.create(self._init_rx).publish().auto_connect(1)
+            Observable.create(self._init_rx).publish().auto_connect(0)
         # Flag to determine if the sensor should be connected
         self.__running = False
 
@@ -61,14 +61,13 @@ class Sensor(threading.Thread):
     def run(self):
         """Overwrite the base Thread run to start the main read loop for this
         sensor"""
-        while not self.__running:
+        while self.__running:
             try:
-                print("Reading sensor:", self.__id)
                 # Read the header type of the message
                 header = self.__client.read(12)
                 length, time, gametime = struct.unpack("!IIf", header)
                 data = self.__client.read(length - 12)
-                # Plublish the message to everyone else
+                # Publish the message to everyone else
                 self.observer.on_next((time, gametime, data))
             except Exception as e:
                 print("{0}: exception {1}".format(self.__id, str(e)))
@@ -76,4 +75,4 @@ class Sensor(threading.Thread):
                 break
 
         # Log that this sensor has stopped running
-        print("{0}: end".format(self.__id))
+        print("{0}: disconnected".format(self.__id))

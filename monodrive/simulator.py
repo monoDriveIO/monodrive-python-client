@@ -66,7 +66,6 @@ class Simulator:
             """
         self.__config['simulation_mode'] = mode
 
-
     def set_weather(self, weather):
         """Set the current weather profile for the simulation.
 

@@ -83,7 +83,7 @@ class Client:
         count = 0
         while count < length:
             bytes = self.__sock.recv(length - count)
-            if not bytes or len(b) == 0:
+            if not bytes or len(bytes) == 0:
                 break
 
             data = data + bytes

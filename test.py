@@ -16,6 +16,7 @@ if __name__ == "__main__":
     running = True
 
     def handler(signum, frame):
+        """"Signal handler to turn off the simulator with ctl+c"""
         global running
         running = False
     signal.signal(signal.SIGINT, handler)
@@ -38,9 +39,15 @@ if __name__ == "__main__":
     # Start the simulation
     simulator.start()
     # Give the server a little time to load up
+    print("Sleeping for 10 seconds to allow the simulator to start.")
     time.sleep(10)
     # Continue to step through the replay simulation
+    print("Stepping the simulator.")
     for i in range(0, len(trajectory)):
         simulator.step()
         time.sleep(.25)
+        print("Step.")
+        if running is False:
+            break
+    print("Stopping the simulator.")
     simulator.stop()
