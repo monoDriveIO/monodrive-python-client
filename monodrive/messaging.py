@@ -149,5 +149,5 @@ class ApiMessage:
             client(Client) - The client that is connected to the simulator.
         """
         data = str(self)
-        client.write(struct.pack("!II", HEADER_CONTROL, len(str(self))+8))
+        client.write(struct.pack("!II", HEADER_CONTROL, len(data)+8))
         client.write(data.encode('utf8'))

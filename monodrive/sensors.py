@@ -63,6 +63,7 @@ class Sensor(threading.Thread):
         sensor"""
         while not self.__running:
             try:
+                print("Reading sensor:", self.__id)
                 # Read the header type of the message
                 header = self.__client.read(12)
                 length, time, gametime = struct.unpack("!IIf", header)

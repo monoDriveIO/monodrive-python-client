@@ -4,12 +4,21 @@ An example of creating a simulator and processing the sensor outputs.
 import json
 import os
 import time
+import signal
 
 from monodrive.simulator import Simulator
 
 
 if __name__ == "__main__":
     root = os.path.dirname(__file__)
+
+    # Flag to allow user to stop the simulation from SIGINT
+    running = True
+
+    def handler(signum, frame):
+        global running
+        running = False
+    signal.signal(signal.SIGINT, handler)
 
     # Load the trajectory and simulator configurations
     trajectory = json.load(
@@ -34,3 +43,4 @@ if __name__ == "__main__":
     for i in range(0, len(trajectory)):
         simulator.step()
         time.sleep(.25)
+    simulator.stop()

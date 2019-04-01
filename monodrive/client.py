@@ -59,7 +59,7 @@ class Client:
         try:
             self.__sock.connect((self.__ip, self.__port))
         except Exception as e:
-            print("There was an error writing to the socket:", e)
+            print("There was an error connecting to the socket:", e)
             return False
         self.__connected = True
         return self.connected

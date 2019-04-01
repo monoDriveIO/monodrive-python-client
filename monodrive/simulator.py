@@ -97,11 +97,11 @@ class Simulator:
     def configure(self):
         """Configure the server with the current simulator settings"""
         self.__send_command(mmsg.ApiMessage(
-            mmsg.ID_SIMULATOR_CONFIG, self.config))
+            mmsg.ID_SIMULATOR_CONFIG, self.__config))
         self.__send_command(mmsg.ApiMessage(
-            mmsg.ID_REPLAY_CONFIGURE_SENSORS_COMMAND, self.sensor_config))
+            mmsg.ID_REPLAY_CONFIGURE_SENSORS_COMMAND, self.__sensor_config))
         self.__send_command(mmsg.ApiMessage(
-            mmsg.ID_REPLAY_CONFIGURE_TRAJECTORY_COMMAND, self.trajectory))
+            mmsg.ID_REPLAY_CONFIGURE_TRAJECTORY_COMMAND, self.__trajectory))
 
     def start(self):
         """Start the simulation and all attached sensors."""
