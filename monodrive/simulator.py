@@ -126,8 +126,8 @@ class Simulator:
 
     def stop(self):
         """Stop the simulation and all attached sensors."""
-        for sensor in self.__sensors:
-            sensor.stop()
+        for sensor_id in self.__sensors.keys():
+            self.__sensors[sensor_id].stop()
         self.__running = False
 
     def step(self, steps=1):
@@ -146,6 +146,14 @@ class Simulator:
             mmsg.ApiMessage(mmsg.ID_REPLAY_STEP_SIMULATION_COMMAND,
                             {
                                 u'amount': steps
+                            }))
+
+    def send_control(self, forward, right):
+        self.__send_command(
+            mmsg.ApiMessage(mmsg.ID_EGO_CONTROL,
+                            {
+                                u'forward_amount': forward,
+                                u'right_amount': right
                             }))
 
     def __send_command(self, command):
