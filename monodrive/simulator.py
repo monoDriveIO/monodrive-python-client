@@ -34,7 +34,7 @@ class Simulator:
         """
         self.__config = config
         self.__sensor_config = sensors
-        self.__sensors = []
+        self.__sensors = dict()
         self.__trajectory = trajectory
         self.__client = Client(config['server_ip'], config['server_port'])
         self.__client.connect()
@@ -56,7 +56,18 @@ class Simulator:
         Returns:
             The list of all sensor ids.
         """
-        return [sensor.id for sensor in self.__sensors]
+        return self.__sensors.keys()
+
+    def subscribe_to_sensor(self, uid, callback):
+        """Subscribe to a single sensor's data ouput in the simulator.
+
+        Args:
+            uid(str): The uid of the sensor to subscribe to.
+            callback(func): The function that will be called when the sensor's
+            data arrives. Should be of the format:
+                def my_callback(data):
+        """
+        self.__sensors[uid].subscribe(callback)
 
     def set_mode(self, mode):
         """Change the current simulation mode.
@@ -111,7 +122,7 @@ class Simulator:
             if sc['sensor_process']:
                 sensor = Sensor(self.__config['server_ip'], sc)
                 sensor.start()
-                self.__sensors.append(sensor)
+                self.__sensors[sensor.id] = sensor
 
     def stop(self):
         """Stop the simulation and all attached sensors."""

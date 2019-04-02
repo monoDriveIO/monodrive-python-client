@@ -46,6 +46,19 @@ class Sensor(threading.Thread):
         """Initialize the reactive publisher"""
         self.observer = observer
 
+    def subscribe(self, callback):
+        """Subscribe to the output of this sensor.
+
+        Args:
+            callback(func): The function that will be called when the sensor's
+            data arrives. Should be of the format:
+                def my_callback(data):
+            The data will be a tuple of size 3. The first element is the time
+            the data arrived, the second element is the game time the data
+            occurred, and the third element is the data message.
+        """
+        self.__source.subscribe(lambda data: callback(data))
+
     def start(self):
         """Start the client connection for this sensor"""
         self.__running = True
