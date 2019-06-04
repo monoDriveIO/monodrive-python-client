@@ -101,16 +101,15 @@ class Simulator:
             The response message from the simulator for this configuration.
         """
         message = mmsg.ApiMessage(mmsg.ID_WEATHER_CONFIG_COMMAND, config)
-        message.write(self.__client)
-        return message.read(self.__client)
+        return self.send_command(message)
 
     def configure(self):
         """Configure the server with the current simulator settings"""
-        self.__send_command(mmsg.ApiMessage(
+        self.send_command(mmsg.ApiMessage(
             mmsg.ID_SIMULATOR_CONFIG, self.__config))
-        self.__send_command(mmsg.ApiMessage(
+        self.send_command(mmsg.ApiMessage(
             mmsg.ID_REPLAY_CONFIGURE_SENSORS_COMMAND, self.__sensor_config))
-        self.__send_command(mmsg.ApiMessage(
+        self.send_command(mmsg.ApiMessage(
             mmsg.ID_REPLAY_CONFIGURE_TRAJECTORY_COMMAND, self.__trajectory))
 
     def start(self):
@@ -142,24 +141,25 @@ class Simulator:
         if not self.__running:
             raise Exception("Simulator is not running")
 
-        self.__send_command(
+        self.send_command(
             mmsg.ApiMessage(mmsg.ID_REPLAY_STEP_SIMULATION_COMMAND,
                             {
                                 u'amount': steps
                             }))
 
     def send_control(self, forward, right):
-        self.__send_command(
+        self.send_command(
             mmsg.ApiMessage(mmsg.ID_EGO_CONTROL,
                             {
                                 u'forward_amount': forward,
                                 u'right_amount': right
                             }))
 
-    def __send_command(self, command):
+    def send_command(self, command):
         """Send the command to the connected simulator client.
 
         Args:
             command(ApiMessage): The command to send to the server.
         """
         command.write(self.__client)
+        return command.read(self.__client)
