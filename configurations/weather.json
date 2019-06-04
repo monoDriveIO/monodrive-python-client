@@ -1,5 +1,5 @@
 {
-  "set_profile": "Default",
+  "set_profile": "CloudySunset",
   "profiles": [
     {
       "id": "Default",
@@ -380,6 +380,9 @@
       "PrecipitationType": "Rain",
       "PrecipitationAmount": 0,
       "PrecipitationAccumulation": 0,
+      "bWind": false,
+      "WindIntensity": 20,
+      "WindAngle": 0,
       "bOverrideCameraPostProcessParameters": true,
       "CameraPostProcessParameters": {
         "AutoExposureMethod": "Histogram",
