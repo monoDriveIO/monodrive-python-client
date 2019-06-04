@@ -54,6 +54,8 @@ HEADER_CONTROL = 0x6d6f6e6f
 HEADER_RESPONSE = 0x6f6e6f6d
 """The message prefix header for response messages from the server"""
 
+ID_GET_MAP_COMMAND = u"GetMap"
+
 
 class ApiMessage:
     """Class that defines message format for read/write to simulator"""
