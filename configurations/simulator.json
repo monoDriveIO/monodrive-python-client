@@ -3,7 +3,22 @@
   "server_ip": "127.0.0.1",
   "server_port": 8999,
   "client_ip": "127.0.0.1",
-  "simulation_mode": 1,
+  "simulation_mode": 2,
+  "ego_config": {
+    "camera": {
+      "fov": 60,
+      "location": {
+        "x": -1000.0,
+        "y": 0.0,
+        "z": 500.0
+      },
+      "rotation": {
+        "pitch": 0.0,
+         "yaw": 0.0,
+         "roll": 0.0
+      }
+    }
+  },
   "phys_materials": {
     "Aluminum": {
       "specular_exponent": 15.0,
@@ -84,7 +99,7 @@
     }
   },
   "traffic_configuration": {
-    "max_vehicles": 40,
+    "max_vehicles": 10,
     "spawn_rate": 0.25
   },
   "client_settings": {
@@ -97,11 +112,11 @@
     },
     "logger": {
       "sensor": "debug",
-      "network": "debug",
-      "control": "debug",
-      "scenario": "debug",
-      "simulator": "debug",
-      "vehicle": "debug"
+      "network": "info",
+      "control": "info",
+      "scenario": "info",
+      "simulator": "info",
+      "vehicle": "info"
     }
   }
 }

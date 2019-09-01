@@ -108,20 +108,24 @@ class Simulator:
         self.send_command(mmsg.ApiMessage(
             mmsg.ID_SIMULATOR_CONFIG, self.__config))
         self.send_command(mmsg.ApiMessage(
-            mmsg.ID_REPLAY_CONFIGURE_SENSORS_COMMAND, self.__sensor_config))
-        self.send_command(mmsg.ApiMessage(
             mmsg.ID_REPLAY_CONFIGURE_TRAJECTORY_COMMAND, self.__trajectory))
+        #import time
+        #time.sleep(1)
+        self.send_command(mmsg.ApiMessage(
+            mmsg.ID_REPLAY_CONFIGURE_SENSORS_COMMAND, self.__sensor_config))
+
 
     def start(self):
-        """Start the simulation and all attached sensors."""
+        """Start the simulation """
         self.__running = True
         self.configure()
 
+    def start_sensor_listening(self):
+        """Start all sensors"""
         for sc in self.__sensor_config:
-            if sc['sensor_process']:
-                sensor = Sensor(self.__config['server_ip'], sc)
-                sensor.start()
-                self.__sensors[sensor.id] = sensor
+            sensor = Sensor(self.__config['server_ip'], sc)
+            sensor.start()
+            self.__sensors[sensor.id] = sensor
 
     def stop(self):
         """Stop the simulation and all attached sensors."""
@@ -141,18 +145,21 @@ class Simulator:
         if not self.__running:
             raise Exception("Simulator is not running")
 
-        self.send_command(
+        response = self.send_command(
             mmsg.ApiMessage(mmsg.ID_REPLAY_STEP_SIMULATION_COMMAND,
                             {
                                 u'amount': steps
                             }))
+        return response
 
     def send_control(self, forward, right):
         self.send_command(
             mmsg.ApiMessage(mmsg.ID_EGO_CONTROL,
                             {
                                 u'forward_amount': forward,
-                                u'right_amount': right
+                                u'right_amount': right,
+                                u'brake_amount': 0,
+                                u'drive_mode': 1
                             }))
 
     def send_command(self, command):

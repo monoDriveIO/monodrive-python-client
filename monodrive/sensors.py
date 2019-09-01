@@ -24,7 +24,7 @@ class Sensor(threading.Thread):
         # The current configuration for this sensor
         self.__config = config
         # The unique ID of this sensor
-        self.__id = config['type']+':'+config['id']
+        self.__id = config['type'] + "_" + str(config['listen_port'])
         # The client that is connected to the simulator
         self.__client = Client(server_ip, config['listen_port'])
         # The event that is fired off when the sensor data arrives
@@ -61,6 +61,7 @@ class Sensor(threading.Thread):
 
     def start(self):
         """Start the client connection for this sensor"""
+        print("Starting {0} on {1}".format(self.id, self.name))
         self.__running = True
         self.__client.connect()
         super().start()
@@ -74,6 +75,7 @@ class Sensor(threading.Thread):
     def run(self):
         """Overwrite the base Thread run to start the main read loop for this
         sensor"""
+        print("running")
         while self.__running:
             try:
                 # Read the header type of the message
@@ -82,6 +84,7 @@ class Sensor(threading.Thread):
                 data = self.__client.read(length - 12)
                 # Publish the message to everyone else
                 self.observer.on_next((time, gametime, data))
+                print("{0} received {1} bytes [time,gametime] [{2},{3}]".format(self.id, length, time, gametime))
             except Exception as e:
                 print("{0}: exception {1}".format(self.__id, str(e)))
                 traceback.print_exc()
