@@ -39,7 +39,7 @@ if __name__ == "__main__":
     simulator.start()
 
     # Load the sensor configuration and software under test
-    sensor_config = json.load(open(os.path.join(root, 'uut', 'sensor_config.json')))
+    sensor_config = json.load(open(os.path.join(root, 'uut', 'gps_config.json')))
     vehicle = Vehicle(sim_config, sensor_config)
     vehicle.start()
 
@@ -47,10 +47,10 @@ if __name__ == "__main__":
     for i in range(0, len(trajectory)-1):
         start_time = time.time()
         response = vehicle.step()
-        print("Step = {0}".format(i))
+        print("Step = {0} completed in {1:.2f}ms".format(i, ((time.time()-start_time)*1000), 2))
+        time.sleep(1)
         if running is False:
             break
-        print("Frame Time = {0}".format(time.time() - start_time))
 
     print("Stopping the simulator.")
     simulator.stop()

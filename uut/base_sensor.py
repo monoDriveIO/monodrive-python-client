@@ -1,13 +1,18 @@
-"""sensors.py
+"""base_sensor.py
 Base sensor class for processing data from the simulator
 """
 from rx import Observable
 import struct
 import threading
 import traceback
+import sys
 
 from uut.client import UUT_Client
 
+from uut.sensors.gps import GPS
+from uut.sensors.imu import IMU
+from uut.sensors.rpm import RPM
+from uut.sensors.radar import Radar
 
 class Sensor(threading.Thread):
     """Base sensor class for processing sensor data from the simulator."""
@@ -25,6 +30,8 @@ class Sensor(threading.Thread):
         self.__config = config
         # The unique ID of this sensor
         self.__id = config['type'] + "_" + str(config['listen_port'])
+        # The class of this sensor -- reflection
+        self.sensor_class = getattr(sys.modules[__name__], config['type'])
         # The client that is connected to the simulator
         self.__client = UUT_Client(server_ip, config['listen_port'])
         # The event that is fired off when the sensor data arrives
@@ -32,6 +39,9 @@ class Sensor(threading.Thread):
             Observable.create(self._init_rx).publish().auto_connect(0)
         # Flag to determine if the sensor should be connected
         self.__running = False
+
+    def str_to_class(self, classname):
+        return getattr(sys.modules[__name__], classname)
 
     @property
     def id(self):
@@ -80,11 +90,12 @@ class Sensor(threading.Thread):
             try:
                 # Read the header type of the message
                 header = self.__client.read(12)
-                length, time, gametime = struct.unpack("!IIf", header)
+                length, time, game_time = struct.unpack("!IIf", header)
                 data = self.__client.read(length - 12)
                 # Publish the message to everyone else
-                self.observer.on_next((time, gametime, data))
-                print("{0} received {1} bytes [time,gametime] [{2},{3}]".format(self.id, length, time, gametime))
+                data_dict = self.sensor_class.parse_frame(data, time, game_time)
+                self.observer.on_next((time, game_time, data_dict))
+                print(self.id + str(data_dict))
             except Exception as e:
                 print("{0}: exception {1}".format(self.__id, str(e)))
                 traceback.print_exc()

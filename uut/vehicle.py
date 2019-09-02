@@ -3,7 +3,7 @@ A simple simulator that will read all sensor values from the connected sensors.
 """
 from uut.client import UUT_Client
 import monodrive.messaging as mmsg
-from uut.sensors import Sensor
+from uut.base_sensor import Sensor
 from enum import Enum
 import signal
 
