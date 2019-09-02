@@ -4,7 +4,7 @@ Client to connect to the monodrive simulator.
 import socket
 
 
-class Client:
+class Configurator:
     """Client to connect to the monodrive simulator"""
 
     def __init__(self, ip, port):

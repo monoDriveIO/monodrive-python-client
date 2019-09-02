@@ -6,7 +6,7 @@ import struct
 import threading
 import traceback
 
-from monodrive.client import Client
+from uut.client import UUT_Client
 
 
 class Sensor(threading.Thread):
@@ -26,7 +26,7 @@ class Sensor(threading.Thread):
         # The unique ID of this sensor
         self.__id = config['type'] + "_" + str(config['listen_port'])
         # The client that is connected to the simulator
-        self.__client = Client(server_ip, config['listen_port'])
+        self.__client = UUT_Client(server_ip, config['listen_port'])
         # The event that is fired off when the sensor data arrives
         self.__source = \
             Observable.create(self._init_rx).publish().auto_connect(0)

@@ -7,6 +7,7 @@ import time
 import signal
 
 from monodrive.simulator import Simulator
+from uut.vehicle import Vehicle
 
 
 if __name__ == "__main__":
@@ -24,10 +25,9 @@ if __name__ == "__main__":
     # Load the trajectory and simulator configurations
     trajectory = json.load(open(os.path.join(root, 'configurations', 'trajectories', 'HighWayExitReplay.json')))
     sim_config = json.load(open(os.path.join(root, 'configurations', 'simulator.json')))
-    sensor_config = json.load(open(os.path.join(root, 'configurations', 'sensor_config_new.json')))
 
     # configure this simulator client
-    simulator = Simulator(sim_config, sensor_config, trajectory)
+    simulator = Simulator(sim_config, trajectory)
 
     # Load and configure the weather conditions for the simulator
     weather = json.load(
@@ -38,20 +38,22 @@ if __name__ == "__main__":
     # Start the simulation
     simulator.start()
 
-    simulator.start_sensor_listening()
+    # Load the sensor configuration and software under test
+    sensor_config = json.load(open(os.path.join(root, 'uut', 'sensor_config.json')))
+    vehicle = Vehicle(sim_config, sensor_config)
+    vehicle.start()
 
-    # Give the server a little time to load up
-    #print("Sleeping for 1 second to allow the simulator to start.")
-    #time.sleep(.1)
-    # Continue to step through the replay simulation
-    print("Stepping the simulator.")
-
-    for i in range(0, len(trajectory)):
+    # Start stepping the simulator
+    for i in range(0, len(trajectory)-1):
         start_time = time.time()
-        response = simulator.step()
+        response = vehicle.step()
         print("Step = {0}".format(i))
         if running is False:
             break
         print("Frame Time = {0}".format(time.time() - start_time))
+
     print("Stopping the simulator.")
     simulator.stop()
+    print("Stopping the uut.")
+    vehicle.stop()
+
