@@ -8,13 +8,8 @@ import struct
 
 class RPM(object):
 
-    @classmethod
-    def parse_frame(cls, frame, time_stamp, game_time):
-        wheel_number, wheel_speed = list(struct.unpack('=if', frame))
-        data_dict = {
-            'time_stamp': time_stamp,
-            'game_time': game_time,
-            'wheel_number': wheel_number,
-            'wheel_rpm': wheel_speed
-        }
-        return data_dict
+    def __init__(self, sensor_id, package_length, frame, time_stamp, game_time):
+        self.wheel_number, self.wheel_speed = list(struct.unpack('=if', frame))
+        self.sensor_id = sensor_id
+        self.time_stamp = time_stamp
+        self.game_time = game_time

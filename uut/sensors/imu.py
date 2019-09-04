@@ -7,19 +7,18 @@ import struct
 
 
 class IMU(object):
-
-    @classmethod
-    def parse_frame(cls, frame, time_stamp, game_time):
+    def __init__(self, sensor_id, package_length, frame, time_stamp, game_time):
         fmt = '=ffffffih'
-        accel_x, accel_y, accel_z, ang_rate_x, ang_rate_y, ang_rate_z, timer, check_sum = list(
-            struct.unpack(fmt, frame[1:31]))
-        acceleration_vector = [accel_x, accel_y, accel_z]
-        angular_velocity_vector = [ang_rate_x, ang_rate_y, ang_rate_z]
-        data_dict = {
-            'time_stamp': time_stamp,
-            'game_time': game_time,
-            'acceleration_vector': acceleration_vector,
-            'angular_velocity_vector': angular_velocity_vector,
-            'timer': timer
-        }
-        return data_dict
+        data = list(struct.unpack(fmt, frame[1:31]))
+        accel_x = data[0]
+        accel_y = data[1]
+        accel_z = data[2]
+        ang_rate_x = data[3]
+        ang_rate_y = data[4]
+        ang_rate_z = data[5]
+        self.timer = data[6]
+        check_sum = data[7]
+
+        self.acceleration_vector = [accel_x, accel_y, accel_z]
+        self.angular_velocity_vector = [ang_rate_x, ang_rate_y, ang_rate_z]
+        self.sensor_id = sensor_id
