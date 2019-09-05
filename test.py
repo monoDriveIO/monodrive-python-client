@@ -7,7 +7,7 @@ import time
 import signal
 
 from monodrive.simulator import Simulator
-from uut.vehicle import Vehicle
+from uut.vehicles.example_vehicle import ExampleVehicle
 
 
 if __name__ == "__main__":
@@ -27,6 +27,8 @@ if __name__ == "__main__":
     sim_config = json.load(open(os.path.join(root, 'configurations', 'simulator.json')))
 
     # configure this simulator client
+    # Load the reporting sensor configuration and software under test
+    #reporting_config = json.load(open(os.path.join(root, 'monodrive', 'reporting_config.json')))
     simulator = Simulator(sim_config, trajectory)
 
     # Load and configure the weather conditions for the simulator
@@ -35,20 +37,27 @@ if __name__ == "__main__":
     profile = weather['profiles'][10]
     profile['id'] = 'test'
 
+
     # Start the simulation
     simulator.start()
 
     # Load the sensor configuration and software under test
     sensor_config = json.load(open(os.path.join(root, 'uut', 'gps_config.json')))
-    vehicle = Vehicle(sim_config, sensor_config)
+    vehicle = ExampleVehicle(sim_config, sensor_config)
+
     vehicle.start()
+    vehicle.initialize_perception()
+    vehicle.initialize_reporting()
+    print(vehicle.sensors_ids)
+
+
 
     # Start stepping the simulator
     for i in range(0, len(trajectory)-1):
         start_time = time.time()
         response = vehicle.step()
         print("Step = {0} completed in {1:.2f}ms".format(i, ((time.time()-start_time)*1000), 2))
-        time.sleep(1)
+        #time.sleep(1)
         if running is False:
             break
 

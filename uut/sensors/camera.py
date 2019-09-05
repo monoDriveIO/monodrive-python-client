@@ -20,4 +20,5 @@ class Camera(object):
             else:
                 image = None
                 print("sensor:{0} , received wrong image size")
-            self.image = pickle.dumps(image, protocol=-1)
+            #self.image = pickle.dumps(image, protocol=-1)
+            self.image = image

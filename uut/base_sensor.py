@@ -9,6 +9,7 @@ import sys
 
 from uut.client import UUT_Client
 
+from uut.sensors.collision import Collision
 from uut.sensors.gps import GPS
 from uut.sensors.imu import IMU
 from uut.sensors.rpm import RPM
@@ -41,8 +42,8 @@ class Sensor(threading.Thread):
         # The client that is connected to the simulator
         self.__client = UUT_Client(server_ip, config['listen_port'])
         # The event that is fired off when the sensor data arrives
-        self.__source = \
-            Observable.create(self._init_rx).publish().auto_connect(0)
+        self.__source = Observable.create(self._init_rx).publish().auto_connect(0)
+
         # Flag to determine if the sensor should be connected
         self.__running = False
 
@@ -125,13 +126,15 @@ class Sensor(threading.Thread):
                 self.frame_buffer.append(message)
 
                 if not self.framing:
-                    self.observer.on_next((time, game_time, self.frame_buffer))
+                    #self.observer.on_next((time, game_time, self.frame_buffer))
+                    self.observer.on_next(self.frame_buffer)
                     self.frame_buffer = []
-                    print(self.id + str(message))
+                    #print(self.id + str(message))
                 elif self.expected_frames_per_step == len(self.frame_buffer):
-                    self.observer.on_next((time, game_time, self.frame_buffer))
+                    #self.observer.on_next((time, game_time, self.frame_buffer))
+                    self.observer.on_next(self.frame_buffer)
                     self.frame_buffer = []
-                    print(self.id + str(message))
+                    #print(self.id + str(message))
 
 
             except Exception as e:

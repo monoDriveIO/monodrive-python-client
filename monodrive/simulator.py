@@ -3,7 +3,6 @@ A simple simulator that will read all sensor values from the connected sensors.
 """
 from monodrive.configurator import Configurator
 import monodrive.messaging as mmsg
-
 from enum import Enum
 import signal
 
@@ -27,7 +26,7 @@ class Simulator:
 
         Args:
             config(dict): The configuration JSON for this simulator instance
-            trajectory(dict): The configuratio JSON for the trajectory to replay
+            trajectory(dict): The configuration JSON for the trajectory to replay
             in Modes.MODE_REPLAY
         """
         self.__config = config

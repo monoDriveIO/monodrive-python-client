@@ -8,8 +8,7 @@ from enum import Enum
 import signal
 
 
-
-class Vehicle:
+class Base_Vehicle(object):
     """Simulator driver that will connect and read all sensors on the
     ego vehicle."""
 
