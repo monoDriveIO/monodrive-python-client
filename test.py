@@ -42,7 +42,7 @@ if __name__ == "__main__":
                      "RPM", "State"]
 
     count = 0
-    for i in range(2, len(avail_sensors)+1):
+    for i in range(1, len(avail_sensors)+1):
         for combo in combinations(avail_sensors, i):
             # Load the trajectory and simulator configurations
             trajectory = json.load(open(os.path.join(root, 'configurations',
@@ -95,5 +95,5 @@ if __name__ == "__main__":
             print("Stopping the uut.")
             vehicle.stop()
 
-            time.sleep(1)
-
+            if running is False:
+                break
