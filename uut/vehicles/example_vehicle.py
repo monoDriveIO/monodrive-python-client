@@ -9,6 +9,7 @@ class ExampleVehicle(Base_Vehicle):
         super().__init__(config, sensors)
         self.perception = None
         self.reporting = Reporting(self.sensors_ids)
+        self.summary = None
 
     def initialize_perception(self):
         self.perception = Perception(self.sensors_ids)

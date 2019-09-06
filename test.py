@@ -8,7 +8,7 @@ import signal
 
 from monodrive.simulator import Simulator
 from uut.vehicles.example_vehicle import ExampleVehicle
-
+from monodrive import utils
 
 if __name__ == "__main__":
     root = os.path.dirname(__file__)
@@ -23,7 +23,8 @@ if __name__ == "__main__":
     signal.signal(signal.SIGINT, handler)
 
     # Load the trajectory and simulator configurations
-    trajectory = json.load(open(os.path.join(root, 'configurations', 'trajectories', 'AEB_10_0_CCRS_Collision.json')))
+    trajectory_file = 'AEB_10_0_CCRS_Collision.json'
+    trajectory = json.load(open(os.path.join(root, 'configurations', 'trajectories', trajectory_file)))
     sim_config = json.load(open(os.path.join(root, 'configurations', 'simulator.json')))
 
     # configure this simulator client
@@ -62,6 +63,8 @@ if __name__ == "__main__":
             break
 
     vehicle.generate_report_summary()
+    vehicle.summary["Scenario"] = trajectory_file
+    utils.send_to_summary_to_mongodb(vehicle.summary)
     print("Stopping the simulator.")
     simulator.stop()
     print("Stopping the uut.")
