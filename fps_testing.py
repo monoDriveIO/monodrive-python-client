@@ -25,10 +25,10 @@ signal.signal(signal.SIGINT, handler)
 
 
 def build_sensor_config(sensors: list, base_dir: str = "./sensors/") -> dict:
-    sensor_json = "["
     sensor_counts = defaultdict(int)
     sensor_json = []
     for sensor in sensors:
+        print(sensor)
         with open(os.path.join(base_dir, sensor + ".json"), "r") as f:
             data = json.loads(f.read())
             data['listen_port'] += sensor_counts[sensor]
@@ -77,6 +77,21 @@ def run_trial(sim_config: dict, sensor_config: dict, trajectory: dict,
     return stats
 
 
+def run_single_trial(output_prefix: str, sim_config: dict, trajectory: dict,
+                         weather: dict, sensors: list,
+                         trajectory_name: str = "") -> None:
+    output_filename = output_prefix + ".json"
+    if os.path.exists(output_filename):
+        return
+    sensor_config = build_sensor_config(
+        sensors, base_dir=os.path.join(root, "sensors"))
+    stats = run_trial(sim_config, sensor_config, trajectory, weather)
+    stats["trajectory"] = trajectory_name
+    sensor_config.append(stats)
+    write_results(output_filename, sensor_config)
+    time.sleep(1)
+
+
 def run_all_combos(output_prefix: str, sim_config: dict, trajectory: dict,
                    weather: dict) -> None:
     count = 0
@@ -100,14 +115,17 @@ def run_multiple_sensors(output_prefix: str, sim_config: dict, trajectory: dict,
                          trajectory_name: str = "") -> None:
     count = 0
     for i in range(1, sensor_count+1):
+        output_filename = output_prefix + str(count).zfill(3) + ".json"
+        count += 1
+        if os.path.exists(output_filename):
+            print(output_filename, "already exists")
+            continue
         sensor_config = build_sensor_config(
             i*[sensor], base_dir=os.path.join(root, "sensors"))
         stats = run_trial(sim_config, sensor_config, trajectory, weather)
         stats["trajectory"] = trajectory_name
         sensor_config.append(stats)
-        write_results(output_prefix + str(count).zfill(3) + ".json",
-                      sensor_config)
-        count += 1
+        write_results(output_filename, sensor_config)
         time.sleep(1)
 
 
@@ -138,7 +156,24 @@ if __name__ == "__main__":
     profile = weather['profiles'][10]
     profile['id'] = 'test'
 
-    sensors = ["Camera256", "Camera512", "Camera768", "Camera1024"]
+    # sensors = ["Camera256", "Collision", "GPS", "IMU", "Lidar16", "Radar",
+    #            "RPM", "State"]
+    # sensors = ["Camera512", "Collision", "GPS", "IMU", "Lidar16", "Radar",
+    #            "RPM", "State"]
+    #sensors = ["Camera768", "Collision", "GPS", "IMU", "Lidar16", "Radar",
+               #"RPM", "State"]
+    # sensors = ["Camera1024", "Collision", "GPS", "IMU", "Lidar16", "Radar",
+    #            "RPM", "State"]
+    #sensors = ["Collision", "GPS", "IMU", "Lidar16", "Radar", "RPM", "State"]
+    # for traj in fps_trajectories:
+    #     output_file = "./results/" + \
+    #                   traj[traj.rfind("/") + 1:traj.rfind(".")] + \
+    #                   "_full_suite_no_render_Lidar16"
+    #     trajectory = json.load(open(traj, "r"))
+    #     run_single_trial(output_file, sim_config, trajectory, weather,
+    #                      sensors,  trajectory_name=traj)
+
+    sensors = ["Radar"]
     trials = 10
     for sensor in sensors:
         for traj in fps_trajectories:
@@ -147,8 +182,8 @@ if __name__ == "__main__":
             print("\tTrials:", trials)
             # Load the trajectory and simulator configurations
             trajectory = json.load(open(traj, "r"))
-            output_file = "./results/" + \
+            output_file = "./results/radar_results/" + \
                           traj[traj.rfind("/")+1:traj.rfind(".")] + \
-                          "_multi_" + sensor + "_"
+                          "_no_render_multi_" + sensor + "_"
             run_multiple_sensors(output_file, sim_config, trajectory, weather,
                                  sensor, trials, trajectory_name=traj)
