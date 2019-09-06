@@ -1,7 +1,7 @@
 import pymongo
 
 
-def send_to_summary_to_mongodb(summary):
+def send_summary_to_mongodb(summary):
     # init client connection
     host = '192.168.1.118'
     port = 27017
@@ -14,4 +14,3 @@ def send_to_summary_to_mongodb(summary):
     }
     res = collection.insert_one(doc)
     doc_id = res.inserted_id
-    print('stored doc with id: {}'.format(doc_id))

@@ -22,7 +22,6 @@ class Reporting(object):
             for target in frame["targets"]:
                 if target["collision"]:
                     collisions.append(target["collision"])
-                    print(target["distance"])
                     distances.append(target["distance"])
                     sample_counts.append(sample_count)
                     relative_velocities.append(target["relative_velocity"])
@@ -33,6 +32,5 @@ class Reporting(object):
                    "Target names: ": target_names,
                    "Distance to targets: ": distances,
                    "Relative velocity to targets: ": relative_velocities}
-
 
         return summary
