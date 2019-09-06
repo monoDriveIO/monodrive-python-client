@@ -1,1 +1,12 @@
-{"type": "State", "listen_port": 8700, "packet_size": 1472, "debug_drawing": true, "desired_tags": ["vehicle"], "undesired_tags": ["static"]}
+{
+    "type": "State",
+    "listen_port": 8700,
+    "packet_size": 1472,
+    "debug_drawing": true,
+    "desired_tags": [
+        "vehicle"
+    ],
+    "undesired_tags": [
+        "static"
+    ]
+}

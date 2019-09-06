@@ -1,1 +1,12 @@
-{"type": "Collision", "listen_port": 8800, "packet_size": 1472, "debug_drawing": true, "desired_tags": ["vt"], "undesired_tags": ["static"]}
+{
+    "type": "Collision",
+    "listen_port": 8800,
+    "packet_size": 1472,
+    "debug_drawing": true,
+    "desired_tags": [
+        "vt"
+    ],
+    "undesired_tags": [
+        "static"
+    ]
+}

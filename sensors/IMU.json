@@ -1,1 +1,16 @@
-{"type": "IMU", "packet_size": 1472, "listen_port": 8500, "synchronized_display": true, "location": {"x": -75.0, "y": -25.0, "z": 245.0}, "rotation": {"pitch": 0.0, "yaw": 0.0, "roll": 0.0}}
+{
+    "type": "IMU",
+    "packet_size": 1472,
+    "listen_port": 8500,
+    "synchronized_display": true,
+    "location": {
+        "x": -75.0,
+        "y": -25.0,
+        "z": 245.0
+    },
+    "rotation": {
+        "pitch": 0.0,
+        "yaw": 0.0,
+        "roll": 0.0
+    }
+}

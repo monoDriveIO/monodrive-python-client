@@ -1,16 +1,21 @@
 {
-    "type": "GPS",
+    "type": "Lidar",
     "packet_size": 1472,
-    "listen_port": 8400,
+    "listen_port": 8200,
     "synchronized_display": true,
     "location": {
         "x": -75.0,
         "y": -25.0,
-        "z": 245.0
+        "z": 350.0
     },
     "rotation": {
         "pitch": 0.0,
         "yaw": 0.0,
         "roll": 0.0
-    }
+    },
+    "max_distance": 8000.0,
+    "horizontal_resolution": 0.4,
+    "rpms": 300.0,
+    "n_lasers": 16,
+    "reset_angle": 0.0
 }

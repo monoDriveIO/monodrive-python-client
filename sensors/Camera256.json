@@ -1,0 +1,28 @@
+{
+    "type": "Camera",
+    "packet_size": 23552,
+    "listen_port": 8000,
+    "location": {
+        "x": -800.0,
+        "y": 0.0,
+        "z": 400.0
+    },
+    "rotation": {
+        "pitch": -15.0,
+        "yaw": 0.0,
+        "roll": 0.0
+    },
+    "stream_dimensions": {
+        "x": 256.0,
+        "y": 256.0
+    },
+    "max_distance": 50000.0,
+    "dynamic_range": 50,
+    "fov": 60.0,
+    "focal_length": 9.0,
+    "fstop": 1.4,
+    "min_shutter": 0.0005,
+    "max_shutter": 0.0014,
+    "sensor_size": 9.07,
+    "channels": "bgra"
+}

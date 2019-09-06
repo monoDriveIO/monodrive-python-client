@@ -35,9 +35,8 @@ def build_sensor_config(sensors: list, base_dir: str = "./sensors/") -> dict:
             sensor_json.append(data)
             sensor_counts[sensor] += 1
 
-    print(sensor_json)
+    return sensor_json
 
-    return json.loads(sensor_json)
 
 def run_trial(sim_config: dict, sensor_config: dict, trajectory: dict,
               weather: dict) -> dict:
@@ -67,6 +66,7 @@ def run_trial(sim_config: dict, sensor_config: dict, trajectory: dict,
 
     total_time = time.time() - start_time
     stats = dict()
+    stats["type"] = "stats"
     stats["total_time"] = total_time
     stats["fps"] = frame_times
     stats["avg_fps"] = 1.0 / np.mean(np.array(frame_times))
@@ -96,29 +96,39 @@ def run_all_combos(output_prefix: str, sim_config: dict, trajectory: dict,
 
 
 def run_multiple_sensors(output_prefix: str, sim_config: dict, trajectory: dict,
-                         weather: dict, sensor: str, sensor_count: int) -> None:
+                         weather: dict, sensor: str, sensor_count: int,
+                         trajectory_name: str = "") -> None:
     count = 0
     for i in range(1, sensor_count+1):
         sensor_config = build_sensor_config(
             i*[sensor], base_dir=os.path.join(root, "sensors"))
         stats = run_trial(sim_config, sensor_config, trajectory, weather)
-
-        with open(output_prefix + str(count).zfill(3) + ".json", "w") as f:
-            f.write(json.dumps(sensor_config))
+        stats["trajectory"] = trajectory_name
+        sensor_config.append(stats)
+        write_results(output_prefix + str(count).zfill(3) + ".json",
+                      sensor_config)
         count += 1
         time.sleep(1)
+
+
+def write_results(filename: str, data: dict) -> None:
+    with open(filename, "w") as f:
+        f.write(json.dumps(data, sort_keys=True, indent=4,
+                           separators=(',', ': ')))
 
 
 if __name__ == "__main__":
     root = os.path.dirname(__file__)
 
+    fps_trajectories = []
+    for file in os.listdir("./fps_trajectories"):
+        print("Loading:", file)
+        fps_trajectories.append(os.path.join(root, "./fps_trajectories/", file))
+
     # Load the sensor configuration and software under test
     avail_sensors = ["Camera", "Collision", "GPS", "IMU", "Lidar", "Radar",
                      "RPM", "State"]
-    # Load the trajectory and simulator configurations
-    trajectory = json.load(open(os.path.join(root, 'configurations',
-                                             'trajectories',
-                                             'HighWayExitReplay.json')))
+
     sim_config = json.load(open(os.path.join(root, 'configurations',
                                              'simulator.json')))
 
@@ -128,5 +138,17 @@ if __name__ == "__main__":
     profile = weather['profiles'][10]
     profile['id'] = 'test'
 
-    run_multiple_sensors("multi_radar", sim_config, trajectory, weather,
-                         "Radar", 10)
+    sensors = ["Camera256", "Camera512", "Camera768", "Camera1024"]
+    trials = 10
+    for sensor in sensors:
+        for traj in fps_trajectories:
+            print("Running trajectory:", traj)
+            print("\tSensor:", sensor)
+            print("\tTrials:", trials)
+            # Load the trajectory and simulator configurations
+            trajectory = json.load(open(traj, "r"))
+            output_file = "./results/" + \
+                          traj[traj.rfind("/")+1:traj.rfind(".")] + \
+                          "_multi_" + sensor + "_"
+            run_multiple_sensors(output_file, sim_config, trajectory, weather,
+                                 sensor, trials, trajectory_name=traj)
