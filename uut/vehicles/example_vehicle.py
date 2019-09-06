@@ -16,3 +16,7 @@ class ExampleVehicle(Base_Vehicle):
 
     def initialize_reporting(self):
         self.subscribe_to_sensor("Collision_8800", self.reporting.on_update)
+
+    def generate_report_summary(self):
+        self.summary = self.reporting.generate_report_summary()
+

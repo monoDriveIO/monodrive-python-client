@@ -23,7 +23,7 @@ if __name__ == "__main__":
     signal.signal(signal.SIGINT, handler)
 
     # Load the trajectory and simulator configurations
-    trajectory = json.load(open(os.path.join(root, 'configurations', 'trajectories', 'HighWayExitReplay.json')))
+    trajectory = json.load(open(os.path.join(root, 'configurations', 'trajectories', 'AEB_10_0_CCRS_Collision.json')))
     sim_config = json.load(open(os.path.join(root, 'configurations', 'simulator.json')))
 
     # configure this simulator client
@@ -56,11 +56,12 @@ if __name__ == "__main__":
     for i in range(0, len(trajectory)-1):
         start_time = time.time()
         response = vehicle.step()
-        print("Step = {0} completed in {1:.2f}ms".format(i, ((time.time()-start_time)*1000), 2))
+        # print("Step = {0} completed in {1:.2f}ms".format(i, ((time.time()-start_time)*1000), 2))
         #time.sleep(1)
         if running is False:
             break
 
+    vehicle.generate_report_summary()
     print("Stopping the simulator.")
     simulator.stop()
     print("Stopping the uut.")
