@@ -19,6 +19,7 @@ from uut.sensors.ultrasonic import Ultrasonic
 from uut.sensors.camera import Camera
 from uut.sensors.lidar import Lidar
 
+
 class Sensor(threading.Thread):
     """Base sensor class for processing sensor data from the simulator."""
 

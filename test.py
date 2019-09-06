@@ -5,9 +5,23 @@ import json
 import os
 import time
 import signal
+import numpy as np
+from itertools import combinations
 
 from monodrive.simulator import Simulator
 from uut.vehicles.example_vehicle import ExampleVehicle
+
+
+def build_sensor_config(sensors: list, base_dir: str = "./sensors/") -> dict:
+    sensor_json = "["
+    for sensor in sensors:
+        with open(os.path.join(base_dir, sensor + ".json"), "r") as f:
+            sensor_json += f.read() + ","
+
+    sensor_json = sensor_json[:-1] + "]"
+    print(sensor_json)
+
+    return json.loads(sensor_json)
 
 
 if __name__ == "__main__":
@@ -23,12 +37,14 @@ if __name__ == "__main__":
     signal.signal(signal.SIGINT, handler)
 
     # Load the trajectory and simulator configurations
-    trajectory = json.load(open(os.path.join(root, 'configurations', 'trajectories', 'HighWayExitReplay.json')))
-    sim_config = json.load(open(os.path.join(root, 'configurations', 'simulator.json')))
+    trajectory = json.load(open(os.path.join(root, 'configurations',
+                                             'trajectories',
+                                             'HighWayExitReplay.json')))
+    sim_config = json.load(open(os.path.join(root, 'configurations',
+                                             'simulator.json')))
 
     # configure this simulator client
     # Load the reporting sensor configuration and software under test
-    #reporting_config = json.load(open(os.path.join(root, 'monodrive', 'reporting_config.json')))
     simulator = Simulator(sim_config, trajectory)
 
     # Load and configure the weather conditions for the simulator
@@ -37,32 +53,44 @@ if __name__ == "__main__":
     profile = weather['profiles'][10]
     profile['id'] = 'test'
 
-
     # Start the simulation
     simulator.start()
 
     # Load the sensor configuration and software under test
-    sensor_config = json.load(open(os.path.join(root, 'uut', 'gps_config.json')))
-    vehicle = ExampleVehicle(sim_config, sensor_config)
+    avail_sensors = ["Camera", "Collision", "GPS", "IMU", "Lidar", "Radar",
+                     "RPM", "State"]
 
-    vehicle.start()
-    vehicle.initialize_perception()
-    vehicle.initialize_reporting()
-    print(vehicle.sensors_ids)
+    count = 0
+    for i in range(1, len(avail_sensors)+1):
+        for combo in combinations(avail_sensors, i):
+            sensor_config = build_sensor_config(
+                combo, base_dir=os.path.join(root, "sensors"))
 
+            vehicle = ExampleVehicle(sim_config, sensor_config)
+            vehicle.start()
+            print(vehicle.sensors_ids)
 
+            # Start stepping the simulator
+            start_time = time.time()
+            frame_times = []
+            for i in range(0, len(trajectory)-1):
+                frame_start = time.time()
+                response = vehicle.step()
+                frame_times.append(time.time() - frame_start)
+                if running is False:
+                    break
+            total_time = time.time() - start_time
+            stats = dict()
+            stats["total_time"] = total_time
+            stats["fps"] = frame_times
+            stats["avg_fps"] = 1.0/np.mean(np.array(frame_times))
+            sensor_config.append(stats)
+            with open("trial" + str(count) + ".json", "w") as f:
+                f.write(json.dumps(sensor_config))
+            count +=1
 
-    # Start stepping the simulator
-    for i in range(0, len(trajectory)-1):
-        start_time = time.time()
-        response = vehicle.step()
-        print("Step = {0} completed in {1:.2f}ms".format(i, ((time.time()-start_time)*1000), 2))
-        #time.sleep(1)
-        if running is False:
-            break
-
-    print("Stopping the simulator.")
-    simulator.stop()
-    print("Stopping the uut.")
-    vehicle.stop()
+            print("Stopping the simulator.")
+            simulator.stop()
+            print("Stopping the uut.")
+            vehicle.stop()
 
