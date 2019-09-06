@@ -36,33 +36,34 @@ if __name__ == "__main__":
         running = False
     signal.signal(signal.SIGINT, handler)
 
-    # Load the trajectory and simulator configurations
-    trajectory = json.load(open(os.path.join(root, 'configurations',
-                                             'trajectories',
-                                             'HighWayExitReplay.json')))
-    sim_config = json.load(open(os.path.join(root, 'configurations',
-                                             'simulator.json')))
-
-    # configure this simulator client
-    # Load the reporting sensor configuration and software under test
-    simulator = Simulator(sim_config, trajectory)
-
-    # Load and configure the weather conditions for the simulator
-    weather = json.load(
-        open(os.path.join(root, 'configurations', 'weather.json')))
-    profile = weather['profiles'][10]
-    profile['id'] = 'test'
-
-    # Start the simulation
-    simulator.start()
 
     # Load the sensor configuration and software under test
     avail_sensors = ["Camera", "Collision", "GPS", "IMU", "Lidar", "Radar",
                      "RPM", "State"]
 
     count = 0
-    for i in range(1, len(avail_sensors)+1):
+    for i in range(2, len(avail_sensors)+1):
         for combo in combinations(avail_sensors, i):
+            # Load the trajectory and simulator configurations
+            trajectory = json.load(open(os.path.join(root, 'configurations',
+                                                     'trajectories',
+                                                     'HighWayExitReplay.json')))
+            sim_config = json.load(open(os.path.join(root, 'configurations',
+                                                     'simulator.json')))
+
+            # configure this simulator client
+            # Load the reporting sensor configuration and software under test
+            simulator = Simulator(sim_config, trajectory)
+
+            # Load and configure the weather conditions for the simulator
+            weather = json.load(
+                open(os.path.join(root, 'configurations', 'weather.json')))
+            profile = weather['profiles'][10]
+            profile['id'] = 'test'
+
+            # Start the simulation
+            simulator.start()
+
             sensor_config = build_sensor_config(
                 combo, base_dir=os.path.join(root, "sensors"))
 
@@ -93,4 +94,6 @@ if __name__ == "__main__":
             simulator.stop()
             print("Stopping the uut.")
             vehicle.stop()
+
+            time.sleep(1)
 
