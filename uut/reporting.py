@@ -22,7 +22,6 @@ class Reporting(object):
         distances = []
         relative_velocities = []
         target_names = []
-        print("LENGHT: ", len(self.all_stats))
         for frame in self.all_stats:
             sample_count = frame["sample_count"]
             for target in frame["targets"]:

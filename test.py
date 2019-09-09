@@ -66,8 +66,11 @@ if __name__ == "__main__":
 
     vehicle.generate_report_summary()
     vehicle.summary["Scenario"] = trajectory_file
-    # print(len(vehicle.full_report))
-    report = ElasticIngestion(trajectory, "dummy", vehicle.full_report)
+    print("DATA: ",len(vehicle.full_report))
+    report = ElasticIngestion()
+    report.scenario = trajectory
+    report.customer = "Dummy"
+    report.data = vehicle.full_report
     report.generate_full_report()
     # full_report.scenario = trajectory_file
     # full_report.c

@@ -104,7 +104,7 @@
        "gpu_number":0,
   "listen_port": 8301,
   "synchronized_display": true,
-  "paint_targets": true,
+  "paint_targets": false,
   "target_paint_lifetime": 0.1,
   "location": {
     "x": 250.0,

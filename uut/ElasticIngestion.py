@@ -22,7 +22,7 @@ class ElasticIngestion(object):
     
     """
     # THESE SHOULD BE IN A SETTINGS FILE SOMEWHERE
-    ELASTIC_URL = 'http://192.168.1.120:5601/_bulk'
+    ELASTIC_URL = 'http://192.168.1.120:5601/login'
     ELASTIC_USER = 'elastic'
     ELASTIC_PASS = 'E2SdjV0AZ8Enb2DgP95x'
 
@@ -31,7 +31,6 @@ class ElasticIngestion(object):
         self.customer = kwargs.pop('customer', 'default')
         self.data = kwargs.pop('data', [])
 
-        print("created!!")
 
     def send_elk_request(self, elk_request):
         """
@@ -52,6 +51,7 @@ class ElasticIngestion(object):
         """
         retrieve the stats from the instance and build a bytesIO file to send to ELK
         """
+        print("DATA: ", len(self.data))
         run_id = self.data[0]['time']
         print("RUN_ID : ", run_id)
         gtime = time.time()
