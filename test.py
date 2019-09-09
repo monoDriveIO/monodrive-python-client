@@ -9,6 +9,8 @@ import signal
 from monodrive.simulator import Simulator
 from uut.vehicles.example_vehicle import ExampleVehicle
 from monodrive import utils
+from uut.ElasticIngestion import ElasticIngestion
+
 
 if __name__ == "__main__":
     root = os.path.dirname(__file__)
@@ -57,13 +59,19 @@ if __name__ == "__main__":
     for i in range(0, len(trajectory)-1):
         start_time = time.time()
         response = vehicle.step()
-        print("Step = {0} completed in {1:.2f}ms".format(i, ((time.time()-start_time)*1000), 2))
+        # print("Step = {0} completed in {1:.2f}ms".format(i, ((time.time()-start_time)*1000), 2))
         #time.sleep(1)
         if running is False:
             break
 
     vehicle.generate_report_summary()
     vehicle.summary["Scenario"] = trajectory_file
+    # print(len(vehicle.full_report))
+    report = ElasticIngestion(trajectory, "dummy", vehicle.full_report)
+    report.generate_full_report()
+    # full_report.scenario = trajectory_file
+    # full_report.c
+
     utils.send_summary_to_mongodb(vehicle.summary)
     print("Stopping the simulator.")
     simulator.stop()

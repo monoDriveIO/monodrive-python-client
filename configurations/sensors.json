@@ -7,7 +7,7 @@
     "display_process": true,
     "sensor_process": true,
     "synchronized_display": true,
-    "paint_targets": true,
+    "paint_targets": false,
     "target_paint_lifetime": 0.25,
     "location": {
       "x": 250.0,
@@ -110,7 +110,7 @@
       "num_scans_elevation": 20.0,
       "elevation_fov": 5.0,
       "max_raycast_hits": 5,
-      "debug_draw": true
+      "debug_draw": false
     }
   },
   {
@@ -167,7 +167,7 @@
       "num_scans_elevation": 20.0,
       "elevation_fov": 5.0,
       "max_raycast_hits": 5,
-      "debug_draw": true
+      "debug_draw": false
     }
   }
 ]

@@ -180,7 +180,7 @@
     "packet_size": 1472,
     "display_process": false,
     "sensor_process": true,
-    "debug_drawing": true,
+    "debug_drawing": false,
     "desired_tags": [
       "vehicle"
     ],

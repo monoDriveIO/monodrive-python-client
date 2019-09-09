@@ -15,7 +15,7 @@ class Perception(object):
 
     def on_update(self, frame):
         if frame:
-            print("Perception system with image size {0}".format(len(frame[0].image)))
+            # print("Perception system with image size {0}".format(len(frame[0].image)))
             plt.imshow(frame[0].image)
             plt.draw()
             plt.pause(0.0001)
