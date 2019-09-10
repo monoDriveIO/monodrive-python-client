@@ -72,8 +72,6 @@ if __name__ == "__main__":
     report.customer = "Dummy"
     report.data = vehicle.full_report
     report.generate_full_report()
-    # full_report.scenario = trajectory_file
-    # full_report.c
 
     utils.send_summary_to_mongodb(vehicle.summary)
     print("Stopping the simulator.")

@@ -38,4 +38,8 @@ class Reporting(object):
                    "Distance to targets: ": distances,
                    "Relative velocity to targets: ": relative_velocities}
 
+        ##Uncomment to dump stats into a file
+        # with open("all_stats.txt","w+") as file_out:
+        #     for element in self.all_stats:
+        #         json.dump(element, file_out)
         return summary

@@ -23,8 +23,8 @@ class ElasticIngestion(object):
     """
     # THESE SHOULD BE IN A SETTINGS FILE SOMEWHERE
     ELASTIC_URL = 'http://192.168.1.120:9200/_bulk'
-    ELASTIC_USER = 'elastic'
-    ELASTIC_PASS = 'E2SdjV0AZ8Enb2DgP95x'
+    ELASTIC_USER = 'ingestion'
+    ELASTIC_PASS = 'm0n0drive!'
 
     def __init__(self, *args, **kwargs):
         self.scenario = kwargs.pop('scenario', 'TEST')
@@ -47,36 +47,6 @@ class ElasticIngestion(object):
         print("REQ: ", req)
         print("RESPONSE: ", resp)
         return resp
-
-    # def build_elk_request(self):
-    #     """
-    #     retrieve the stats from the instance and build a bytesIO file to send to ELK
-    #     """
-    #     print("DATA: ", len(self.data))
-    #     run_id = self.data[0]['time']
-    #     print("RUN_ID : ", run_id)
-    #     gtime = time.time()
-    #     elk_request = io.BytesIO()
-    #
-    #     for index in range(0, len(self.data)):
-    #         item = self.data[index]
-    #         item_time = gtime + float(item['game_time'])
-    #         elk_item = self.get_elk_line_item_object(item, index, item_time, run_id)
-    #
-    #         elk_item_header = json.dumps({
-    #             "create": {
-    #                 "_index": "report",
-    #                 "_type" : "_doc",
-    #                 "_id": '{0}_{1}'.format(elk_item['run'], elk_item['step'])
-    #             }
-    #         })
-    #
-    #         elk_request.write((elk_item_header + "\n").encode())
-    #         elk_request.write((json.dumps(elk_item) + "\n").encode())
-    #
-    #     elk_request.write('\n'.encode())
-    #     elk_request.seek(0)  # get ready for read
-    #     return elk_request
 
     def build_elk_request(self, run_id, base_time, batch):
         """
@@ -119,8 +89,8 @@ class ElasticIngestion(object):
             "step": index_id,
             "game_timestamp": timestamp,
             "@timestamp": timestamp * 1000,
-            "scenario": self.scenario,
-            "customer": self.customer,
+            "scenario": "test",
+            "customer": "default",
             "result": line
         }
 
@@ -139,39 +109,3 @@ class ElasticIngestion(object):
         inst = ElasticIngestion()
         inst.all_stats = stats_list
         return inst
-
-"""
-EXAMPLE CODE CELITE GAVE ME
-class Reporting(ElasticIngestion):  # just subclass this new class
-    def __init__(self, sensor_ids):
-        self.sensor_ids = sensor_ids
-        self.data = []
-
-    def on_update(self,  data ):
-        self.data.append(json.loads(json.dumps(data[0].frame)))
-        # print("Reporting Data *********** {0}".format(data[0].frame))
-
-    def generate_report_summary(self):
-        collisions = []
-        sample_counts = []
-        distances = []
-        relative_velocities = []
-        target_names = []
-        for frame in self.data:
-            sample_count = frame["sample_count"]
-            for target in frame["targets"]:
-                if target["collision"]:
-                    collisions.append(target["collision"])
-                    distances.append(target["distance"])
-                    sample_counts.append(sample_count)
-                    relative_velocities.append(target["relative_velocity"])
-                    target_names.append(target["name"])
-
-        summary = {"Status": "Failed" if all(collisions) else "Passed",
-                   "Collision Frames": sample_counts,
-                   "Target names: ": target_names,
-                   "Distance to targets: ": distances,
-                   "Relative velocity to targets: ": relative_velocities}
-
-        return summary
-"""
