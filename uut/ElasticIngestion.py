@@ -31,7 +31,6 @@ class ElasticIngestion(object):
         self.customer = kwargs.pop('customer', 'default')
         self.data = kwargs.pop('data', [])
 
-
     def send_elk_request(self, elk_request):
         """
         Send the bytesIO object to ELK using built in python request
@@ -44,20 +43,22 @@ class ElasticIngestion(object):
                     'Content-Type': 'application/x-ndjson',
                     'Authorization': 'Basic {0}'.format(encoded_credentials.decode('ascii'))})
         resp = request.urlopen(req)
-        print("REQ: ", req)
-        print("RESPONSE: ", resp)
+        #print("REQ: ", req)
+        if resp.status != 200:
+            print("RESPONSE: ", resp.read())
         return resp
 
-    def build_elk_request(self, run_id, base_time, batch):
+    def build_elk_request(self, run_id, base_time, batch, start_id):
         """
         retrieve the stats from the instance and build a bytesIO file to send to ELK
         """
         elk_request = io.BytesIO()
-
+    
         for index in range(0, len(batch)):
             item = batch[index]
-            item_time = base_time + float(item['game_time'])
-            elk_item = self.get_elk_line_item_object(item, index, item_time, run_id)
+            item_time = round(base_time + float(item['game_time']), 4)
+
+            elk_item = self.get_elk_line_item_object(item, index, item_time, run_id, start_id)
 
             elk_item_header = json.dumps({
                 "create": {
@@ -73,24 +74,28 @@ class ElasticIngestion(object):
         elk_request.write('\n'.encode())
         elk_request.seek(0)  # get ready for read
         return elk_request
+        
+    def chunks(self, l, n):
+        for i in range(0, len(l), n):
+            yield l[i:i + n]
 
     def batch_and_send_elk_request(self, batch_size=100):
         run_id = self.data[0]['time']
         gtime = time.time()
-        batches = [self.data[i * batch_size:(i + 1) * batch_size] \
-                   for i in range((len(self.data) + batch_size - 1))]
-        for batch in batches:
-            elk_req = self.build_elk_request(run_id, gtime, batch)
+        batches = list(self.chunks(self.data, batch_size))
+        for index in range(0, len(batches)):
+            batch = batches[index]
+            elk_req = self.build_elk_request(run_id, gtime, batch, (index * batch_size))
             elk_resp = self.send_elk_request(elk_req)
 
-    def get_elk_line_item_object(self, line, index_id, timestamp, run_id):
+    def get_elk_line_item_object(self, line, index_id, timestamp, run_id, start_id):
         return {
             "run": run_id,
-            "step": index_id,
-            "game_timestamp": timestamp,
+            "step": (start_id + index_id),
+            "game_timestamp": line['game_time'],
             "@timestamp": timestamp * 1000,
-            "scenario": "test",
-            "customer": "default",
+            "scenario": self.scenario,
+            "customer": self.customer,
             "result": line
         }
 
@@ -108,4 +113,11 @@ class ElasticIngestion(object):
             stats_list.append(json.loads(line))
         inst = ElasticIngestion()
         inst.all_stats = stats_list
+        return inst
+        
+    @staticmethod
+    def test_using_report_list_file(filepath):
+        stats_list = json.load(open(filepath, 'r'))
+        inst = ElasticIngestion()
+        inst.data = stats_list
         return inst
