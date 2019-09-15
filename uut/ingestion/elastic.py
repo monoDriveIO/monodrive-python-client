@@ -27,6 +27,7 @@ class ElasticIngestion(object):
     def __init__(self, *args, **kwargs):
         self.scenario = kwargs.pop('scenario', 'TEST')
         self.customer = kwargs.pop('customer', 'default')
+        self.fps = kwargs.pop('fps', 30)
         self.data = kwargs.pop('data', [])
         self._validated = False
 
@@ -55,9 +56,7 @@ class ElasticIngestion(object):
     
         for index in range(0, len(batch)):
             item = batch[index]
-            item_time = round(base_time + float(item['game_time']), 4)
-
-            elk_item = self.get_elk_line_item_object(item, index, item_time, start_id)
+            elk_item = self.get_elk_line_item_object(item, index, base_time, start_id)
 
             elk_item_header = json.dumps({
                 "create": {
@@ -100,11 +99,15 @@ class ElasticIngestion(object):
             elk_req = self.build_elk_request(gtime, batch, (index * batch_size))
             elk_resp = self.send_elk_request(elk_req)
 
-    def get_elk_line_item_object(self, line, index_id, timestamp, start_id):
+    def get_elk_line_item_object(self, line, index_id, base_time, start_id):
+        step = (start_id + index_id)
+        fps_timestamp = base_time + (self.fps / 60) * step
+        timestamp = round(base_time + float(line['game_time']), 4)
         return {
             "run": self.run_id,
-            "step": (start_id + index_id),
+            "step": step,
             "game_timestamp": line['game_time'],
+            "fps_timestamp": fps_timestamp * 1000,
             "@timestamp": timestamp * 1000,
             "scenario": self.scenario,
             "customer": self.customer,

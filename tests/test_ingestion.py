@@ -25,8 +25,8 @@ class TestElasticIngestion(unittest.TestCase):
 
     @property
     def base_fixture_path(self):
-        return os.path.join(os.path.dirname(os.path.abspath(__file__)),
-            'fixtures', 'sample_reports')
+        return os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))),
+            'uut', 'fixtures', 'sample_reports')
     
     def get_sample_report(self, report_filename):
         report_file = open(os.path.join(self.base_fixture_path, report_filename), 'r')
