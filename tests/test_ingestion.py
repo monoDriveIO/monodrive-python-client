@@ -10,6 +10,7 @@ from uut.ingestion.exceptions import (ElasticIngestionDataValidationInvalidDataS
                                ElasticIngestionDataValidationNoTimeElement,
                                ElasticIngestionDataValidationNoGameTimeElement)
 
+
 class TestElasticIngestion(unittest.TestCase):
     scenario = 'TEST'
     customer = 'default'
@@ -81,8 +82,6 @@ class TestElasticIngestion(unittest.TestCase):
         self.assertEqual(file_contents[1]['step'], 0)
         self.assertEqual(file_contents[-1]['step'], len(batches[0]) - 1)
 
-
-
     def test_validate_data_invalid_data_structure(self):
         bad_data_structure = [[{'key':'value'}]]
         with self.assertRaises(ElasticIngestionDataValidationInvalidDataStructureElement):
@@ -103,7 +102,6 @@ class TestElasticIngestion(unittest.TestCase):
             inst = ElasticIngestion()
             inst.data = bad_data_structure
             inst.validate_data()
-
 
 
 if __name__ == '__main__':

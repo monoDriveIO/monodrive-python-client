@@ -5,6 +5,7 @@ import base64
 from urllib import request
 
 from uut.ingestion.exceptions import *
+from uut.ingestion.settings import ELASTIC_URL, ELASTIC_USER, ELASTIC_PASS
 
 
 class ElasticIngestion(object):
@@ -21,12 +22,7 @@ class ElasticIngestion(object):
     r = i.build_elk_request()
     resp = i.send_elk_request(r)
     ```
-    
     """
-    # THESE SHOULD BE IN A SETTINGS FILE SOMEWHERE
-    ELASTIC_URL = 'http://192.168.1.120:9200/_bulk'
-    ELASTIC_USER = 'ingestion'
-    ELASTIC_PASS = 'm0n0drive!'
 
     def __init__(self, *args, **kwargs):
         self.scenario = kwargs.pop('scenario', 'TEST')
@@ -38,10 +34,10 @@ class ElasticIngestion(object):
         """
         Send the bytesIO object to ELK using built in python request
         """
-        credentials = ('{0}:{1}'.format(ElasticIngestion.ELASTIC_USER, ElasticIngestion.ELASTIC_PASS))
+        credentials = ('{0}:{1}'.format(ELASTIC_USER, ELASTIC_PASS))
         encoded_credentials = base64.b64encode(credentials.encode('ascii'))
         req_data = elk_request.read()
-        req = request.Request(ElasticIngestion.ELASTIC_URL,
+        req = request.Request(ELASTIC_URL,
             data=req_data, headers={
                     'Content-Type': 'application/x-ndjson',
                     'Authorization': 'Basic {0}'.format(encoded_credentials.decode('ascii'))})
