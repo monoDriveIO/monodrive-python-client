@@ -25,7 +25,7 @@ if __name__ == "__main__":
     signal.signal(signal.SIGINT, handler)
 
     # Load the trajectory and simulator configurations
-    trajectory_file = 'AEB_10_0_CCRS_Collision.json'
+    trajectory_file = 'AEB_20_0_CCRS_Collision.json'
     trajectory = json.load(open(os.path.join(root, 'configurations', 'trajectories', trajectory_file)))
     sim_config = json.load(open(os.path.join(root, 'configurations', 'simulator.json')))
 
@@ -68,7 +68,7 @@ if __name__ == "__main__":
     vehicle.summary["Scenario"] = trajectory_file
     print("DATA: ",len(vehicle.full_report))
     report = ElasticIngestion()
-    report.scenario = trajectory
+    report.scenario = trajectory_file
     report.customer = "Dummy"
     report.data = vehicle.full_report
     report.generate_full_report()
