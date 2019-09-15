@@ -11,9 +11,9 @@ from uut.ingestion.exceptions import (ElasticIngestionDataValidationInvalidDataS
                                ElasticIngestionDataValidationNoGameTimeElement)
 
 
-class TestElasticIngestion(unittest.TestCase):
+class BaseElasticIngestionUnitTest(unittest.TestCase):
     scenario = 'TEST'
-    customer = 'default'
+    customer = 'unittest'
 
     def setUp(self):
         self.report_files = []
@@ -36,11 +36,14 @@ class TestElasticIngestion(unittest.TestCase):
     def get_elastic_instance(self, report_name):
         stats_list = json.load(self.get_sample_report(report_name))
         # get an instance of the elastic ingestion and attach a json object
-        inst = ElasticIngestion()
+        inst = ElasticIngestion(scenario=BaseElasticIngestionUnitTest.scenario,
+                                customer=BaseElasticIngestionUnitTest.customer)
         inst.data = stats_list
         inst.validate_data()
         return inst
 
+
+class TestElasticIngestion(BaseElasticIngestionUnitTest):
     def test_batch_elk_data(self):
         batch_size = 100
         inst = self.get_elastic_instance('sample_AEB_10_0_CCRS_Collision.json')

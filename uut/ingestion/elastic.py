@@ -82,22 +82,25 @@ class ElasticIngestion(object):
 
     def validate_data(self):
         if not isinstance(self.data, (list, tuple)) or not isinstance(self.data[0], (dict,)):
-            raise ElasticIngestionDataValidationInvalidDataStructureElement()
+            raise ElasticIngestionDataValidationInvalidDataStructureElement
 
         if 'time' not in self.data[0]:
-            raise ElasticIngestionDataValidationNoTimeElement()
+            raise ElasticIngestionDataValidationNoTimeElement
 
         if 'game_time' not in self.data[0]:
-            raise ElasticIngestionDataValidationNoGameTimeElement()
+            raise ElasticIngestionDataValidationNoGameTimeElement
         self._validated = True
 
     def batch_and_send_elk_request(self, batch_size=100):
         gtime = time.time()
         batches = self.batch_elk_data(batch_size)
+        responses = []
         for index in range(0, len(batches)):
             batch = batches[index]
             elk_req = self.build_elk_request(gtime, batch, (index * batch_size))
             elk_resp = self.send_elk_request(elk_req)
+            responses.append(elk_resp)
+        return responses
 
     def get_elk_line_item_object(self, line, index_id, base_time, start_id):
         step = (start_id + index_id)
@@ -115,7 +118,9 @@ class ElasticIngestion(object):
         }
 
     def generate_full_report(self):
-        self.batch_and_send_elk_request()
+        self.validate_data()
+        responses = self.batch_and_send_elk_request()
+        return responses
 
     @property
     def run_id(self):
