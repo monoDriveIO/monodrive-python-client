@@ -4,6 +4,8 @@ import json
 import base64
 from urllib import request
 
+from uut.ingestion.exceptions import *
+
 
 class ElasticIngestion(object):
     """
@@ -30,6 +32,7 @@ class ElasticIngestion(object):
         self.scenario = kwargs.pop('scenario', 'TEST')
         self.customer = kwargs.pop('customer', 'default')
         self.data = kwargs.pop('data', [])
+        self._validated = False
 
     def send_elk_request(self, elk_request):
         """
@@ -48,7 +51,7 @@ class ElasticIngestion(object):
             print("RESPONSE: ", resp.read())
         return resp
 
-    def build_elk_request(self, run_id, base_time, batch, start_id):
+    def build_elk_request(self, base_time, batch, start_id):
         """
         retrieve the stats from the instance and build a bytesIO file to send to ELK
         """
@@ -58,7 +61,7 @@ class ElasticIngestion(object):
             item = batch[index]
             item_time = round(base_time + float(item['game_time']), 4)
 
-            elk_item = self.get_elk_line_item_object(item, index, item_time, run_id, start_id)
+            elk_item = self.get_elk_line_item_object(item, index, item_time, start_id)
 
             elk_item_header = json.dumps({
                 "create": {
@@ -79,18 +82,31 @@ class ElasticIngestion(object):
         for i in range(0, len(l), n):
             yield l[i:i + n]
 
+    def batch_elk_data(self, batch_size):
+        return list(self.chunks(self.data, batch_size))
+
+    def validate_data(self):
+        if not isinstance(self.data, (list, tuple)) or not isinstance(self.data[0], (dict,)):
+            raise ElasticIngestionDataValidationInvalidDataStructureElement()
+
+        if 'time' not in self.data[0]:
+            raise ElasticIngestionDataValidationNoTimeElement()
+
+        if 'game_time' not in self.data[0]:
+            raise ElasticIngestionDataValidationNoGameTimeElement()
+        self._validated = True
+
     def batch_and_send_elk_request(self, batch_size=100):
-        run_id = self.data[0]['time']
         gtime = time.time()
-        batches = list(self.chunks(self.data, batch_size))
+        batches = self.batch_elk_data(batch_size)
         for index in range(0, len(batches)):
             batch = batches[index]
-            elk_req = self.build_elk_request(run_id, gtime, batch, (index * batch_size))
+            elk_req = self.build_elk_request(gtime, batch, (index * batch_size))
             elk_resp = self.send_elk_request(elk_req)
 
-    def get_elk_line_item_object(self, line, index_id, timestamp, run_id, start_id):
+    def get_elk_line_item_object(self, line, index_id, timestamp, start_id):
         return {
-            "run": run_id,
+            "run": self.run_id,
             "step": (start_id + index_id),
             "game_timestamp": line['game_time'],
             "@timestamp": timestamp * 1000,
@@ -100,11 +116,14 @@ class ElasticIngestion(object):
         }
 
     def generate_full_report(self):
-        # hook into ELK here
-        # elk_request = self.build_elk_request()
-        # self.send_elk_request(elk_request)
         self.batch_and_send_elk_request()
 
+    @property
+    def run_id(self):
+        if not self._validated:
+            raise RuntimeError('To get a run_id you must run `.validate_data`')
+        return self.data[0]['time']
+    
     @staticmethod
     def test_using_report_text_file(filepath):
         stats = open(filepath, 'rb')

@@ -9,7 +9,7 @@ import signal
 from monodrive.simulator import Simulator
 from uut.vehicles.example_vehicle import ExampleVehicle
 from monodrive import utils
-from uut.ElasticIngestion import ElasticIngestion
+from uut.ingestion import ElasticIngestion
 
 
 if __name__ == "__main__":
