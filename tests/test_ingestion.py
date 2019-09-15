@@ -81,6 +81,9 @@ class TestElasticIngestion(unittest.TestCase):
         self.assertEqual(file_contents[1]['result'], batches[0][0])
         self.assertEqual(file_contents[1]['step'], 0)
         self.assertEqual(file_contents[-1]['step'], len(batches[0]) - 1)
+        self.assertEqual(file_contents[1]['fps_timestamp'], base_time*1000)
+        self.assertEqual(file_contents[-1]['fps_timestamp'],
+            (base_time + ((inst.fps / 60) * (len(batches[0])-1)))*1000)
 
     def test_validate_data_invalid_data_structure(self):
         bad_data_structure = [[{'key':'value'}]]

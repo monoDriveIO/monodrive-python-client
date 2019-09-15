@@ -101,7 +101,7 @@ class ElasticIngestion(object):
 
     def get_elk_line_item_object(self, line, index_id, base_time, start_id):
         step = (start_id + index_id)
-        fps_timestamp = base_time + (self.fps / 60) * step
+        fps_timestamp = base_time + ((self.fps / 60) * step)
         timestamp = round(base_time + float(line['game_time']), 4)
         return {
             "run": self.run_id,
