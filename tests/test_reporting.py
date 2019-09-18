@@ -18,11 +18,12 @@ class ReportingTrajectoryUnitTest(BaseUnitTestHelper):
 
     def setUp(self):
         # setup configuration
+        self.file_instances = []
         self.trajectory = self.get_trajectory_file('AEB_20_0_CCRS_Collision.json')
         self.sim_config = self.get_configuration('simulator.json')
         self.weather_config = self.get_configuration('weather.json')
         self.running = True
-        self.file_instances = []
+
 
         self.simulator = self.get_simulator(self.sim_config, self.trajectory, weather=self.weather_config)
         self.simulator.start()
@@ -61,7 +62,7 @@ class ReportingTrajectoryUnitTest(BaseUnitTestHelper):
 
     def test_sensor_config_file(self):
         # Load the sensor configuration and software under test
-        sensor_config = json.load(open(os.path.join(root, 'uut', 'gps_config.json')))
+        sensor_config = json.load(open(os.path.join(self.base_path, 'uut', 'gps_config.json')))
 
         vehicle = ExampleVehicle(self.sim_config, sensor_config)
         vehicle.start()
@@ -75,18 +76,17 @@ class ReportingTrajectoryUnitTest(BaseUnitTestHelper):
             response = vehicle.step()
             # print("Step = {0} completed in {1:.2f}ms".format(i, ((time.time()-start_time)*1000), 2))
             #time.sleep(1)
-            if running is False:
+            if self.running is False:
                 break
 
         vehicle.generate_report_summary()
-        vehicle.summary["Scenario"] = trajectory_file
+        vehicle.summary["Scenario"] = self.trajectory_file
         print("DATA: ",len(vehicle.full_report))
         report = ElasticIngestion()
-        report.scenario = trajectory_file
+        report.scenario = self.trajectory_file
         report.customer = "Dummy"
         report.data = vehicle.full_report
         report.generate_full_report()
-
         utils.send_summary_to_mongodb(vehicle.summary)
         
         print("Stopping the uut.")
