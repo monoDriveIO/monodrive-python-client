@@ -1,17 +1,17 @@
 #!/usr/bin/python
 import os
 import json
-import unittest
 import math
 import time
 
+from tests import BaseUnitTestHelper
 from uut.ingestion import ElasticIngestion
 from uut.ingestion.exceptions import (ElasticIngestionDataValidationInvalidDataStructureElement,
                                ElasticIngestionDataValidationNoTimeElement,
                                ElasticIngestionDataValidationNoGameTimeElement)
 
 
-class BaseElasticIngestionUnitTest(unittest.TestCase):
+class BaseElasticIngestionUnitTest(BaseUnitTestHelper):
     scenario = 'TEST'
     customer = 'unittest'
 
@@ -25,7 +25,7 @@ class BaseElasticIngestionUnitTest(unittest.TestCase):
 
     @property
     def base_fixture_path(self):
-        return os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))),
+        return os.path.join(self.base_path,
             'uut', 'fixtures', 'sample_reports')
     
     def get_sample_report(self, report_filename):
@@ -108,7 +108,3 @@ class TestElasticIngestion(BaseElasticIngestionUnitTest):
             inst = ElasticIngestion()
             inst.data = bad_data_structure
             inst.validate_data()
-
-
-if __name__ == '__main__':
-    unittest.main()
