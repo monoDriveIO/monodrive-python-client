@@ -19,7 +19,7 @@ class ReportingTrajectoryUnitTest(BaseUnitTestHelper):
     def setUp(self):
         # setup configuration
         self.file_instances = []
-        self.trajectory = self.get_trajectory_file('AEB_20_0_CCRS_Collision.json')
+        self.trajectory = self.get_trajectory_file('AEB_10_0_CCRS_Collision.json')
         self.sim_config = self.get_configuration('simulator.json')
         self.weather_config = self.get_configuration('weather.json')
         self.running = True

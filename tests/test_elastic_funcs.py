@@ -5,13 +5,14 @@ import urllib
 import socket
 
 from tests.test_ingestion import BaseElasticIngestionUnitTest
+from uut.ingestion.settings import ELASTIC_IP, ELASTIC_PORT
 
 
 class TestElasticIngestionAPIs(BaseElasticIngestionUnitTest):
 
     def _is_elk_up(self):
         sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        result = sock.connect_ex(('127.0.0.1',9200))
+        result = sock.connect_ex((ELASTIC_IP,ELASTIC_PORT))
         sock.close()
         return True if result == 0 else False
 
