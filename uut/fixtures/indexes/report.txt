@@ -1,0 +1,15 @@
+PUT /report
+{
+  "mappings": {
+    "properties": {
+      "customer": {"type": "keyword"},
+      "scenario": {"type": "keyword"},
+      "result": {"type": "object"},
+      "game_timestamp": {"type":"float"},
+      "fps_timestamp": {"type":"date"},
+      "@timestamp": {"type": "date"},
+      "run": {"type": "keyword"},
+      "step": {"type": "integer"}
+    }
+  }
+}
