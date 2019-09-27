@@ -5,7 +5,7 @@ import math
 import time
 
 from tests import BaseUnitTestHelper
-from uut.ingestion import ElasticIngestion
+from uut.ingestion.elastic import ElasticIngestion
 from uut.ingestion.exceptions import (ElasticIngestionDataValidationInvalidDataStructureElement,
                                ElasticIngestionDataValidationNoTimeElement,
                                ElasticIngestionDataValidationNoGameTimeElement)

@@ -2,3 +2,4 @@ Rx
 numpy
 matplotlib
 pymongo
+requests

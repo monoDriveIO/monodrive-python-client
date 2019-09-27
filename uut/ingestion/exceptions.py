@@ -27,3 +27,16 @@ class ElasticIngestionDataValidationNoGameTimeElement(ElasticIngestionDataValida
     report.
     """
     message = 'No `game_time` key in first element'
+
+
+class NetworkAPIError(Exception):
+    """ Base class for network api errors """
+    def __init__(self, status, message):
+        self.status = status
+        self.message = message
+
+class ElasticNetworkAPIError(NetworkAPIError):
+    pass
+
+class KibanaNetworkAPIError(NetworkAPIError):
+    pass

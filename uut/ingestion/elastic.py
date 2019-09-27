@@ -38,7 +38,7 @@ class ElasticIngestion(object):
         credentials = ('{0}:{1}'.format(ELASTIC_USER, ELASTIC_PASS))
         encoded_credentials = base64.b64encode(credentials.encode('ascii'))
         req_data = elk_request.read()
-        req = request.Request(ELASTIC_URL,
+        req = request.Request(ELASTIC_URL + '/_bulk',
             data=req_data, headers={
                     'Content-Type': 'application/x-ndjson',
                     'Authorization': 'Basic {0}'.format(encoded_credentials.decode('ascii'))})
