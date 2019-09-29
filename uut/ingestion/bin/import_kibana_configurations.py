@@ -8,12 +8,12 @@ import time
 import json
 import base64
 import subprocess
+import unittest
 from urllib import request
 
-from uut.ingestion.settings import KIBANA_BACKUP_LOCATION, KIBANA_DEFAULT_INDEX_NAME, KIBANA_REPORT_INDEX_BACKUP_LOCATION
+from uut.ingestion.settings import KIBANA_BACKUP_LOCATION, KIBANA_DEFAULT_INDEX_NAME, KIBANA_REPORT_INDEX_BACKUP_LOCATION, BASE_PATH
 from uut.ingestion.network import KibanaNetwork, ElasticNetwork
 from uut.ingestion.exceptions import ElasticNetworkAPIError
-from tests.test_elastic_funcs import TestElasticIngestionAPIs
 
 
 class Importer(object):
@@ -31,19 +31,19 @@ class Importer(object):
         current_index = self.get_index()
         # TODO: add None logic
         if current_index is None:
-            user_wants_index_created = self.request_user_input_expect_yes_no('We could not find an index in ElasticCache with the name `{0}`. Would you like to create one? y/N? ')
+            user_wants_index_created = self.request_user_input_expect_yes_no('We could not find an index in ElasticCache with the name `{0}`. Would you like to create one? y/N? '.format(KIBANA_DEFAULT_INDEX_NAME))
             if not user_wants_index_created:
                 raise RuntimeError('ElasticCache index `{0}` required to import Kibana - Saved Objects'.format(KIBANA_DEFAULT_INDEX_NAME))
             current_index = self.create_index()
             # we need to import some data before importing the saved objects
-            subprocess.Popen('python -m unittest discover -p "*elastic*"')
+            results = self.populate_test_data()
+            #print(results)
             time.sleep(5)
 
         # self.replace_backup_objects_with_new_index(current_index['id'])
         # # we now send all of the objects except the index-pattern that the customer configured themselves
         resp = self.bulk_create_objects(self.backup_objects)
-        #print(resp.body)
-
+        print(resp.body)
 
     def request_user_input_expect_yes_no(self, message):
         user_response = input(message)
@@ -60,6 +60,15 @@ class Importer(object):
                 'kbn-xsrf': 'true'
             })
         return saved_objects_request
+
+    def populate_test_data(self):
+        loader = unittest.TestLoader()
+        start_dir = os.path.join(BASE_PATH, 'tests')
+
+        suite = loader.discover(start_dir, 'test_elastic_funcs.py')
+        runner = unittest.TextTestRunner(verbosity=2)
+        results = runner.run(suite)
+        return results
 
     def get_index(self):
         try:

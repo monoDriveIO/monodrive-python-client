@@ -1,5 +1,5 @@
 import os
-from uut import BASE_FIXTURE_PATH
+from uut import BASE_PATH, BASE_FIXTURE_PATH
 
 
 ELASTIC_IP = 'localhost'

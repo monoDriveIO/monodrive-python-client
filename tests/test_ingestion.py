@@ -51,6 +51,7 @@ class TestElasticIngestion(BaseElasticIngestionUnitTest):
         expected_buckets = math.ceil(len(inst.data) / batch_size)
         batches = inst.batch_elk_data(batch_size=batch_size)
 
+        print('\n Testing batching routine')
         self.assertEqual(len(batches), expected_buckets)
         self.assertEqual(len(batches[0]), batch_size)
 
@@ -73,6 +74,7 @@ class TestElasticIngestion(BaseElasticIngestionUnitTest):
             last_line = line  # cache the last line in the file
 
         # kibana expects a new line at the end of the file
+        print('\n Testing the ELK BULK POST body routine')
         self.assertTrue(last_line == '\n')
 
         # when inserting to elk each record must be prepended with an object that designates the index
@@ -90,6 +92,7 @@ class TestElasticIngestion(BaseElasticIngestionUnitTest):
 
     def test_validate_data_invalid_data_structure(self):
         bad_data_structure = [[{'key':'value'}]]
+        print('\n Testing the data validation structure error')
         with self.assertRaises(ElasticIngestionDataValidationInvalidDataStructureElement):
             inst = ElasticIngestion()
             inst.data = bad_data_structure
@@ -97,6 +100,7 @@ class TestElasticIngestion(BaseElasticIngestionUnitTest):
 
     def test_validate_data_no_time(self):
         bad_data_structure = [{'key':'value'}]
+        print('\n Testing the data validation with no time error')
         with self.assertRaises(ElasticIngestionDataValidationNoTimeElement):
             inst = ElasticIngestion()
             inst.data = bad_data_structure
@@ -104,6 +108,7 @@ class TestElasticIngestion(BaseElasticIngestionUnitTest):
 
     def test_validate_data_no_game_time(self):
         bad_data_structure = [{'time':12341234}]
+        print('\n Testing the data validation no game time error')
         with self.assertRaises(ElasticIngestionDataValidationNoGameTimeElement):
             inst = ElasticIngestion()
             inst.data = bad_data_structure
