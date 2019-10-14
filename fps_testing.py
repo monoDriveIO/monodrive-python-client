@@ -8,6 +8,7 @@ import signal
 import numpy as np
 from itertools import combinations
 from collections import defaultdict
+from argparse import ArgumentParser
 
 from monodrive.simulator import Simulator
 from uut.vehicles.example_vehicle import ExampleVehicle
@@ -61,6 +62,7 @@ def run_trial(sim_config: dict, sensor_config: dict, trajectory: dict,
         frame_start = time.time()
         response = vehicle.step()
         frame_times.append(time.time() - frame_start)
+        time.sleep(0.1)
         if RUNNING is False:
             break
 
@@ -135,7 +137,32 @@ def write_results(filename: str, data: dict) -> None:
                            separators=(',', ': ')))
 
 
+def run_trajectory(traj_name: str):
+    root = os.path.dirname(__file__)
+    sim_config = json.load(
+        open(os.path.join(root, 'configurations', 'simulator.json')))
+
+    # Load and configure the weather conditions for the simulator
+    weather = json.load(
+        open(os.path.join(root, 'configurations', 'weather.json')))
+    profile = weather['profiles'][10]
+    profile['id'] = 'test'
+    sensors = ["State"]
+    trajectory = json.load(open(traj_name, "r"))
+    sensor_config = build_sensor_config(
+        sensors, base_dir=os.path.join(root, "sensors"))
+    run_trial(sim_config, sensor_config, trajectory, weather)
+
+
 if __name__ == "__main__":
+    parser = ArgumentParser()
+    parser.add_argument("-t", "--trajectory",
+                        help="Playback a single trajectory file")
+    args = parser.parse_args()
+    if args.trajectory is not None:
+        run_trajectory(args.trajectory)
+        sys.exit(0)
+
     root = os.path.dirname(__file__)
 
     fps_trajectories = []
