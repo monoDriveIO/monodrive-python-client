@@ -8,10 +8,8 @@ import signal
 
 from monodrive.simulator import Simulator
 from uut.vehicles.example_vehicle import ExampleVehicle
-<<<<<<< HEAD
 from monodrive import utils
-=======
->>>>>>> master
+
 
 if __name__ == "__main__":
     root = os.path.dirname(__file__)
