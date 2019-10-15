@@ -2,6 +2,8 @@
 UUT Client to connect to the monodrive simulator.
 """
 import socket
+import select
+
 
 class UUT_Client:
     """Client to connect to the monodrive simulator"""
@@ -42,11 +44,7 @@ class UUT_Client:
 
     @property
     def connected(self):
-        """Get the current connection status of the server.
 
-        Returns:
-            True if connected, false otherwise.
-        """
         return self.__connected
 
     def connect(self):
@@ -98,3 +96,14 @@ class UUT_Client:
 
         """
         self.__sock.sendall(message)
+
+    def data_ready(self):
+        """Polls for available data on socket connection.
+
+        Returns:
+            True if there is available data to read from socket
+        """
+        if not self.__connected:
+            return False
+        ready = select.select([self.__sock], [], [], 0)
+        return len(ready[0]) == 1

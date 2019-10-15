@@ -19,6 +19,7 @@ from uut.sensors.ultrasonic import Ultrasonic
 from uut.sensors.camera import Camera
 from uut.sensors.lidar import Lidar
 
+
 class Sensor(threading.Thread):
     """Base sensor class for processing sensor data from the simulator."""
 
@@ -63,8 +64,8 @@ class Sensor(threading.Thread):
             blocks_per_packet = 12
             number_blocks = 360 / horizontal_resolution * n_lasers / channels_per_block
             number_packets = number_blocks / blocks_per_packet
-            #packet_size = int(number_blocks * 1248.0)
-            #frame_buffer = []
+            # packet_size = int(number_blocks * 1248.0)
+            # frame_buffer = []
             self.expected_frames_per_step = int(number_packets)
 
     def str_to_class(self, classname):
@@ -116,6 +117,9 @@ class Sensor(threading.Thread):
         HEADER_SIZE = 12
         while self.__running:
             try:
+                # Check socket for data available
+                if not self.__client.data_ready():
+                    continue
                 # Read the header type of the message
                 header = self.__client.read(HEADER_SIZE)
                 length, time, game_time = struct.unpack("!IIf", header)
@@ -126,15 +130,15 @@ class Sensor(threading.Thread):
                 self.frame_buffer.append(message)
 
                 if not self.framing:
-                    #self.observer.on_next((time, game_time, self.frame_buffer))
+                    # self.observer.on_next((time, game_time, self.frame_buffer))
                     self.observer.on_next(self.frame_buffer)
                     self.frame_buffer = []
-                    #print(self.id + str(message))
+                    # print(self.id + str(message))
                 elif self.expected_frames_per_step == len(self.frame_buffer):
-                    #self.observer.on_next((time, game_time, self.frame_buffer))
+                    # self.observer.on_next((time, game_time, self.frame_buffer))
                     self.observer.on_next(self.frame_buffer)
                     self.frame_buffer = []
-                    #print(self.id + str(message))
+                    # print(self.id + str(message))
 
 
             except Exception as e:

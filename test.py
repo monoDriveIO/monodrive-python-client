@@ -8,7 +8,10 @@ import signal
 
 from monodrive.simulator import Simulator
 from uut.vehicles.example_vehicle import ExampleVehicle
+<<<<<<< HEAD
 from monodrive import utils
+=======
+>>>>>>> master
 
 if __name__ == "__main__":
     root = os.path.dirname(__file__)
@@ -16,10 +19,13 @@ if __name__ == "__main__":
     # Flag to allow user to stop the simulation from SIGINT
     running = True
 
+
     def handler(signum, frame):
         """"Signal handler to turn off the simulator with ctl+c"""
         global running
         running = False
+
+
     signal.signal(signal.SIGINT, handler)
 
     # Load the trajectory and simulator configurations
@@ -29,7 +35,7 @@ if __name__ == "__main__":
 
     # configure this simulator client
     # Load the reporting sensor configuration and software under test
-    #reporting_config = json.load(open(os.path.join(root, 'monodrive', 'reporting_config.json')))
+    # reporting_config = json.load(open(os.path.join(root, 'monodrive', 'reporting_config.json')))
     simulator = Simulator(sim_config, trajectory)
 
     # Load and configure the weather conditions for the simulator
@@ -37,7 +43,6 @@ if __name__ == "__main__":
         open(os.path.join(root, 'configurations', 'weather.json')))
     profile = weather['profiles'][10]
     profile['id'] = 'test'
-
 
     # Start the simulation
     simulator.start()
@@ -47,26 +52,28 @@ if __name__ == "__main__":
     vehicle = ExampleVehicle(sim_config, sensor_config)
 
     vehicle.start()
-    vehicle.initialize_perception()
+    # vehicle.initialize_perception()
     vehicle.initialize_reporting()
     print(vehicle.sensors_ids)
 
-
-
     # Start stepping the simulator
-    for i in range(0, len(trajectory)-1):
+    time_steps = []
+    for i in range(0, len(trajectory) - 1):
         start_time = time.time()
         response = vehicle.step()
-        print("Step = {0} completed in {1:.2f}ms".format(i, ((time.time()-start_time)*1000), 2))
-        #time.sleep(1)
+        dt = time.time() - start_time
+        time_steps.append(dt)
+        print("Step = {0} completed in {1:.2f}ms".format(i, (dt * 1000), 2))
+        # time.sleep(1)
         if running is False:
             break
 
     vehicle.generate_report_summary()
     vehicle.summary["Scenario"] = trajectory_file
     utils.send_summary_to_mongodb(vehicle.summary)
+    fps = 1.0 / (sum(time_steps) / len(time_steps))
+    print('Average FPS: {}'.format(fps))
     print("Stopping the simulator.")
     simulator.stop()
     print("Stopping the uut.")
     vehicle.stop()
-
