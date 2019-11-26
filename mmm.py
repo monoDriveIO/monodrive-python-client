@@ -1,15 +1,13 @@
-"""example.py
-An example of creating a simulator and processing the sensor outputs.
-"""
 import json
 import os
 import time
 import signal
-
+import monodrive.messaging as mmsg
+from uut.client import UUT_Client
 from monodrive.simulator import Simulator
-from uut.vehicles.example_vehicle import ExampleVehicle
+#from uut.vehicles.example_vehicle import ExampleVehicle
 
-if __name__ == "__main__":
+def test_func():
     root = os.path.dirname(__file__)
 
     # Flag to allow user to stop the simulation from SIGINT
@@ -44,29 +42,11 @@ if __name__ == "__main__":
 
     # Load the sensor configuration and software under test
     sensor_config = json.load(open(os.path.join(root, 'uut', 'gps_config.json')))
-    vehicle = ExampleVehicle(sim_config, sensor_config)
+    sensor_msg = mmsg.ApiMessage(mmsg.ID_REPLAY_CONFIGURE_SENSORS_COMMAND, sensor_config)
+    client = UUT_Client(sim_config['server_ip'], sim_config['server_port'])
+    client.connect()
+    success = sensor_msg.write(client)
+    return success
 
-    vehicle.start()
-    # vehicle.initialize_perception()
-    vehicle.initialize_reporting()
-    print(vehicle.sensors_ids)
-
-    # Start stepping the simulator
-    time_steps = []
-    for i in range(0, len(trajectory) - 1):
-        start_time = time.time()
-        response = vehicle.step_pose()
-        dt = time.time() - start_time
-        time_steps.append(dt)
-        print("Step = {0} completed in {1:.2f}ms".format(i, (dt * 1000), 2))
-        # time.sleep(1)
-        if running is False:
-            break
-
-    fps = 1.0 / (sum(time_steps) / len(time_steps))
-    print('Average FPS: {}'.format(fps))
-
-    print("Stopping the simulator.")
-    simulator.stop()
-    print("Stopping the uut.")
-    vehicle.stop()
+if __name__ == '__main__':
+    test_func()

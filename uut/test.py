@@ -9,7 +9,14 @@ import signal
 from monodrive.simulator import Simulator
 from uut.vehicles.example_vehicle import ExampleVehicle
 
-if __name__ == "__main__":
+class TestClass(object):
+
+    def myfunc(self):
+        """Display message."""
+        return 'version 1'
+
+#if __name__ == "__main__":
+def run_it():
     root = os.path.dirname(__file__)
 
     # Flag to allow user to stop the simulation from SIGINT
@@ -55,7 +62,7 @@ if __name__ == "__main__":
     time_steps = []
     for i in range(0, len(trajectory) - 1):
         start_time = time.time()
-        response = vehicle.step_pose()
+        response = vehicle.step()
         dt = time.time() - start_time
         time_steps.append(dt)
         print("Step = {0} completed in {1:.2f}ms".format(i, (dt * 1000), 2))

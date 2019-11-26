@@ -49,6 +49,10 @@ ID_REPLAY_STEP_SIMULATION_COMMAND = "REPLAY_StepSimulationCommand_ID"
 """Message ID to replay the current step in the simulation."""
 ID_REPLAY_STATE_SIMULATION_COMMAND = "REPLAY_StateStepSimulationCommand_ID"
 """Message ID to replay the current state in the simulation."""
+
+ID_REPLAY_STEP_POSE_SIMULATION_COMMAND = "REPLAY_StepPoseSimulationCommand_ID"
+"""Message ID to replay the current state in the simulation."""
+
 HEADER_CONTROL = 0x6d6f6e6f
 """The message prefix header for control messages to the server"""
 HEADER_RESPONSE = 0x6f6e6f6d

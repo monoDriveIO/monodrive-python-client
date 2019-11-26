@@ -5,6 +5,8 @@ from uut.client import UUT_Client
 import monodrive.messaging as mmsg
 from uut.base_sensor import Sensor
 import signal
+import matplotlib.pyplot as plt
+#import matlab.engine
 
 class MatlabVehicle():
     def __init__(self):
@@ -17,18 +19,50 @@ class MatlabVehicle():
         # configure this simulator client
         # Load the reporting sensor configuration and software under test
         # reporting_config = json.load(open(os.path.join(root, 'monodrive', 'reporting_config.json')))
-        self.simulator = Simulator(self.sim_config, self.trajectory)
+
         # Load the sensor configuration and software under test
         self.sensor_config = json.load(open(os.path.join(self.root, 'uut', 'gps_config.json')))
         #self.__client = UUT_Client(self.sim_config['server_ip'], self.sim_config['server_port'])
         #self.__client.connect()
-        self.client = self.simulator.client
+        self.client = UUT_Client(self.sim_config['server_ip'], self.sim_config['server_port'])
+        self.client.connect()
+        self.simulator = Simulator(self.sim_config, self.trajectory, self.client)
         self.__running = True
         self.__sensors = dict()
+        self.camera_frame = None
 
+
+
+    def on_camera_update(self, frame):
+        print("on camera update called")
+        if frame:
+            print("Perception system with image size {0}".format(len(frame[0].image)))
+            self.camera_frame = frame[0].image_bytes
+            #plt.imshow(frame[0].image)
+            #plt.draw()
+            #plt.pause(0.0001)
+            #plt.clf()
+        else:
+            print("no image")
+
+    def get_camera(self):
+        #mat_cam = matlab.uint8(self.)
+        return self.camera_frame
+
+    def subscribe_to_sensor(self, uid, callback):
+        """Subscribe to a single sensor's data ouput in the simulator.
+
+        Args:
+            uid(str): The uid of the sensor to subscribe to.
+            callback(func): The function that will be called when the sensor's
+            data arrives. Should be of the format:
+                def my_callback(data):
+        """
+        self.__sensors[uid].subscribe(callback)
 
     def start_simulator(self):
         # Start the simulation
+        self.client = self.simulator.client
         self.simulator.start()
 
     def send_sensor_configuration(self):
@@ -43,6 +77,8 @@ class MatlabVehicle():
             sensor = Sensor(self.sim_config['server_ip'], sc)
             sensor.start()
             self.__sensors[sensor.id] = sensor
+
+        self.subscribe_to_sensor("Camera_8000", self.on_camera_update)
 
     def stop(self):
         """Stop the simulation and all attached sensors."""
@@ -91,18 +127,14 @@ class MatlabVehicle():
         command.write(self.client)
         return command.read(self.client)
 
-if __name__ == '__main__':
-    def handler(signum, frame):
-        """"Signal handler to turn off the simulator with ctl+c"""
-        global running
-        running = False
 
-    signal.signal(signal.SIGINT, handler)
+if __name__ == '__main__':
     v = MatlabVehicle()
     v.start_simulator()
     v.send_sensor_configuration()
     v.start_sensor_listening()
-    for n in range(0, 10, 1):
-        print("step")
-        v.step(1)
-    v.stop()
+    v.step()
+    #for n in range(0, 10, 1):
+    #    print("step")
+    #    v.step(1)
+    #v.stop()

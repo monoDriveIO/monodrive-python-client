@@ -17,8 +17,11 @@ class Camera(object):
             self.game_time = game_time
             if len(frame) == self.height * self.width * 4:
                 image = np.array(bytearray(frame), dtype=np.uint8).reshape(self.height, self.width, 4)
+                image_bytes = bytearray(frame)
             else:
                 image = None
+                image_bytes = bytearray()
                 print("sensor:{0} , received wrong image size")
             #self.image = pickle.dumps(image, protocol=-1)
             self.image = image
+            self.image_bytes = image_bytes

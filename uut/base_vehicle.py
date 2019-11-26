@@ -6,7 +6,8 @@ import monodrive.messaging as mmsg
 from uut.base_sensor import Sensor
 from enum import Enum
 import signal
-
+import json
+import pprint
 
 class Base_Vehicle(object):
     """Simulator driver that will connect and read all sensors on the
@@ -90,6 +91,36 @@ class Base_Vehicle(object):
                             {
                                 u'amount': steps
                             }))
+        return response
+
+    def step_pose(self, position = [0,0,0]):
+        """Step the simulation the specified number of steps.
+
+        Args:
+            steps(int): The number of steps to move the simulation
+
+        Raises:
+            Exception if the simulator is not currently running
+        """
+        if not self.__running:
+            raise Exception("Simulator is not running")
+        raw_data = '''[{
+	"frame": [{
+		"name": "EgoVehicle_0",
+		"position": [-8847.83, 14146.69, 11.72],
+		"velocity": [1.31, 0.042, 14.85],
+		"tags": ["dynamic", "vehicle", "ego"],
+		"orientation": [-2.03e-05, -1.72e-05, 0.719, 0.694]
+	}],
+	"game_time": 32920.484,
+	"time": 1549487213
+}]'''
+        data = json.loads(raw_data)
+        pp = pprint.PrettyPrinter(width=41, compact=True)
+        pp.pprint(data)
+        response = self.send_command(
+            mmsg.ApiMessage(mmsg.ID_REPLAY_STEP_POSE_SIMULATION_COMMAND,
+                            data))
         return response
 
     def send_control(self, forward, right):

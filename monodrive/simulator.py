@@ -4,6 +4,7 @@ A simple simulator that will read all sensor values from the connected sensors.
 from monodrive.configurator import Configurator
 import monodrive.messaging as mmsg
 from enum import Enum
+from uut.client import UUT_Client
 import signal
 
 
@@ -21,7 +22,7 @@ class Simulator:
     """Simulator driver that will connect and read all sensors on the
     ego vehicle."""
 
-    def __init__(self, config, trajectory):
+    def __init__(self, config, trajectory, client):
         """Constructor.
 
         Args:
@@ -31,8 +32,10 @@ class Simulator:
         """
         self.__config = config
         self.__trajectory = trajectory
-        self.client = Configurator(config['server_ip'], config['server_port'])
-        self.client.connect()
+        #self.client = Configurator(config['server_ip'], config['server_port'])
+        #self.client.connect()
+        self.client = client
+
         self.__running = False
 
     @property

@@ -27,48 +27,6 @@
       "roll": 0.0
     }
   },
-   {
-  "type": "IMU",
-  "packet_size": 1472,
-  "listen_port": 8500,
-  "synchronized_display": true,
-  "location": {
-    "x":-75.0,
-    "y":-25.0,
-    "z":245.0
-  },
-  "rotation": {
-    "pitch": 0.0,
-    "yaw": 0.0,
-    "roll": 0.0
-  }},
-   {
-    "type": "RPM",
-    "packet_size": 1472,
-    "listen_port": 8600,
-    "location": {
-      "x": 0,
-      "y": 0,
-      "z": 0
-    },
-    "rotation": {
-      "pitch": 0,
-      "yaw": 0,
-      "roll": 0
-    },
-    "wheelNumber": 3
-  }, {
-    "type": "State",
-    "listen_port": 8700,
-    "packet_size": 1472,
-    "debug_drawing": true,
-    "desired_tags": [
-      "vehicle"
-    ],
-  "undesired_tags": [
-  "static"
-  ]
-},
     {
      "type": "Camera",
      "packet_size": 23552,
