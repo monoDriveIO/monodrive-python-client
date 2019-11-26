@@ -63,8 +63,8 @@ class UUT_Client:
 
     def disconnect(self):
         """Disconnect from the server."""
-        self.__sock.close()
         self.__connected = False
+        self.__sock.close()
 
     def read(self, length):
         """Read data from the server.
@@ -78,7 +78,7 @@ class UUT_Client:
         """
         data = b''
         count = 0
-        while count < length:
+        while count < length and self.__connected:
             bytes = self.__sock.recv(length - count)
             if not bytes or len(bytes) == 0:
                 break

@@ -31,8 +31,8 @@ class Simulator:
         """
         self.__config = config
         self.__trajectory = trajectory
-        self.__client = Configurator(config['server_ip'], config['server_port'])
-        self.__client.connect()
+        self.client = Configurator(config['server_ip'], config['server_port'])
+        self.client.connect()
         self.__running = False
 
     @property
@@ -101,5 +101,5 @@ class Simulator:
         Args:
             command(ApiMessage): The command to send to the server.
         """
-        command.write(self.__client)
-        return command.read(self.__client)
+        command.write(self.client)
+        return command.read(self.client)

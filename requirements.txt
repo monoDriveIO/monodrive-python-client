@@ -1,3 +1,6 @@
 Rx
 numpy
 matplotlib
+
+conda install -c conda-forge matplotlib
+conda install -c conda-forge rx

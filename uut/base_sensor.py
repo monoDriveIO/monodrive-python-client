@@ -1,3 +1,4 @@
+
 """base_sensor.py
 Base sensor class for processing data from the simulator
 """
