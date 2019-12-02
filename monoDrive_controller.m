@@ -1,27 +1,12 @@
-classdef monodrive_test < matlab.System & matlab.system.mixin.Propagates ...
-        & matlab.system.mixin.CustomIcon
-    % Example usage
-    % mono = monoDrive('configurations/simulator.json')
-    % mono.connect()
-    % mono.configure_simulator()
-    % mono.send_trajectory('configurations/trajectories/HighWayExitReplay.json')
-    % mono.config_sensor('uut/gps_config.json')
-    
+classdef monoDrive_control < matlab.System 
+    % Untitled Add summary here
+    %
     % This template includes the minimum set of functions required
     % to define a System object with discrete state.
 
     % Public, tunable properties
 
     properties
-
-    end
-
-    properties(DiscreteState)
-
-    end
-
-    % Pre-computed constants
-    properties(Access = private)
         ID_SIMULATOR_CONFIG = "SimulatorConfig_ID"
         ID_REPLAY_CONFIGURE_TRAJECTORY_COMMAND = "REPLAY_ConfigureTrajectoryCommand_ID"
         ID_REPLAY_CONFIGURE_SENSORS_COMMAND = "REPLAY_ConfigureSensorsCommand_ID"
@@ -30,31 +15,47 @@ classdef monodrive_test < matlab.System & matlab.system.mixin.Propagates ...
         HEADER_RESPONSE = dec2bin(hex2dec('6f6e6f6d'))
         sim_config_json = string
         sim_config = struct()
+        control_channel = libpointer 
+    end
+
+    properties(DiscreteState)
+
+    end
+
+    % Pre-computed constants
+    properties(Access = private)
+
+        v_mod = libpointer 
+        %vehicle = obj.v_mod.MatlabVehicle();
+        vehicle = libpointer
+        
     end
 
     methods
-        function obj = monodrive_test(u)
-
-        end
-        
- 
-        
-    end
-    methods(Access = protected)
-        function setupImpl(obj, sim_config_path)
-            % Perform one-time calculations, such as computing constants
-            fid = fopen(u,'r','n','UTF-8');
-            obj.sim_config_json = fscanf(fid, '%s');
-            obj.sim_config = jsondecode(obj.sim_config_json);
+        function obj = monoDrive_controller(sim_config_path)
+            fid = fopen(sim_config_path,'r','n','UTF-8');
+            config = fscanf(fid, '%s');
+            obj.sim_config = jsondecode(config);
             obj.control_channel = tcpip(obj.sim_config.server_ip, obj.sim_config.server_port);
             obj.control_channel.OutputBufferSize = 10000000;
             obj.control_channel.ByteOrder = 'bigEndian';
             obj.control_channel.Terminator('');
             fclose(fid);
-            mono.connect()
-            mono.configure_simulator()
-            mono.send_trajectory('configurations/trajectories/HighWayExitReplay.json')
-            mono.config_sensor('uut/gps_config.json')
+        end
+        
+        function connect(obj)
+            fopen(obj.control_channel);
+        end
+    end
+    methods(Access = protected)
+        function setupImpl(obj)
+            % Perform one-time calculations, such as computing constants
+            coder.extrinsic('py.importlib.import_module')
+            obj.v_mod = py.importlib.import_module('matlab_vehicle');
+            v = obj.v_mod.MatlabVehicle();
+            assignin('base','vehicle',v);
+            obj.vehicle = v;
+            
         end
         function dataout = getOutputDataTypeImpl(~)
             dataout = 'uint8';
@@ -65,36 +66,25 @@ classdef monodrive_test < matlab.System & matlab.system.mixin.Propagates ...
         function y = stepImpl(obj,u)
             % Implement algorithm. Calculate y as a function of input u and
             % discrete states.
-            %temp = obj.vehicle.get_number();
-            %y = uint8(py.bytes(temp)) + u;
+            temp = obj.vehicle.get_number();
+            y = uint8(py.bytes(temp)) + u;
         end
 
         function resetImpl(obj)
             % Initialize / reset discrete-state properties
         end
         
-        function icon = getIconImpl(obj)
-            % Define icon for System block
-            icon = mfilename("class"); % Use class name
-            % icon = "My System"; % Example: text icon
-            % icon = ["My","System"]; % Example: multi-line text icon
-            % icon = matlab.system.display.Icon("myicon.jpg"); % Example: image file icon
-        end
-       function connect(obj)
-            fopen(obj.control_channel);
-        end
-        
         function response = configure_simulator(obj)
             command = obj.ID_SIMULATOR_CONFIG;
             config = obj.sim_config_json;
-            response = obj.send_message(command, config);
+            response = obj.configure(command, config);
         end
         
         function response = send_trajectory(obj, trajectory_path)
             command = obj.ID_REPLAY_CONFIGURE_TRAJECTORY_COMMAND;
             fid = fopen(trajectory_path,'r','n','UTF-8');
             config = fscanf(fid, '%s');
-            response = obj.send_message(command, config);
+            response = obj.configure(command, config);
             fclose(fid);
         end
         
@@ -102,7 +92,7 @@ classdef monodrive_test < matlab.System & matlab.system.mixin.Propagates ...
             command = obj.ID_REPLAY_CONFIGURE_SENSORS_COMMAND;
             fid = fopen(sensor_config_path,'r','n','UTF-8');
             config = fscanf(fid, '%s');
-            response = obj.send_message(command, config);
+            response = obj.configure(command, config);
             fclose(fid);
         end
         
@@ -114,7 +104,7 @@ classdef monodrive_test < matlab.System & matlab.system.mixin.Propagates ...
      
             data_length = uint32(length(jsonencode(msg)) + 8);
             fwrite(obj.control_channel,[obj.HEADER_CONTROL, data_length], 'uint32')
-            msg_bytes = native2unicode(jsonencode(msg), 'UTF-8');
+            msg_bytes = native2unicode(jsonencode(configuration_msg), 'UTF-8');
             fwrite(obj.control_channel, msg_bytes)
             %pause(.1)
 

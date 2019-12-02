@@ -6,6 +6,12 @@ __pycache__/
 # C extensions
 *.so
 
+# Matlab
+slprj/
+*.asv
+*.slxc
+*.autosave
+
 # Distribution / packaging
 .Python
 build/

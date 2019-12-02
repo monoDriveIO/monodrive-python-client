@@ -1,4 +1,4 @@
-classdef monodrive_test < matlab.System & matlab.system.mixin.Propagates ...
+classdef monoDrive < matlab.System & matlab.system.mixin.Propagates ...
         & matlab.system.mixin.CustomIcon
     % Example usage
     % mono = monoDrive('configurations/simulator.json')
@@ -30,20 +30,14 @@ classdef monodrive_test < matlab.System & matlab.system.mixin.Propagates ...
         HEADER_RESPONSE = dec2bin(hex2dec('6f6e6f6d'))
         sim_config_json = string
         sim_config = struct()
+        control_channel = libpointer
     end
-
-    methods
-        function obj = monodrive_test(u)
-
-        end
         
- 
-        
-    end
     methods(Access = protected)
-        function setupImpl(obj, sim_config_path)
+        function y = setupImpl(obj, u)
             % Perform one-time calculations, such as computing constants
-            fid = fopen(u,'r','n','UTF-8');
+            sim_config_path = 'configurations/simulator.json';
+            fid = fopen(sim_config_path,'r','n','UTF-8');
             obj.sim_config_json = fscanf(fid, '%s');
             obj.sim_config = jsondecode(obj.sim_config_json);
             obj.control_channel = tcpip(obj.sim_config.server_ip, obj.sim_config.server_port);
@@ -51,22 +45,24 @@ classdef monodrive_test < matlab.System & matlab.system.mixin.Propagates ...
             obj.control_channel.ByteOrder = 'bigEndian';
             obj.control_channel.Terminator('');
             fclose(fid);
-            mono.connect()
-            mono.configure_simulator()
-            mono.send_trajectory('configurations/trajectories/HighWayExitReplay.json')
-            mono.config_sensor('uut/gps_config.json')
+            obj.connect()
+            obj.configure_simulator()
+            %obj.send_trajectory('configurations/trajectories/HighWayExitReplay.json')
+            %obj.config_sensor('uut/gps_config.json')
+            y =u
         end
-        function dataout = getOutputDataTypeImpl(~)
-            dataout = 'uint8';
-        end
-        function sizeout = getOutputSizeImpl(~)
-            sizeout = [1 1];
-        end
+        %function dataout = getOutputDataTypeImpl(~)
+        %    dataout = 'float';
+        %end
+        %function sizeout = getOutputSizeImpl(~)
+        %    sizeout = [1 1];
+        %end
         function y = stepImpl(obj,u)
             % Implement algorithm. Calculate y as a function of input u and
             % discrete states.
             %temp = obj.vehicle.get_number();
             %y = uint8(py.bytes(temp)) + u;
+            y = u
         end
 
         function resetImpl(obj)
@@ -86,7 +82,7 @@ classdef monodrive_test < matlab.System & matlab.system.mixin.Propagates ...
         
         function response = configure_simulator(obj)
             command = obj.ID_SIMULATOR_CONFIG;
-            config = obj.sim_config_json;
+            config = obj.sim_config;
             response = obj.send_message(command, config);
         end
         

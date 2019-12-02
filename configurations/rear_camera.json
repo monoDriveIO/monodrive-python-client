@@ -1,0 +1,30 @@
+{
+     "type": "Camera",
+     "id": "1",
+     "packet_size": 23552,
+     "listen_port": 8082,
+     "display_process": false,
+     "sensor_process": true,
+     "location": {
+       "x": -800.0,
+       "y": 0.0,
+       "z": 400.0
+     },
+     "rotation": {
+       "pitch": -15.0,
+       "yaw": 0.0,
+       "roll": 0.0
+     },
+     "stream_dimensions": {
+       "x": 768.0,
+       "y": 768.0
+     },
+    "max_distance": 50000.0,
+    "dynamic_range":  50,
+    "focal_length": 9.0,
+    "fstop": 1.4,
+    "fps": 30,
+    "min_shutter":  0.000500,
+    "max_shutter":  0.001400,
+    "sensor_size":  9.07
+}

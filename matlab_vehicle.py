@@ -3,9 +3,9 @@ import os
 from monodrive.simulator import Simulator
 from uut.client import UUT_Client
 import monodrive.messaging as mmsg
-from uut.base_sensor import Sensor
+#from uut.base_sensor import Sensor
 import signal
-import matplotlib.pyplot as plt
+#import matplotlib.pyplot as plt
 #import matlab.engine
 
 class MatlabVehicle():
@@ -25,13 +25,14 @@ class MatlabVehicle():
         #self.__client = UUT_Client(self.sim_config['server_ip'], self.sim_config['server_port'])
         #self.__client.connect()
         self.client = UUT_Client(self.sim_config['server_ip'], self.sim_config['server_port'])
-        self.client.connect()
+        #self.client.connect()
         self.simulator = Simulator(self.sim_config, self.trajectory, self.client)
         self.__running = True
         self.__sensors = dict()
         self.camera_frame = None
 
-
+    def get_number(self):
+        return bytearray(b'\x08')
 
     def on_camera_update(self, frame):
         print("on camera update called")
@@ -73,19 +74,19 @@ class MatlabVehicle():
     def start_sensor_listening(self):
         """Start all sensors"""
         self.__running = True
-        for sc in self.sensor_config:
-            sensor = Sensor(self.sim_config['server_ip'], sc)
-            sensor.start()
-            self.__sensors[sensor.id] = sensor
+        #for sc in self.sensor_config:
+        #    sensor = Sensor(self.sim_config['server_ip'], sc)
+        #    sensor.start()
+        #    self.__sensors[sensor.id] = sensor
 
-        self.subscribe_to_sensor("Camera_8000", self.on_camera_update)
+        #self.subscribe_to_sensor("Camera_8000", self.on_camera_update)
 
     def stop(self):
         """Stop the simulation and all attached sensors."""
         #self.client.disconnect()
-        for sensor_id in self.__sensors.keys():
-            self.__sensors[sensor_id].stop()
-        self.__running = False
+        #for sensor_id in self.__sensors.keys():
+        #    self.__sensors[sensor_id].stop()
+        #self.__running = False
 
     def step(self, steps=1):
         """Step the simulation the specified number of steps.
