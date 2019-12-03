@@ -1,10 +1,11 @@
-"""Client.py
-Client to connect to the monodrive simulator.
+"""client.py
+client to connect to the monodrive simulator.
 """
 import socket
+import select
 
 
-class Configurator:
+class Client:
     """Client to connect to the monodrive simulator"""
 
     def __init__(self, ip, port):
@@ -43,11 +44,7 @@ class Configurator:
 
     @property
     def connected(self):
-        """Get the current connection status of the server.
 
-        Returns:
-            True if connected, false otherwise.
-        """
         return self.__connected
 
     def connect(self):
@@ -99,3 +96,14 @@ class Configurator:
 
         """
         self.__sock.sendall(message)
+
+    def data_ready(self):
+        """Polls for available data on socket connection.
+
+        Returns:
+            True if there is available data to read from socket
+        """
+        if not self.__connected:
+            return False
+        ready = select.select([self.__sock], [], [], 0)
+        return len(ready[0]) == 1

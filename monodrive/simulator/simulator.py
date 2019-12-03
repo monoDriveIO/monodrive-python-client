@@ -1,10 +1,9 @@
 """simulator.py
 A simple simulator that will read all sensor values from the connected sensors.
 """
-from monodrive.configurator import Configurator
-import monodrive.messaging as mmsg
+from monodrive.common.client import Client
+import monodrive.common.messaging as mmsg
 from enum import Enum
-import signal
 
 
 class Mode(Enum):
@@ -31,7 +30,7 @@ class Simulator:
         """
         self.__config = config
         self.__trajectory = trajectory
-        self.__client = Configurator(config['server_ip'], config['server_port'])
+        self.__client = Client(config['server_ip'], config['server_port'])
         self.__client.connect()
         self.__running = False
 
@@ -63,8 +62,8 @@ class Simulator:
             The response message from the simulator for this configuration.
         """
         return self.configure_weather({
-                                 u"set_profile": weather
-                             })
+            u"set_profile": weather
+        })
 
     def configure_weather(self, config):
         """Configure the weather from JSON representation.
@@ -84,7 +83,6 @@ class Simulator:
             mmsg.ID_SIMULATOR_CONFIG, self.__config))
         self.send_command(mmsg.ApiMessage(
             mmsg.ID_REPLAY_CONFIGURE_TRAJECTORY_COMMAND, self.__trajectory))
-
 
     def start(self):
         """Start the simulation """

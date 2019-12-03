@@ -1,14 +1,12 @@
 """vehicle.py
 A simple simulator that will read all sensor values from the connected sensors.
 """
-from uut.client import UUT_Client
-import monodrive.messaging as mmsg
-from uut.base_sensor import Sensor
-from enum import Enum
-import signal
+from monodrive.common.client import Client
+import monodrive.common.messaging as mmsg
+from monodrive.sensors.base_sensor import Sensor
 
 
-class Base_Vehicle(object):
+class BaseVehicle(object):
     """Simulator driver that will connect and read all sensors on the
     ego vehicle."""
 
@@ -23,7 +21,7 @@ class Base_Vehicle(object):
         self.__config = config
         self.__sensor_config = sensors
         self.__sensors = dict()
-        self.__client = UUT_Client(config['server_ip'], config['server_port'])
+        self.__client = Client(config['server_ip'], config['server_port'])
         self.__client.connect()
         self.__running = False
 
@@ -47,12 +45,10 @@ class Base_Vehicle(object):
         """
         self.__sensors[uid].subscribe(callback)
 
-
     def configure(self):
         """Configure the server with the current simulator settings"""
         self.send_command(mmsg.ApiMessage(
             mmsg.ID_REPLAY_CONFIGURE_SENSORS_COMMAND, self.__sensor_config))
-
 
     def start(self):
         """Send the sensor configuration and start listening """

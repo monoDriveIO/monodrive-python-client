@@ -7,17 +7,17 @@ import threading
 import traceback
 import sys
 
-from uut.client import UUT_Client
+from monodrive.common.client import Client
 
-from uut.sensors.collision import Collision
-from uut.sensors.gps import GPS
-from uut.sensors.imu import IMU
-from uut.sensors.rpm import RPM
-from uut.sensors.radar import Radar
-from uut.sensors.state import State
-from uut.sensors.ultrasonic import Ultrasonic
-from uut.sensors.camera import Camera
-from uut.sensors.lidar import Lidar
+from monodrive.sensors.collision import Collision
+from monodrive.sensors.gps import GPS
+from monodrive.sensors.imu import IMU
+from monodrive.sensors.rpm import RPM
+from monodrive.sensors.radar import Radar
+from monodrive.sensors.state import State
+from monodrive.sensors.ultrasonic import Ultrasonic
+from monodrive.sensors.camera import Camera
+from monodrive.sensors.lidar import Lidar
 
 
 class Sensor(threading.Thread):
@@ -41,7 +41,7 @@ class Sensor(threading.Thread):
         # The class of this sensor -- reflection
         self.sensor_class = getattr(sys.modules[__name__], config['type'])
         # The client that is connected to the simulator
-        self.__client = UUT_Client(server_ip, config['listen_port'])
+        self.__client = Client(server_ip, config['listen_port'])
         # The event that is fired off when the sensor data arrives
         self.__source = Observable.create(self._init_rx).publish().auto_connect(0)
 

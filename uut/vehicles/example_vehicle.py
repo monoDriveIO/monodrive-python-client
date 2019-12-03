@@ -1,10 +1,10 @@
 
-from uut.base_vehicle import Base_Vehicle
+from monodrive.base_vehicle import BaseVehicle
 from uut.perception import Perception
 from uut.reporting import Reporting
 
 
-class ExampleVehicle(Base_Vehicle):
+class ExampleVehicle(BaseVehicle):
     def __init__(self, config, sensors):
         super().__init__(config, sensors)
         self.perception = None

@@ -3,9 +3,9 @@ __copyright__ = "Copyright (C) 2018 monoDrive"
 __license__ = "MIT"
 __version__ = "1.0"
 
-from uut.sensors.camera import Camera
-import numpy as np
+from monodrive.sensors.camera import Camera
 import matplotlib.pyplot as plt
+
 
 class Perception(object):
     def __init__(self, sensor_ids):

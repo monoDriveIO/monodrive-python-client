@@ -6,7 +6,7 @@ import os
 import time
 import signal
 
-from monodrive.simulator import Simulator
+from monodrive.simulator.simulator import Simulator
 from uut.vehicles.example_vehicle import ExampleVehicle
 
 if __name__ == "__main__":

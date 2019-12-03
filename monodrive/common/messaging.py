@@ -1,11 +1,10 @@
-"""messaggin.py
+"""messaging.py
 Implementation of API messages for simulator communications.
 """
 import json
 import random
 import struct
 import sys
-
 
 ID_STATUS = u"Status_ID"
 """Message ID for status commands"""
@@ -151,5 +150,5 @@ class ApiMessage:
             client(Client) - The client that is connected to the simulator.
         """
         data = str(self)
-        client.write(struct.pack("!II", HEADER_CONTROL, len(data)+8))
+        client.write(struct.pack("!II", HEADER_CONTROL, len(data) + 8))
         client.write(data.encode('utf8'))
