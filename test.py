@@ -1,13 +1,31 @@
 """example.py
 An example of creating a simulator and processing the sensor outputs.
 """
+# lib
 import json
 import os
 import time
 import signal
+import matplotlib.pyplot as plt
 
+# src
 from monodrive.simulator.simulator import Simulator
-from uut.vehicles.example_vehicle import ExampleVehicle
+
+
+def perception_on_update(frame):
+    if frame:
+        print("Perception system with image size {0}".format(len(frame[0].image)))
+        plt.imshow(frame[0].image)
+        plt.draw()
+        plt.pause(0.0001)
+        plt.clf()
+    else:
+        print("no image")
+
+
+def reporting_on_update(data):
+    print("Reporting Data *********** {0}".format(data[0].frame))
+
 
 if __name__ == "__main__":
     root = os.path.dirname(__file__)
@@ -24,38 +42,33 @@ if __name__ == "__main__":
 
     signal.signal(signal.SIGINT, handler)
 
-    # Load the trajectory and simulator configurations
+    # Load the trajectory, simulator and sensor configurations
     trajectory = json.load(open(os.path.join(root, 'configurations', 'trajectories', 'HighWayExitReplay.json')))
     sim_config = json.load(open(os.path.join(root, 'configurations', 'simulator.json')))
+    sensor_config = json.load(open(os.path.join(root, 'uut', 'gps_config.json')))
 
     # configure this simulator client
     # Load the reporting sensor configuration and software under test
     # reporting_config = json.load(open(os.path.join(root, 'monodrive', 'reporting_config.json')))
-    simulator = Simulator(sim_config, trajectory)
+    simulator = Simulator(sim_config, trajectory, sensor_config)
 
     # Load and configure the weather conditions for the simulator
-    weather = json.load(
-        open(os.path.join(root, 'configurations', 'weather.json')))
+    weather = json.load(open(os.path.join(root, 'configurations', 'weather.json')))
     profile = weather['profiles'][10]
     profile['id'] = 'test'
 
     # Start the simulation
     simulator.start()
 
-    # Load the sensor configuration and software under test
-    sensor_config = json.load(open(os.path.join(root, 'uut', 'gps_config.json')))
-    vehicle = ExampleVehicle(sim_config, sensor_config)
-
-    vehicle.start()
-    # vehicle.initialize_perception()
-    vehicle.initialize_reporting()
-    print(vehicle.sensors_ids)
+    # Subscribe to sensors of interest
+    simulator.subscribe_to_sensor('Camera_8000', perception_on_update)
+    simulator.subscribe_to_sensor('Collision_8800', reporting_on_update)
 
     # Start stepping the simulator
     time_steps = []
     for i in range(0, len(trajectory) - 1):
         start_time = time.time()
-        response = vehicle.step()
+        response = simulator.step()
         dt = time.time() - start_time
         time_steps.append(dt)
         print("Step = {0} completed in {1:.2f}ms".format(i, (dt * 1000), 2))
@@ -68,5 +81,3 @@ if __name__ == "__main__":
 
     print("Stopping the simulator.")
     simulator.stop()
-    print("Stopping the uut.")
-    vehicle.stop()
