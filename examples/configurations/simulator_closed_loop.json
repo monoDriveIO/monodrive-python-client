@@ -1,12 +1,11 @@
 {
-  "id": "simulator_test",
+  "id": "simulator_example_closed_loop",
   "server_ip": "127.0.0.1",
   "server_port": 8999,
   "client_ip": "127.0.0.1",
-  "simulation_mode": 2,
+  "simulation_mode": 0,
   "ego_config": {
     "camera": {
-      "fov": 60,
       "location": {
         "x": -1000.0,
         "y": 0.0,
@@ -14,10 +13,16 @@
       },
       "rotation": {
         "pitch": 0.0,
-         "yaw": 0.0,
-         "roll": 0.0
+        "yaw": 0.0,
+        "roll": 0.0
       }
-    }
+    },
+	"body": {
+	  "collision": "/Game/Vehicles_Vol1/Models/SUV/SUV_HD.SUV_HD",
+	  "mesh": "/Game/Vehicles_Vol1/Models/SUV/SUV_rigged.SUV_rigged",
+	  "animation": "/Game/Vehicles_Vol1/Blueprints/SUV_AnimBP.SUV_AnimBP_C",
+	  "color": [ 255, 0, 0, 1 ]
+	}
   },
   "phys_materials": {
     "Aluminum": {
@@ -99,15 +104,19 @@
     }
   },
   "traffic_configuration": {
-    "max_vehicles": 10,
+    "max_vehicles": 40,
     "spawn_rate": 0.25
   },
   "client_settings": {
     "map": {
-      "gis_anchor": { "x": 0, "y": 0, "z": 0},
+      "gis_anchor": {
+        "x": 0,
+        "y": 0,
+        "z": 0
+      },
       "point_delta": 100.0
     },
-    "gui":{
+    "gui": {
       "fps": 1.0
     },
     "logger": {
@@ -120,4 +129,3 @@
     }
   }
 }
-

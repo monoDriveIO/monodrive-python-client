@@ -1,7 +1,6 @@
-__author__ = "monoDrive"
-__copyright__ = "Copyright (C) 2018 monoDrive"
-__license__ = "MIT"
-__version__ = "1.0"
+"""
+Ultrasonic sensor module for monoDrive simulator python client
+"""
 
 # lib
 import json
@@ -19,6 +18,7 @@ class UltrasonicFrame(DataFrame):
         self.ranges = None
 
 
+@objectfactory.Factory.register_class
 class Ultrasonic(Sensor):
     """Ultrasonic sensor"""
 

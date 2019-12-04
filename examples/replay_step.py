@@ -52,9 +52,9 @@ if __name__ == "__main__":
     signal.signal(signal.SIGINT, handler)
 
     # Load the trajectory, simulator and sensor configurations
-    trajectory = json.load(open(os.path.join(root, 'configurations', 'trajectories', 'HighWayExitReplay.json')))
+    trajectory = json.load(open(os.path.join(root, 'trajectories', 'HighWayExitReplay.json')))
     sim_config = json.load(open(os.path.join(root, 'configurations', 'simulator.json')))
-    sensor_config = json.load(open(os.path.join(root, 'uut', 'gps_config.json')))
+    sensor_config = json.load(open(os.path.join(root, 'configurations', 'all_sensors.json')))
 
     # configure this simulator client
     # Load the reporting sensor configuration and software under test
