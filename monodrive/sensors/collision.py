@@ -3,15 +3,45 @@ __copyright__ = "Copyright (C) 2018 monoDrive"
 __license__ = "MIT"
 __version__ = "1.0"
 
+# lib
 import json
+import objectfactory
 
-class Collision(object):
+# src
+from monodrive.sensors import Sensor, DataFrame
 
-    def __init__(self, sensor_id, package_length, frame, time_stamp, game_time):
-        if frame:
-            json_raw = frame.decode('utf8').replace("'", '"')
-            parsed_json = json.loads(json_raw)
-            self.id = sensor_id
-            self.time_stamp = parsed_json['time']
-            self.game_time = parsed_json['game_time']
-            self.frame = parsed_json
+
+class CollisionFrame(DataFrame):
+    def __init__(self):
+        self.sensor_id = None
+        self.timestamp = None
+        self.game_time = None
+
+
+@objectfactory.Factory.register_class
+class Collision(Sensor):
+    """Collision sensor"""
+
+    def parse(self, data: bytes, package_length: int, time: int, game_time: int) -> DataFrame:
+        """
+        Parse data from collision sensor
+
+        Args:
+            data:
+            package_length:
+            time:
+            game_time:
+
+        Returns:
+            parsed CollisionFrame object
+        """
+        json_raw = data.decode('utf8').replace("'", '"')
+        parsed_json = json.loads(json_raw)
+
+        frame = CollisionFrame()
+        frame.sensor_id = self.id
+        frame.timestamp = parsed_json['time']
+        frame.game_time = parsed_json['game_time']
+        print(parsed_json)
+
+        return frame

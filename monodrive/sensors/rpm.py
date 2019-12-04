@@ -3,13 +3,43 @@ __copyright__ = "Copyright (C) 2018 monoDrive"
 __license__ = "MIT"
 __version__ = "1.0"
 
+# lib
 import struct
+import objectfactory
+
+# src
+from monodrive.sensors import Sensor, DataFrame
 
 
-class RPM(object):
+class RPMFrame(DataFrame):
+    def __init__(self):
+        self.sensor_id = None
+        self.timestamp = None
+        self.game_time = None
+        self.wheel_number = None
+        self.wheel_speed = None
 
-    def __init__(self, sensor_id, package_length, frame, time_stamp, game_time):
-        self.wheel_number, self.wheel_speed = list(struct.unpack('=if', frame))
-        self.sensor_id = sensor_id
-        self.time_stamp = time_stamp
-        self.game_time = game_time
+
+@objectfactory.Factory.register_class
+class RPM(Sensor):
+    """RPM sensor"""
+
+    def parse(self, data: bytes, package_length: int, time: int, game_time: int) -> DataFrame:
+        """
+        Parse data from RPM sensor
+
+        Args:
+            data:
+            package_length:
+            time:
+            game_time:
+
+        Returns:
+            parsed RPMFrame object
+        """
+        frame = RPMFrame()
+        frame.wheel_number, frame.wheel_speed = list(struct.unpack('=if', data))
+        frame.sensor_id = self.id
+        frame.timestamp = time
+        frame.game_time = game_time
+        return frame

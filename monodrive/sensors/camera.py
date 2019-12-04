@@ -3,22 +3,57 @@ __copyright__ = "Copyright (C) 2018 monoDrive"
 __license__ = "MIT"
 __version__ = "1.0"
 
-import json
+# lib
 import numpy as np
-import pickle
+import objectfactory
+
+# src
+from monodrive.sensors import Sensor, DataFrame
 
 
-class Camera(object):
+class CameraFrame(DataFrame):
+    def __init__(self):
+        self.sensor_id = None
+        self.timestamp = None
+        self.game_time = None
+        self.image = None
 
-    def __init__(self, sensor_id, package_length, frame, time_stamp, game_time):
-        if frame:
-            self.sensor_id = sensor_id
-            self.time_stamp = time_stamp
-            self.game_time = game_time
-            if len(frame) == self.height * self.width * 4:
-                image = np.array(bytearray(frame), dtype=np.uint8).reshape(self.height, self.width, 4)
-            else:
-                image = None
-                print("sensor:{0} , received wrong image size")
-            #self.image = pickle.dumps(image, protocol=-1)
-            self.image = image
+
+@objectfactory.Factory.register_class
+class CameraStreamDimensions(objectfactory.Serializable):
+    """Data model for camera stream dimensions"""
+    x = objectfactory.Field()
+    y = objectfactory.Field()
+
+
+@objectfactory.Factory.register_class
+class Camera(Sensor):
+    """Camera sensor"""
+    stream_dimensions = objectfactory.Nested(field_type=CameraStreamDimensions)
+
+    def parse(self, data: bytes, package_length: int, time: int, game_time: int) -> DataFrame:
+        """
+        Parse data from camera sensor
+
+        Args:
+            data:
+            package_length:
+            time:
+            game_time:
+
+        Returns:
+            parsed CameraFrame object
+        """
+        frame = CameraFrame()
+
+        frame.sensor_id = self.id
+        frame.time_stamp = time
+        frame.game_time = game_time
+        if len(data) == self.stream_dimensions.y * self.stream_dimensions.x * 4:
+            frame.image = np.array(
+                bytearray(data), dtype=np.uint8
+            ).reshape(int(self.stream_dimensions.y), int(self.stream_dimensions.x), 4)
+        else:
+            print("sensor:{} , received wrong image size".format(self.sensor_id))
+
+        return frame

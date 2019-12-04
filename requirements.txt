@@ -1,3 +1,4 @@
 Rx
 numpy
 matplotlib
+objectfactory==0.0.3

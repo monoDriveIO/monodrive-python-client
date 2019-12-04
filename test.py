@@ -10,6 +10,15 @@ import matplotlib.pyplot as plt
 
 # src
 from monodrive.simulator.simulator import Simulator
+from monodrive.sensors.collision import Collision
+from monodrive.sensors.gps import GPS
+from monodrive.sensors.imu import IMU
+from monodrive.sensors.rpm import RPM
+from monodrive.sensors.radar import Radar
+from monodrive.sensors.state import State
+from monodrive.sensors.ultrasonic import Ultrasonic
+from monodrive.sensors.camera import Camera
+from monodrive.sensors.lidar import Lidar
 
 
 def perception_on_update(frame):
@@ -61,7 +70,7 @@ if __name__ == "__main__":
     simulator.start()
 
     # Subscribe to sensors of interest
-    simulator.subscribe_to_sensor('Camera_8000', perception_on_update)
+    # simulator.subscribe_to_sensor('Camera_8000', perception_on_update)
     simulator.subscribe_to_sensor('Collision_8800', reporting_on_update)
 
     # Start stepping the simulator

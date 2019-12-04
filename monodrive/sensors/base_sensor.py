@@ -1,75 +1,72 @@
 """base_sensor.py
 Base sensor class for processing data from the simulator
 """
-from rx import Observable
+
+# lib
 import struct
 import threading
 import traceback
 import sys
+import rx
+import objectfactory
 
 from monodrive.common.client import Client
 
-from monodrive.sensors.collision import Collision
-from monodrive.sensors.gps import GPS
-from monodrive.sensors.imu import IMU
-from monodrive.sensors.rpm import RPM
-from monodrive.sensors.radar import Radar
-from monodrive.sensors.state import State
-from monodrive.sensors.ultrasonic import Ultrasonic
-from monodrive.sensors.camera import Camera
-from monodrive.sensors.lidar import Lidar
+
+class DataFrame(object):
+    """Base data frame class"""
+    pass
 
 
-class Sensor(threading.Thread):
+@objectfactory.Factory.register_class
+class SensorLocation(objectfactory.Serializable):
+    """Data model for sensor location"""
+    x = objectfactory.Field()
+    y = objectfactory.Field()
+    z = objectfactory.Field()
+
+
+@objectfactory.Factory.register_class
+class SensorRotation(objectfactory.Serializable):
+    """Data model for sensor rotation"""
+    pitch = objectfactory.Field()
+    yaw = objectfactory.Field()
+    roll = objectfactory.Field()
+
+
+class Sensor(objectfactory.Serializable):
     """Base sensor class for processing sensor data from the simulator."""
 
-    def __init__(self, server_ip, config):
-        """ Constructor.
+    sensor_type = objectfactory.Field(name='type')
+    listen_port = objectfactory.Field()
+    packet_size = objectfactory.Field()
+    fps = objectfactory.Field()
+    location = objectfactory.Nested(field_type=SensorLocation)
+    rotation = objectfactory.Nested(field_type=SensorRotation)
 
-        Args:
-            server_ip(str): The IP address of the server the sensor data is
-            coming from.
-            config(dict): A dictionary of configuration values for this sensor
-        """
-        threading.Thread.__init__(self)
-        # The current configuration for this sensor
-        self.__config = config
-
-        self.sensor_type = config['type']
-        # The unique ID of this sensor
-        self.__id = self.sensor_type + "_" + str(config['listen_port'])
-        # The class of this sensor -- reflection
-        self.sensor_class = getattr(sys.modules[__name__], config['type'])
-        # The client that is connected to the simulator
-        self.__client = Client(server_ip, config['listen_port'])
-        # The event that is fired off when the sensor data arrives
-        self.__source = Observable.create(self._init_rx).publish().auto_connect(0)
-
-        # Flag to determine if the sensor should be connected
-        self.__running = False
-
+    def __init__(self, *args, **kwargs):
+        super().__init__(args, kwargs)
         self.framing = False
         self.expected_frames_per_step = 1
-        self.frame_buffer = []
 
-        if self.sensor_type == "Camera":
-            self.sensor_class.width = int(config['stream_dimensions']['x'])
-            self.sensor_class.height = int(config['stream_dimensions']['y'])
+    def configure(self):
+        """Function called after deserializing sensor to do any setup/config"""
+        pass
 
-        if self.sensor_type == "Lidar":
-            self.framing = True
-            horizontal_resolution = config['horizontal_resolution']
-            n_lasers = config['n_lasers']
-            channels_per_block = 32
-            blocks_per_packet = 12
-            number_blocks = 360 / horizontal_resolution * n_lasers / channels_per_block
-            number_packets = number_blocks / blocks_per_packet
-            # packet_size = int(number_blocks * 1248.0)
-            # frame_buffer = []
-            self.expected_frames_per_step = int(number_packets)
+    def parse(self, data: bytes, package_length: int, time: int, game_time: int) -> DataFrame:
+        """
+        Parse raw data into data frame object
 
-    def str_to_class(self, classname):
-        return getattr(sys.modules[__name__], classname)
+        Args:
+            data(bytes):
+            package_length(int):
+            time(int):
+            game_time(int):
+
+        Returns:
+            Parsed data frame object
+        """
+        raise NotImplementedError('parse method must be implemented')
 
     @property
     def id(self):
@@ -78,7 +75,28 @@ class Sensor(threading.Thread):
         Returns:
             The string representation of the unique id.
         """
-        return self.__id
+        return self.sensor_type + "_" + str(self.listen_port)
+
+
+class SensorThread(threading.Thread):
+    """Thread for processing sensor data from the simulator"""
+
+    def __init__(self, host: str, sensor: Sensor):
+        super().__init__()
+
+        # The sensor associated with this thread
+        self.__sensor = sensor
+
+        # The client that is connected to the simulator
+        self.__client = Client(host, sensor.listen_port)
+
+        # The event that is fired off when the sensor data arrives
+        self.__source = rx.Observable.create(self._init_rx).publish().auto_connect(0)
+
+        # Flag to determine if the sensor should be connected
+        self.__running = False
+
+        self.frame_buffer = []
 
     def _init_rx(self, observer):
         """Initialize the reactive publisher"""
@@ -99,7 +117,7 @@ class Sensor(threading.Thread):
 
     def start(self):
         """Start the client connection for this sensor"""
-        print("Starting {0} on {1}".format(self.id, self.name))
+        print("Starting {0} on {1}".format(self.__sensor.id, self.name))
         self.__running = True
         self.__client.connect()
         super().start()
@@ -126,25 +144,24 @@ class Sensor(threading.Thread):
                 data = self.__client.read(length - HEADER_SIZE)
                 # Publish the message to everyone else
                 package_length = length - HEADER_SIZE;
-                message = self.sensor_class(self.id, package_length, data, time, game_time)
-                self.frame_buffer.append(message)
+                frame = self.__sensor.parse(data, package_length, time, game_time)
+                self.frame_buffer.append(frame)
 
-                if not self.framing:
+                if not self.__sensor.framing:
                     # self.observer.on_next((time, game_time, self.frame_buffer))
                     self.observer.on_next(self.frame_buffer)
                     self.frame_buffer = []
                     # print(self.id + str(message))
-                elif self.expected_frames_per_step == len(self.frame_buffer):
+                elif self.__sensor.expected_frames_per_step == len(self.frame_buffer):
                     # self.observer.on_next((time, game_time, self.frame_buffer))
                     self.observer.on_next(self.frame_buffer)
                     self.frame_buffer = []
                     # print(self.id + str(message))
-
 
             except Exception as e:
-                print("{0}: exception {1}".format(self.__id, str(e)))
+                print("{0}: exception {1}".format(self.__sensor.id, str(e)))
                 traceback.print_exc()
                 break
 
         # Log that this sensor has stopped running
-        print("{0}: disconnected".format(self.__id))
+        print("{0}: disconnected".format(self.__sensor.id))

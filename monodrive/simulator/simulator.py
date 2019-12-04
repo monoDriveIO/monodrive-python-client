@@ -4,10 +4,11 @@ A simple simulator that will read all sensor values from the connected sensors.
 
 # lib
 from enum import Enum
+import objectfactory
 
 # src
 from monodrive.common.client import Client
-from monodrive.sensors.base_sensor import Sensor
+from monodrive.sensors import SensorThread
 import monodrive.common.messaging as mmsg
 
 
@@ -139,9 +140,12 @@ class Simulator:
     def start_sensor_listening(self):
         """Start all sensors"""
         for sc in self.__sensor_config:
-            sensor = Sensor(self.__config['server_ip'], sc)
-            sensor.start()
-            self.__sensors[sensor.id] = sensor
+            sc['_type'] = sc['type']
+            sensor = objectfactory.Factory.create_object(sc)
+            sensor.configure()
+            sensor_thread = SensorThread(self.__config['server_ip'], sensor)
+            sensor_thread.start()
+            self.__sensors[sensor.id] = sensor_thread
 
     @property
     def sensors_ids(self):
