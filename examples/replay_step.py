@@ -10,15 +10,7 @@ import matplotlib.pyplot as plt
 
 # src
 from monodrive.simulator.simulator import Simulator
-from monodrive.sensors.collision import Collision
-from monodrive.sensors.gps import GPS
-from monodrive.sensors.imu import IMU
-from monodrive.sensors.rpm import RPM
-from monodrive.sensors.radar import Radar
-from monodrive.sensors.state import State
-from monodrive.sensors.ultrasonic import Ultrasonic
-from monodrive.sensors.camera import Camera
-from monodrive.sensors.lidar import Lidar
+from monodrive.sensors import *
 
 
 def perception_on_update(frame):
@@ -47,8 +39,6 @@ if __name__ == "__main__":
         """"Signal handler to turn off the simulator with ctl+c"""
         global running
         running = False
-
-
     signal.signal(signal.SIGINT, handler)
 
     # Load the trajectory, simulator and sensor configurations
@@ -57,8 +47,6 @@ if __name__ == "__main__":
     sensor_config = json.load(open(os.path.join(root, 'configurations', 'all_sensors.json')))
 
     # configure this simulator client
-    # Load the reporting sensor configuration and software under test
-    # reporting_config = json.load(open(os.path.join(root, 'monodrive', 'reporting_config.json')))
     simulator = Simulator(sim_config, trajectory, sensor_config)
 
     # Load and configure the weather conditions for the simulator
@@ -70,7 +58,7 @@ if __name__ == "__main__":
     simulator.start()
 
     # Subscribe to sensors of interest
-    # simulator.subscribe_to_sensor('Camera_8000', perception_on_update)
+    #simulator.subscribe_to_sensor('Camera_8000', perception_on_update)
     simulator.subscribe_to_sensor('Collision_8800', reporting_on_update)
 
     # Start stepping the simulator
