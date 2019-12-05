@@ -49,9 +49,12 @@ class Camera(Sensor):
         frame.time_stamp = time
         frame.game_time = game_time
         if len(data) == self.stream_dimensions.y * self.stream_dimensions.x * 4:
-            frame.image = np.array(
+            im = np.array(
                 bytearray(data), dtype=np.uint8
-            ).reshape(int(self.stream_dimensions.y), int(self.stream_dimensions.x), 4)
+            )
+            im = np.reshape(im, (int(self.stream_dimensions.y), int(self.stream_dimensions.x), 4))
+            im = im[:, :, :3]
+            frame.image = im
         else:
             print("sensor:{} , received wrong image size".format(self.sensor_id))
 

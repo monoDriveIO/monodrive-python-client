@@ -41,6 +41,5 @@ class Collision(Sensor):
         frame.sensor_id = self.id
         frame.timestamp = parsed_json['time']
         frame.game_time = parsed_json['game_time']
-        print(parsed_json)
 
         return frame
