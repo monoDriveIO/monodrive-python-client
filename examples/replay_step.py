@@ -63,7 +63,7 @@ if __name__ == "__main__":
 
     # Start stepping the simulator
     time_steps = []
-    for i in range(0, len(trajectory) - 1):
+    for i in range(0, len(trajectory) - 100):
         start_time = time.time()
         response = simulator.step()
         dt = time.time() - start_time

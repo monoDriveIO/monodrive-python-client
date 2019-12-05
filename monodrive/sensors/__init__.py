@@ -12,3 +12,4 @@ from .radar import Radar, RadarFrame
 from .rpm import RPM, RPMFrame
 from .state import State, StateFrame
 from .ultrasonic import Ultrasonic, UltrasonicFrame
+from .viewport_camera import ViewportCamera
