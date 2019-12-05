@@ -15,8 +15,9 @@ from monodrive.sensors import *
 
 def perception_on_update(frame):
     if frame:
-        print("Perception system with image size {0}".format(len(frame[0].image)))
-        plt.imshow(frame[0].image)
+        im = frame[0].image[..., ::-1]
+        print("Perception system with image size {0}".format(im.shape))
+        plt.imshow(im)  # TODO -- put this call on main thread
         plt.draw()
         plt.pause(0.0001)
         plt.clf()
@@ -43,32 +44,25 @@ if __name__ == "__main__":
 
     signal.signal(signal.SIGINT, handler)
 
-    # Load the trajectory, simulator, weather and sensor configurations
-    trajectory = json.load(open(os.path.join(root, 'trajectories', 'HighWayExitReplay.json')))
-    sim_config = json.load(open(os.path.join(root, 'configurations', 'simulator.json')))
-    sensor_config = json.load(open(os.path.join(root, 'configurations', 'all_sensors.json')))
-    weather_config = json.load(open(os.path.join(root, 'configurations', 'weather.json')))
-    vehicle_config = json.load(open(os.path.join(root, 'configurations', 'vehicle.json')))
-
-    # configure this simulator client
-    simulator = Simulator(
-        sim_config,
-        trajectory=trajectory,
-        sensors=sensor_config,
-        weather=weather_config,
-        ego=vehicle_config
+    # Construct simulator from file
+    simulator = Simulator.from_file(
+        os.path.join(root, 'configurations', 'simulator.json'),
+        trajectory=os.path.join(root, 'trajectories', 'HighWayExitReplay.json'),
+        sensors=os.path.join(root, 'configurations', 'all_sensors.json'),
+        weather=os.path.join(root, 'configurations', 'weather.json'),
+        ego=os.path.join(root, 'configurations', 'vehicle.json')
     )
 
     # Start the simulation
     simulator.start()
 
     # Subscribe to sensors of interest
-    # simulator.subscribe_to_sensor('Camera_8000', perception_on_update)
+    simulator.subscribe_to_sensor('Camera_8000', perception_on_update)
     simulator.subscribe_to_sensor('Collision_8800', reporting_on_update)
 
     # Start stepping the simulator
     time_steps = []
-    for i in range(0, len(trajectory) - 1):
+    for i in range(simulator.num_steps - 1):
         start_time = time.time()
         response = simulator.step()
         dt = time.time() - start_time

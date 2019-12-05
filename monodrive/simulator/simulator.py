@@ -3,6 +3,7 @@ A simple simulator that will read all sensor values from the connected sensors.
 """
 
 # lib
+import json
 from enum import Enum
 import objectfactory
 
@@ -195,6 +196,14 @@ class Simulator:
         """
         return self.__sensors.keys()
 
+    @property
+    def num_steps(self):
+        """Get number of steps in trajectory"""
+        if self.__trajectory:
+            return len(self.__trajectory)
+        else:
+            return 0
+
     def subscribe_to_sensor(self, uid, callback):
         """Subscribe to a single sensor's data ouput in the simulator.
 
@@ -218,3 +227,30 @@ class Simulator:
                 }
             )
         )
+
+    @classmethod
+    def from_file(
+            cls,
+            simulator: str,
+            trajectory: str = None,
+            sensors: str = None,
+            weather: str = None,
+            ego: str = None
+    ):
+        """Helper method to construct simulator object from config file paths"""
+        with open(simulator) as file:
+            config = json.load(file)
+            simulator = cls(config)
+        if trajectory:
+            with open(trajectory) as file:
+                simulator.__trajectory = json.load(file)
+        if sensors:
+            with open(sensors) as file:
+                simulator.__sensor_config = json.load(file)
+        if weather:
+            with open(weather) as file:
+                simulator.__weather = json.load(file)
+        if ego:
+            with open(ego) as file:
+                simulator.__ego = json.load(file)
+        return simulator
