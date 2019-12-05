@@ -4,26 +4,7 @@
   "server_port": 8999,
   "client_ip": "127.0.0.1",
   "simulation_mode": 0,
-  "ego_config": {
-    "camera": {
-      "location": {
-        "x": -1000.0,
-        "y": 0.0,
-        "z": 500.0
-      },
-      "rotation": {
-        "pitch": 0.0,
-        "yaw": 0.0,
-        "roll": 0.0
-      }
-    },
-	"body": {
-	  "collision": "/Game/Vehicles_Vol1/Models/SUV/SUV_HD.SUV_HD",
-	  "mesh": "/Game/Vehicles_Vol1/Models/SUV/SUV_rigged.SUV_rigged",
-	  "animation": "/Game/Vehicles_Vol1/Blueprints/SUV_AnimBP.SUV_AnimBP_C",
-	  "color": [ 255, 0, 0, 1 ]
-	}
-  },
+  "ego_config": {},
   "phys_materials": {
     "Aluminum": {
       "specular_exponent": 15.0,

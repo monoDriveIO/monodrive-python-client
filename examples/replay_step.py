@@ -39,26 +39,31 @@ if __name__ == "__main__":
         """"Signal handler to turn off the simulator with ctl+c"""
         global running
         running = False
+
+
     signal.signal(signal.SIGINT, handler)
 
-    # Load the trajectory, simulator and sensor configurations
+    # Load the trajectory, simulator, weather and sensor configurations
     trajectory = json.load(open(os.path.join(root, 'trajectories', 'HighWayExitReplay.json')))
     sim_config = json.load(open(os.path.join(root, 'configurations', 'simulator.json')))
     sensor_config = json.load(open(os.path.join(root, 'configurations', 'all_sensors.json')))
+    weather_config = json.load(open(os.path.join(root, 'configurations', 'weather.json')))
+    vehicle_config = json.load(open(os.path.join(root, 'configurations', 'vehicle.json')))
 
     # configure this simulator client
-    simulator = Simulator(sim_config, trajectory, sensor_config)
-
-    # Load and configure the weather conditions for the simulator
-    weather = json.load(open(os.path.join(root, 'configurations', 'weather.json')))
-    profile = weather['profiles'][10]
-    profile['id'] = 'test'
+    simulator = Simulator(
+        sim_config,
+        trajectory=trajectory,
+        sensors=sensor_config,
+        weather=weather_config,
+        ego=vehicle_config
+    )
 
     # Start the simulation
     simulator.start()
 
     # Subscribe to sensors of interest
-    #simulator.subscribe_to_sensor('Camera_8000', perception_on_update)
+    # simulator.subscribe_to_sensor('Camera_8000', perception_on_update)
     simulator.subscribe_to_sensor('Collision_8800', reporting_on_update)
 
     # Start stepping the simulator

@@ -4,21 +4,7 @@
   "server_port": 8999,
   "client_ip": "127.0.0.1",
   "simulation_mode": 2,
-  "ego_config": {
-    "camera": {
-      "fov": 60,
-      "location": {
-        "x": -1000.0,
-        "y": 0.0,
-        "z": 500.0
-      },
-      "rotation": {
-        "pitch": 0.0,
-        "yaw": 0.0,
-        "roll": 0.0
-      }
-    }
-  },
+  "ego_config": {},
   "phys_materials": {
     "Aluminum": {
       "specular_exponent": 15.0,
