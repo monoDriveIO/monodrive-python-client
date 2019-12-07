@@ -1,4 +1,4 @@
-Rx
-numpy
-matplotlib
+Rx==1.6.1
+numpy==1.17.4
 objectfactory==0.0.3
+matplotlib
