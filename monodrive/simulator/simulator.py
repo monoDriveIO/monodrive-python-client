@@ -257,12 +257,13 @@ class Simulator:
             trajectory: str = None,
             sensors: str = None,
             weather: str = None,
-            ego: str = None
+            ego: str = None,
+            verbose: bool = False
     ):
         """Helper method to construct simulator object from config file paths"""
         with open(simulator) as file:
             config = json.load(file)
-            simulator = cls(config)
+            simulator = cls(config, verbose=verbose)
         if trajectory:
             with open(trajectory) as file:
                 simulator.__trajectory = json.load(file)
