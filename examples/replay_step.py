@@ -9,7 +9,7 @@ import signal
 import matplotlib.pyplot as plt
 
 # src
-from monodrive.simulator.simulator import Simulator
+from monodrive.simulator import Simulator
 from monodrive.sensors import *
 
 

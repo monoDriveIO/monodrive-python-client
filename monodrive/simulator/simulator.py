@@ -27,7 +27,15 @@ class Simulator:
     """Simulator driver that will connect and read all sensors on the
     ego vehicle."""
 
-    def __init__(self, config, trajectory=None, sensors=None, weather=None, ego=None):
+    def __init__(
+            self,
+            config,
+            trajectory=None,
+            sensors=None,
+            weather=None,
+            ego=None,
+            verbose=False
+    ):
         """Constructor.
 
         Args:
@@ -38,12 +46,14 @@ class Simulator:
             this simulator instance.
             weather(dict): The configuration JSON for weather conditions
             ego(dict): The configuration JSON for the ego vehicle
+            verbose(bool):
         """
         self.__config = config
         self.__trajectory = trajectory
         self.__sensor_config = sensors
         self.__weather = weather
         self.__ego = ego
+        self.__verbose = verbose
         self.__sensors = dict()
         self.__client = Client(config['server_ip'], config['server_port'])
         self.__running = False
@@ -77,14 +87,22 @@ class Simulator:
         res = self.send_command(
             mmsg.ApiMessage(mmsg.ID_SIMULATOR_CONFIG, self.__config)
         )
+        if self.__verbose:
+            print(res)
 
         # configure other options if set
         if self.__trajectory:
             res = self.configure_trajectory(self.__trajectory)
+            if self.__verbose:
+                print(res)
         if self.__sensor_config:
             res = self.configure_sensors(self.__sensor_config)
+            if self.__verbose:
+                print(res)
         if self.__weather:
             res = self.configure_weather(self.__weather)
+            if self.__verbose:
+                print(res)
 
     def configure_weather(self, config):
         """Configure the weather from JSON representation.
@@ -183,7 +201,11 @@ class Simulator:
             sc['_type'] = sc['type']
             sensor = objectfactory.Factory.create_object(sc)
             sensor.configure()
-            sensor_thread = SensorThread(self.__config['server_ip'], sensor)
+            sensor_thread = SensorThread(
+                self.__config['server_ip'],
+                sensor,
+                verbose=self.__verbose
+            )
             sensor_thread.start()
             self.__sensors[sensor.id] = sensor_thread
 

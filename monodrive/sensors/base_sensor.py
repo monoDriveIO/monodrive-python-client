@@ -81,7 +81,7 @@ class Sensor(objectfactory.Serializable):
 class SensorThread(threading.Thread):
     """Thread for processing sensor data from the simulator"""
 
-    def __init__(self, host: str, sensor: Sensor):
+    def __init__(self, host: str, sensor: Sensor, verbose: bool = False):
         super().__init__()
 
         # The sensor associated with this thread
@@ -95,6 +95,8 @@ class SensorThread(threading.Thread):
 
         # Flag to determine if the sensor should be connected
         self.__running = False
+
+        self.__verbose = verbose
 
         self.frame_buffer = []
 
@@ -117,7 +119,8 @@ class SensorThread(threading.Thread):
 
     def start(self):
         """Start the client connection for this sensor"""
-        print("Starting {0} on {1}".format(self.__sensor.id, self.name))
+        if self.__verbose:
+            print("Starting {0} on {1}".format(self.__sensor.id, self.name))
         self.__running = True
         self.__client.connect()
         super().start()
@@ -131,7 +134,8 @@ class SensorThread(threading.Thread):
     def run(self):
         """Overwrite the base Thread run to start the main read loop for this
         sensor"""
-        print("running")
+        if self.__verbose:
+            print("Running main sensor thread: {} - {}".format(self.__sensor.id, self.name))
         HEADER_SIZE = 12
         while self.__running:
             try:
@@ -143,20 +147,16 @@ class SensorThread(threading.Thread):
                 length, time, game_time = struct.unpack("!IIf", header)
                 data = self.__client.read(length - HEADER_SIZE)
                 # Publish the message to everyone else
-                package_length = length - HEADER_SIZE;
+                package_length = length - HEADER_SIZE
                 frame = self.__sensor.parse(data, package_length, time, game_time)
                 self.frame_buffer.append(frame)
 
                 if not self.__sensor.framing:
-                    # self.observer.on_next((time, game_time, self.frame_buffer))
                     self.observer.on_next(self.frame_buffer)
                     self.frame_buffer = []
-                    # print(self.id + str(message))
                 elif self.__sensor.expected_frames_per_step == len(self.frame_buffer):
-                    # self.observer.on_next((time, game_time, self.frame_buffer))
                     self.observer.on_next(self.frame_buffer)
                     self.frame_buffer = []
-                    # print(self.id + str(message))
 
             except Exception as e:
                 print("{0}: exception {1}".format(self.__sensor.id, str(e)))
@@ -164,4 +164,5 @@ class SensorThread(threading.Thread):
                 break
 
         # Log that this sensor has stopped running
-        print("{0}: disconnected".format(self.__sensor.id))
+        if self.__verbose:
+            print("{0}: disconnected".format(self.__sensor.id))
