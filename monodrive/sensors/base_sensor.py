@@ -12,6 +12,8 @@ import objectfactory
 
 from monodrive.common.client import Client
 
+HEADER_SIZE = 12
+
 
 class DataFrame(object):
     """Base data frame class"""
@@ -46,8 +48,7 @@ class Sensor(objectfactory.Serializable):
 
     def __init__(self, *args, **kwargs):
         super().__init__(args, kwargs)
-        self.framing = False
-        self.expected_frames_per_step = 1
+        self.blocks_per_frame = 1
 
     def configure(self):
         """Function called after deserializing sensor to do any setup/config"""
@@ -98,7 +99,7 @@ class SensorThread(threading.Thread):
 
         self.__verbose = verbose
 
-        self.frame_buffer = []
+        self.data_buffer = []
 
     def _init_rx(self, observer):
         """Initialize the reactive publisher"""
@@ -136,27 +137,29 @@ class SensorThread(threading.Thread):
         sensor"""
         if self.__verbose:
             print("Running main sensor thread: {} - {}".format(self.__sensor.id, self.name))
-        HEADER_SIZE = 12
+
         while self.__running:
             try:
                 # Check socket for data available
                 if not self.__client.data_ready():
                     continue
-                # Read the header type of the message
+                # Read the header and data of the message
                 header = self.__client.read(HEADER_SIZE)
                 length, time, game_time = struct.unpack("!IIf", header)
                 data = self.__client.read(length - HEADER_SIZE)
-                # Publish the message to everyone else
                 package_length = length - HEADER_SIZE
-                frame = self.__sensor.parse(data, package_length, time, game_time)
-                self.frame_buffer.append(frame)
+                self.data_buffer.append(data)
 
-                if not self.__sensor.framing:
-                    self.observer.on_next(self.frame_buffer)
-                    self.frame_buffer = []
-                elif self.__sensor.expected_frames_per_step == len(self.frame_buffer):
-                    self.observer.on_next(self.frame_buffer)
-                    self.frame_buffer = []
+                # TODO: publish to raw data subscribers
+
+                # Parse and publish to subscribers
+                if (self.__sensor.blocks_per_frame == 1
+                        or self.__sensor.blocks_per_frame == len(self.data_buffer)):
+                    raw = b''.join(self.data_buffer)
+                    frame = self.__sensor.parse(raw, package_length, time, game_time)
+
+                    self.observer.on_next(frame)
+                    self.data_buffer = []
 
             except Exception as e:
                 print("{0}: exception {1}".format(self.__sensor.id, str(e)))
