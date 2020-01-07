@@ -12,22 +12,28 @@ import matplotlib.pyplot as plt
 from monodrive.simulator import Simulator
 from monodrive.sensors import *
 
-
-def perception_on_update(frame):
-    if frame:
-        im = frame[0].image[..., ::-1]
+def perception_on_update(frames):
+    if frames:
+        frame:CameraFrame = frames[0]
+        im = frame.image[..., ::-1]
         print("Perception system with image size {0}".format(im.shape))
-        plt.imshow(im)  # TODO -- put this call on main thread
-        plt.draw()
-        plt.pause(0.0001)
-        plt.clf()
+        #plt.imshow(im)  # TODO -- put this call on main thread
+        #plt.draw()
+        #plt.pause(0.0001)
+        #plt.clf()
     else:
         print("no image")
 
+def state_on_update(frames: StateFrame):
+    frame:StateFrame = frames[0]
+    print("Reporting Data *********** {0}".format(frame[0]))
+    print("Reporting Data Velocity = {0}".format(frame[0].velocity))
 
-def reporting_on_update(data):
-    print("Reporting Data *********** {0}".format(data[0].frame))
 
+def reporting_on_update(frames: [CollisionFrame]):
+    frame:CollisionFrame = frames[0]
+    print("Reporting Data *********** {0}".format(frame.raw_data))
+    print("Reporting Data Velocity = {0}".format(frame.velocity))
 
 if __name__ == "__main__":
     root = os.path.dirname(__file__)
@@ -62,7 +68,8 @@ if __name__ == "__main__":
 
     # Start stepping the simulator
     time_steps = []
-    for i in range(simulator.num_steps - 1):
+
+    for i in range(simulator.num_steps - 100):
         start_time = time.time()
         response = simulator.step()
         dt = time.time() - start_time
