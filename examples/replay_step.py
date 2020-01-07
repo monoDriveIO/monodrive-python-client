@@ -6,34 +6,54 @@ import json
 import os
 import time
 import signal
+import threading
 import matplotlib.pyplot as plt
 
 # src
 from monodrive.simulator import Simulator
 from monodrive.sensors import *
 
-def perception_on_update(frames):
-    if frames:
-        frame:CameraFrame = frames[0]
-        im = frame.image[..., ::-1]
-        print("Perception system with image size {0}".format(im.shape))
-        #plt.imshow(im)  # TODO -- put this call on main thread
-        #plt.draw()
-        #plt.pause(0.0001)
-        #plt.clf()
-    else:
-        print("no image")
-
-def state_on_update(frames: StateFrame):
-    frame:StateFrame = frames[0]
-    print("Reporting Data *********** {0}".format(frame[0]))
-    print("Reporting Data Velocity = {0}".format(frame[0].velocity))
+# global
+lock = threading.RLock()
+processing = 0
 
 
-def reporting_on_update(frames: [CollisionFrame]):
-    frame:CollisionFrame = frames[0]
-    print("Reporting Data *********** {0}".format(frame.raw_data))
-    print("Reporting Data Velocity = {0}".format(frame.velocity))
+def camera_on_update(frame: CameraFrame):
+    # im = frame.image[..., ::-1]
+    print("Perception system with image size {0}".format(0))
+    # plt.imshow(im)  # TODO -- put this call on main thread
+    # plt.draw()
+    # plt.pause(0.0001)
+    # plt.clf()
+    with lock:
+        global processing
+        processing -= 1
+        print(processing)
+
+
+def lidar_on_update(frame: LidarFrame):
+    print("LiDAR point cloud with size {0}".format(len(frame.points)))
+    with lock:
+        global processing
+        processing -= 1
+        print(processing)
+
+
+def state_on_update(frame: StateFrame):
+    print("State sensor reporting {0} objects".format(len(frame.object_list)))
+    with lock:
+        global processing
+        processing -= 1
+        print(processing)
+
+
+def collision_on_update(frame: CollisionFrame):
+    print("Reporting collision {0}".format(frame.collision))
+    with lock:
+        global processing
+        processing -= 1
+        print(processing)
+
 
 if __name__ == "__main__":
     root = os.path.dirname(__file__)
@@ -63,15 +83,31 @@ if __name__ == "__main__":
     simulator.start()
 
     # Subscribe to sensors of interest
-    simulator.subscribe_to_sensor('Camera_8000', perception_on_update)
-    simulator.subscribe_to_sensor('Collision_8800', reporting_on_update)
+    simulator.subscribe_to_sensor('Camera_8000', camera_on_update)
+    simulator.subscribe_to_sensor('Lidar_8200', lidar_on_update)
+    simulator.subscribe_to_sensor('State_8700', state_on_update)
+    simulator.subscribe_to_sensor('Collision_8800', collision_on_update)
 
     # Start stepping the simulator
     time_steps = []
 
-    for i in range(simulator.num_steps - 100):
+    for i in range(simulator.num_steps):
         start_time = time.time()
+
+        # expect 4 sensors to be processed
+        with lock:
+            processing = 4
+
+        # send step command
         response = simulator.step()
+
+        # wait for processing to complete
+        while running:
+            with lock:
+                if processing == 0:
+                    break
+            time.sleep(0.05)
+
         dt = time.time() - start_time
         time_steps.append(dt)
         print("Step = {0} completed in {1:.2f}ms".format(i, (dt * 1000), 2))
