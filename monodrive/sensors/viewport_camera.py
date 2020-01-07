@@ -7,20 +7,18 @@ import json
 import objectfactory
 
 # src
-from monodrive.sensors import Sensor#, DataFrame
-
-
-#class ViewportFrame(DataFrame):
-#    def __init__(self):
-#        self.sensor_id = None
-#        self.timestamp = None
-#        self.game_time = None
-#        self.frame= None
+from monodrive.sensors import Sensor  # , DataFrame
 
 
 @objectfactory.Factory.register_class
 class ViewportCamera(Sensor):
     """ViewportCamera sensor"""
+
+    def configure(self):
+        """
+        Configure ViewportCamera sensor
+        """
+        self.streamable = False
 
     def parse(self, data: bytes, package_length: int, time: int, game_time: int):
         """
@@ -35,6 +33,4 @@ class ViewportCamera(Sensor):
         Returns:
             'fake' parsed frame object
         """
-        frame = None
-
-        return frame
+        return None

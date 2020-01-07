@@ -98,7 +98,7 @@ class Lidar(Sensor):
         frame.sensor_id = self.id
         frame.timestamp = time
         frame.game_time = game_time
-        """
+
         # parse each received packet
         for chunk in [data[i:i + PACKET_SIZE] for i in range(0, len(data), PACKET_SIZE)]:
             packet = self._parse_packet_data(chunk)
@@ -124,7 +124,7 @@ class Lidar(Sensor):
                     frame.points.append(
                         LidarPoint(x, y, z, intensity)
                     )
-        """
+
         return frame
 
     def _parse_packet_data(self, packet_data):

@@ -6,7 +6,6 @@ Base sensor class for processing data from the simulator
 import struct
 import threading
 import traceback
-import sys
 import rx
 import objectfactory
 
@@ -49,6 +48,7 @@ class Sensor(objectfactory.Serializable):
     def __init__(self, *args, **kwargs):
         super().__init__(args, kwargs)
         self.blocks_per_frame = 1
+        self.streamable = True
 
     def configure(self):
         """Function called after deserializing sensor to do any setup/config"""
@@ -116,6 +116,9 @@ class SensorThread(threading.Thread):
             the data arrived, the second element is the game time the data
             occurred, and the third element is the data message.
         """
+        if not self.__sensor.streamable:
+            print('Error: cannot subscribe to sensor of type: {}'.format(self.__sensor.sensor_type))
+            return
         self.__source.subscribe(lambda data: callback(data))
 
     def start(self):
@@ -145,7 +148,7 @@ class SensorThread(threading.Thread):
                     continue
                 # Read the header and data of the message
                 header = self.__client.read(HEADER_SIZE)
-                length, time, game_time = struct.unpack("!IIf", header)
+                length, t, game_time = struct.unpack("!IIf", header)
                 data = self.__client.read(length - HEADER_SIZE)
                 package_length = length - HEADER_SIZE
                 self.data_buffer.append(data)
@@ -156,7 +159,7 @@ class SensorThread(threading.Thread):
                 if (self.__sensor.blocks_per_frame == 1
                         or self.__sensor.blocks_per_frame == len(self.data_buffer)):
                     raw = b''.join(self.data_buffer)
-                    frame = self.__sensor.parse(raw, package_length, time, game_time)
+                    frame = self.__sensor.parse(raw, package_length, t, game_time)
 
                     self.observer.on_next(frame)
                     self.data_buffer = []

@@ -201,6 +201,8 @@ class Simulator:
             sc['_type'] = sc['type']
             sensor = objectfactory.Factory.create_object(sc)
             sensor.configure()
+            if not sensor.streamable:
+                continue
             sensor_thread = SensorThread(
                 self.__config['server_ip'],
                 sensor,

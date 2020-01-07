@@ -19,8 +19,8 @@ processing = 0
 
 
 def camera_on_update(frame: CameraFrame):
-    # im = frame.image[..., ::-1]
-    print("Perception system with image size {0}".format(0))
+    im = frame.image[..., ::-1]
+    print("Perception system with image size {0}".format(im.shape))
     # plt.imshow(im)  # TODO -- put this call on main thread
     # plt.draw()
     # plt.pause(0.0001)
@@ -28,7 +28,6 @@ def camera_on_update(frame: CameraFrame):
     with lock:
         global processing
         processing -= 1
-        print(processing)
 
 
 def lidar_on_update(frame: LidarFrame):
@@ -36,7 +35,6 @@ def lidar_on_update(frame: LidarFrame):
     with lock:
         global processing
         processing -= 1
-        print(processing)
 
 
 def state_on_update(frame: StateFrame):
@@ -44,7 +42,6 @@ def state_on_update(frame: StateFrame):
     with lock:
         global processing
         processing -= 1
-        print(processing)
 
 
 def collision_on_update(frame: CollisionFrame):
@@ -52,7 +49,6 @@ def collision_on_update(frame: CollisionFrame):
     with lock:
         global processing
         processing -= 1
-        print(processing)
 
 
 if __name__ == "__main__":
