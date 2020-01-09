@@ -7,62 +7,88 @@ import os
 import time
 import signal
 import threading
+import argparse
 import matplotlib.pyplot as plt
 
 # src
 from monodrive.simulator import Simulator
 from monodrive.sensors import *
 
+# constants
+VERBOSE = True
+DISPLAY = False
+
 # global
 lock = threading.RLock()
 processing = 0
+running = True
 
 
 def camera_on_update(frame: CameraFrame):
-    im = frame.image[..., ::-1]
-    print("Perception system with image size {0}".format(im.shape))
-    # plt.imshow(im)  # TODO -- put this call on main thread
-    # plt.draw()
-    # plt.pause(0.0001)
-    # plt.clf()
+    """
+    callback to process parsed camera data
+    """
+    if VERBOSE:
+        print("Perception system with image size {0}".format(frame.image.shape))
+    if DISPLAY:
+        im = frame.image[..., ::-1]
+        plt.imshow(im)
+        plt.draw()
+        plt.pause(0.0001)
+        plt.clf()
     with lock:
         global processing
         processing -= 1
 
 
 def lidar_on_update(frame: LidarFrame):
-    print("LiDAR point cloud with size {0}".format(len(frame.points)))
+    """
+    callback to process parsed lidar data
+    """
+    if VERBOSE:
+        print("LiDAR point cloud with size {0}".format(len(frame.points)))
+    if DISPLAY:
+        pass
     with lock:
         global processing
         processing -= 1
 
 
 def state_on_update(frame: StateFrame):
-    print("State sensor reporting {0} objects".format(len(frame.object_list)))
+    """
+    callback to process parsed state sensor data
+    """
+    if VERBOSE:
+        print("State sensor reporting {0} objects".format(len(frame.object_list)))
     with lock:
         global processing
         processing -= 1
 
 
 def collision_on_update(frame: CollisionFrame):
-    print("Reporting collision {0}".format(frame.collision))
+    """
+    callback to process parsed collision sensor data
+    """
+    if VERBOSE:
+        print("Reporting collision {0}".format(frame.collision))
     with lock:
         global processing
         processing -= 1
 
 
-if __name__ == "__main__":
+def main():
+    """
+    main driver function
+    """
     root = os.path.dirname(__file__)
 
     # Flag to allow user to stop the simulation from SIGINT
-    running = True
-
+    global running
 
     def handler(signum, frame):
         """"Signal handler to turn off the simulator with ctl+c"""
         global running
         running = False
-
 
     signal.signal(signal.SIGINT, handler)
 
@@ -72,11 +98,13 @@ if __name__ == "__main__":
         trajectory=os.path.join(root, 'trajectories', 'HighWayExitReplay.json'),
         sensors=os.path.join(root, 'configurations', 'all_sensors.json'),
         weather=os.path.join(root, 'configurations', 'weather.json'),
-        ego=os.path.join(root, 'configurations', 'vehicle.json')
+        ego=os.path.join(root, 'configurations', 'vehicle.json'),
+        verbose=VERBOSE
     )
 
     # Start the simulation
     simulator.start()
+    print('Starting simulator')
 
     # Subscribe to sensors of interest
     simulator.subscribe_to_sensor('Camera_8000', camera_on_update)
@@ -92,6 +120,7 @@ if __name__ == "__main__":
 
         # expect 4 sensors to be processed
         with lock:
+            global processing
             processing = 4
 
         # send step command
@@ -106,7 +135,8 @@ if __name__ == "__main__":
 
         dt = time.time() - start_time
         time_steps.append(dt)
-        print("Step = {0} completed in {1:.2f}ms".format(i, (dt * 1000), 2))
+        if VERBOSE:
+            print("Step = {0} completed in {1:.2f}ms".format(i, (dt * 1000), 2))
         # time.sleep(1)
         if running is False:
             break
@@ -116,3 +146,7 @@ if __name__ == "__main__":
 
     print("Stopping the simulator.")
     simulator.stop()
+
+
+if __name__ == "__main__":
+    main()
