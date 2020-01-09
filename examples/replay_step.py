@@ -7,8 +7,9 @@ import os
 import time
 import signal
 import threading
-import argparse
+import numpy as np
 import matplotlib.pyplot as plt
+from mpl_toolkits.mplot3d import Axes3D
 
 # src
 from monodrive.simulator import Simulator
@@ -16,12 +17,14 @@ from monodrive.sensors import *
 
 # constants
 VERBOSE = True
-DISPLAY = False
+DISPLAY = True
 
 # global
 lock = threading.RLock()
 processing = 0
 running = True
+camera_frame = None
+lidar_frame = None
 
 
 def camera_on_update(frame: CameraFrame):
@@ -30,12 +33,8 @@ def camera_on_update(frame: CameraFrame):
     """
     if VERBOSE:
         print("Perception system with image size {0}".format(frame.image.shape))
-    if DISPLAY:
-        im = frame.image[..., ::-1]
-        plt.imshow(im)
-        plt.draw()
-        plt.pause(0.0001)
-        plt.clf()
+    global camera_frame
+    camera_frame = frame
     with lock:
         global processing
         processing -= 1
@@ -47,8 +46,8 @@ def lidar_on_update(frame: LidarFrame):
     """
     if VERBOSE:
         print("LiDAR point cloud with size {0}".format(len(frame.points)))
-    if DISPLAY:
-        pass
+    global lidar_frame
+    lidar_frame = frame
     with lock:
         global processing
         processing -= 1
@@ -115,6 +114,18 @@ def main():
     # Start stepping the simulator
     time_steps = []
 
+    # setup display
+    if DISPLAY:
+        fig = plt.figure('perception system', figsize=(10, 4))
+        ax_camera = fig.add_subplot(1, 2, 1)
+        ax_lidar = fig.add_subplot(1, 2, 2, projection='3d')
+        ax_lidar.set_xlim(-80000, 80000)
+        ax_lidar.set_ylim(-80000, 80000)
+        ax_lidar.set_zlim(0, 40000)
+        fig.canvas.draw()
+        data_camera = None
+        data_lidar = None
+
     for i in range(simulator.num_steps):
         start_time = time.time()
 
@@ -133,6 +144,31 @@ def main():
                     break
             time.sleep(0.05)
 
+        # plot if needed
+        if DISPLAY:
+            global camera_frame, lidar_frame
+            # update with camera data
+            if camera_frame:
+                im = camera_frame.image[..., ::-1]
+                if data_camera is None:
+                    data_camera = ax_camera.imshow(im)
+                else:
+                    data_camera.set_data(im)
+            # update with lidar data
+            if lidar_frame:
+                data = np.array([[pt.x, pt.y, pt.z] for pt in lidar_frame.points])
+                data = data[np.any(data != 0, axis=1)]
+                if data_lidar is None:
+                    data_lidar = ax_lidar.scatter(data[:, 0], data[:, 1], data[:, 2], s=0.1)
+                else:
+                    data_lidar._offsets3d = (data[:, 0], data[:, 1], data[:, 2])
+
+            # do draw
+            fig.canvas.draw()
+            fig.canvas.flush_events()
+            plt.pause(0.0001)
+
+        # timing
         dt = time.time() - start_time
         time_steps.append(dt)
         if VERBOSE:
