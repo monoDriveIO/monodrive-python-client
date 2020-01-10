@@ -15,10 +15,6 @@ from monodrive.sensors import Sensor, DataFrame
 CHANNELS_PER_BLOCK = 32
 BLOCKS_PER_PACKET = 12
 PACKET_SIZE = 1206
-LASER_ANGLES = [-10, 0.67, -8.67, 2, -7.33, 3.33, -6, 4.67, -4.67, 6, -3.33,
-                7.33, -2, 8.67, -0.67, 10]
-VERTICAL_CORRECTION = [7.4, -0.9, 6.5, -1.8, 5.5, -2.7, 4.6, -3.7, 3.7, -4.6,
-                       2.7, -5.5, 1.8, -6.5, 0.9, -7.4]
 
 
 class LidarFrame(DataFrame):
@@ -99,6 +95,8 @@ class Lidar(Sensor):
         frame.timestamp = time
         frame.game_time = game_time
 
+        laser_angles = self._get_laser_angles()
+
         # parse each received packet
         for chunk in [data[i:i + PACKET_SIZE] for i in range(0, len(data), PACKET_SIZE)]:
             packet = self._parse_packet_data(chunk)
@@ -108,7 +106,7 @@ class Lidar(Sensor):
                 if block.azimuth >= 36000:
                     continue
                 for i, point in enumerate(block.points):
-                    pitch = LASER_ANGLES[i % 16]
+                    pitch = laser_angles[i % self.n_lasers]
                     distance = point.d * 2.0
                     intensity = point.i
                     azimuth = block.azimuth / 100.0
@@ -158,8 +156,35 @@ class Lidar(Sensor):
 
         Returns:
         """
-        # TODO: support 16 or 32 
-        return LASER_ANGLES
+        if self.n_lasers == 16:
+            # VLP-16
+            fov = 20.0
+            starting_pitch = -10.0
+        elif self.n_lasers == 32:
+            # HDL-32
+            fov = 41.34
+            starting_pitch = -30.67
+        else:
+            # not supported
+            raise ValueError(
+                'Only 16 and 32 are valid values for n_lasers (got {})'.format(self.n_lasers)
+            )
+
+        # setup
+        current_pitch = starting_pitch
+        pitch_inc = fov / (self.n_lasers - 1)
+        laser_angles = [None] * self.n_lasers
+
+        # interleave positive and negative beams
+        for i in range(0, self.n_lasers, 2):
+            laser_angles[i] = current_pitch
+            current_pitch += pitch_inc
+
+        for i in range(1, self.n_lasers, 2):
+            laser_angles[i] = current_pitch
+            current_pitch += pitch_inc
+
+        return laser_angles
 
 
 def _spherical_to_cartesian(azimuth: float, elevation: float, distance: float):
