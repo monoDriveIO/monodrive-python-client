@@ -70,7 +70,9 @@ def collision_on_update(frame: CollisionFrame):
     callback to process parsed collision sensor data
     """
     if VERBOSE:
-        print("Reporting collision {0}".format(frame.collision))
+        collision = any([t.collision for t in frame.targets])
+        nearest = min([t.distance for t in frame.targets])
+        print("Collision sensor: collision {}, nearest: {:.2f}m".format(collision, nearest))
     with lock:
         global processing
         processing -= 1
@@ -181,6 +183,7 @@ def main():
             time_steps.append(dt)
             if VERBOSE:
                 print("Step = {0} completed in {1:.2f}ms".format(i, (dt * 1000), 2))
+                print("------------------")
             # time.sleep(1)
             if running is False:
                 break

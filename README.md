@@ -15,18 +15,24 @@ More detailed examples can be found in the `examples/` directory.
 ## Installation
 Use [pip](https://pip.pypa.io/en/stable/installing/) for installation. We recommend you
 do so within a virtual environment such as [Conda](https://docs.conda.io/en/latest/).
+
+From pypi repositories (not yet supported)
 ```
 pip install monodrive
 ```
-or
+From remote github repo
 ```
 pip install git+git://github.com/monodriveIO/python_client.git@mycommit#egg=monodrive
+```
+From local github repo (when doing development)
+```
+pip install -e .
 ```
 
 ## Tips and troubleshooting
 
 - If the simulator is running on another machine, you will need to update the
-host information
+host information in `simulator.json`
 ```json
 "simulator_ip": <IP OF SIMULATOR MACHINE>
 ```

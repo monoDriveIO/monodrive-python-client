@@ -134,7 +134,7 @@
       "roll": 0.0
     },
     "desired_tags": [
-      "vt"
+      "vehicle"
     ],
     "undesired_tags": [
       "static"

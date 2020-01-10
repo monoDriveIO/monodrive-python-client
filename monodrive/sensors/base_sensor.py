@@ -46,6 +46,13 @@ class Sensor(objectfactory.Serializable):
     rotation = objectfactory.Nested(field_type=SensorRotation)
 
     def __init__(self, *args, **kwargs):
+        """
+        Constructor for base sensor class
+
+        Args:
+            *args:
+            **kwargs: any class member can be set by keyword during construction
+        """
         super().__init__(args, kwargs)
         self.blocks_per_frame = 1
         self.streamable = True

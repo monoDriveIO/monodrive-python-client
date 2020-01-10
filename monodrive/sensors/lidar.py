@@ -116,7 +116,7 @@ class Lidar(Sensor):
                         azimuth += self.horizontal_resolution
 
                     # convert to cartesian
-                    x, y, z = _spherical_to_cartesian(azimuth, pitch, distance)
+                    x, y, z = self._spherical_to_cartesian(azimuth, pitch, distance)
 
                     # add to final point set for frame
                     frame.points.append(
@@ -186,25 +186,25 @@ class Lidar(Sensor):
 
         return laser_angles
 
+    @staticmethod
+    def _spherical_to_cartesian(azimuth: float, elevation: float, distance: float):
+        """Convert a LiDAR point from azimuth, elevation, distance into x, y, z
+        Cartesian coordinates.
 
-def _spherical_to_cartesian(azimuth: float, elevation: float, distance: float):
-    """Convert a LiDAR point from azimuth, elevation, distance into x, y, z
-    Cartesian coordinates.
+        Args:
+            azimuth(float): The azimuth angle associated with this point.
+            elevation(float): The elevation angle associated with this point.
+            distance(float): The distance (radius) for this point
+        Returns:
+            A tuple of the point in x, y, z Cartesian coordinates.
+        """
+        # If the distance was 0, then there was no return for this point
+        if distance == 0:
+            return 0, 0, 0
 
-    Args:
-        azimuth(float): The azimuth angle associated with this point.
-        elevation(float): The elevation angle associated with this point.
-        distance(float): The distance (radius) for this point
-    Returns:
-        A tuple of the point in x, y, z Cartesian coordinates.
-    """
-    # If the distance was 0, then there was no return for this point
-    if distance == 0:
-        return 0, 0, 0
-
-    omega = np.radians(elevation)
-    alpha = np.radians(azimuth)
-    x = distance * math.cos(omega) * math.sin(alpha)
-    y = distance * math.cos(omega) * math.cos(alpha)
-    z = distance * math.sin(omega)
-    return x, y, z
+        omega = np.radians(elevation)
+        alpha = np.radians(azimuth)
+        x = distance * math.cos(omega) * math.sin(alpha)
+        y = distance * math.cos(omega) * math.cos(alpha)
+        z = distance * math.sin(omega)
+        return x, y, z
