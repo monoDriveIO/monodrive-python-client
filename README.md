@@ -1,38 +1,41 @@
-# monoDrive Python Client
+# monoDrive Python client
 
-This repository contains a Python implementation of client that can connect
-to the monoDrive simulator and process sensor data. 
+This repository contains a Python implementation of a client that can connect
+to the monoDrive simulator, configure scenarios, and process sensor data.
 
-# Prerequisties
-
-You'll need to use Python 3 or higher in order to use the client. To get 
-started, just clone the repo, create a virtual environment and install the 
-`requirements.txt`:
-
-```bash
-$ git clone git@github.com:monoDriveIO/python_client.git
-$ cd ./python_client
-$ virtualenv ./venv 
-$ . ./venv/bin/activate
-(venv) $ pip install -r ./requirements.txt
+## Usage
+Simple quickstart example
+```python
+# TODO
 ```
 
-# Usage
-There's an example usage of the simulator in `test.py`. You'll need to have
-a monoDrive simulator running either locally or on the same network. If not
-running the simulator locally, in `./configurations/simulator.json` make sure 
-to set:
+You will need to have a monoDrive simulator running and available.
+More detailed examples can be found in the `examples/` directory.
 
+## Installation
+Use [pip](https://pip.pypa.io/en/stable/installing/) for installation. We recommend you
+do so within a virtual environment such as [Conda](https://docs.conda.io/en/latest/).
+
+From pypi repositories (not yet supported)
+```
+pip install monodrive
+```
+From remote github repo
+```
+pip install git+git://github.com/monodriveIO/python_client.git@mycommit#egg=monodrive
+```
+From local github repo (when doing development)
+```
+pip install -e .
+```
+
+## Tips and troubleshooting
+
+- If the simulator is running on another machine, you will need to update the
+host information in `simulator.json`
 ```json
 "simulator_ip": <IP OF SIMULATOR MACHINE>
 ```
 
-Now you can run the sample in `test.py`:
-
-```bash
-(venv) $ python ./test.py`
-```
-
-You should see that the client is successfully connected to the simulator and
-begins replaying the trajectory from 
-`./configurations/open_sense/SuddenStop.json`.
+- On running the script, you should see that the client is successfully connected to the simulator
+and begins replaying the trajectory file.
