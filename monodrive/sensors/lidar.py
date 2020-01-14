@@ -208,3 +208,9 @@ class Lidar(Sensor):
         y = distance * math.cos(omega) * math.cos(alpha)
         z = distance * math.sin(omega)
         return x, y, z
+
+
+@objectfactory.Factory.register_class
+class SemanticLidar(Lidar):
+    """Semantic Lidar sensor"""
+    pass

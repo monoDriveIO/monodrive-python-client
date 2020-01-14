@@ -74,3 +74,14 @@ class Camera(Sensor):
         frame.image = im
 
         return frame
+
+
+@objectfactory.Factory.register_class
+class SemanticCamera(Camera):
+    """Semantic Camera sensor"""
+
+    def configure(self):
+        """
+        configure semantic camera
+        """
+        self.channels = 'gray'
