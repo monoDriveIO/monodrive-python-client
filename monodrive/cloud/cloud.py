@@ -75,7 +75,12 @@ def get_state() -> CloudJobState:
     if not os.path.exists(os.path.join(ASSET_DIR, STATE_FILE)):
         return None
     with open(os.path.join(ASSET_DIR, STATE_FILE), 'r') as file:
-        state = CloudJobState.get(file.read(), None)
+        text_name = file.read()
+    try:
+        state = CloudJobState[text_name]
+    except KeyError as e:
+        print('Invalid state: {}'.format(e))
+        return None
     return state
 
 
