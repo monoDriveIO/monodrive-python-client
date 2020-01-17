@@ -165,8 +165,7 @@ class SensorThread(threading.Thread):
                 # Parse and publish to subscribers
                 if (self.__sensor.blocks_per_frame == 1
                         or self.__sensor.blocks_per_frame == len(self.data_buffer)):
-                    raw = b''.join(self.data_buffer)
-                    frame = self.__sensor.parse(raw, package_length, t, game_time)
+                    frame = self.__sensor.parse(self.data_buffer, package_length, t, game_time)
 
                     self.observer.on_next(frame)
                     self.data_buffer = []

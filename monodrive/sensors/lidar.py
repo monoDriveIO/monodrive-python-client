@@ -90,6 +90,8 @@ class Lidar(Sensor):
         Returns:
             parsed LidarFrame object
         """
+        data = b''.join(data)
+
         frame = LidarFrame()
         frame.sensor_id = self.id
         frame.timestamp = time

@@ -4,6 +4,7 @@ Camera module for monoDrive simulator python client
 
 # lib
 import numpy as np
+import json
 import objectfactory
 
 # src
@@ -16,6 +17,7 @@ class CameraFrame(DataFrame):
         self.timestamp = None
         self.game_time = None
         self.image = None
+        self.annotation = None
 
 
 @objectfactory.Factory.register_class
@@ -26,12 +28,20 @@ class CameraStreamDimensions(objectfactory.Serializable):
 
 
 @objectfactory.Factory.register_class
+class AnnotationDetails(objectfactory.Serializable):
+    desired_tags = objectfactory.Field(default=[])
+
+
+@objectfactory.Factory.register_class
 class Camera(Sensor):
     """Camera sensor"""
     stream_dimensions = objectfactory.Nested(field_type=CameraStreamDimensions)
+    annotation = objectfactory.Nested(fieldType=AnnotationDetails, default=None)
+    if annotation is not None:
+        blocks_per_frame = 2
     channels = objectfactory.Field()
 
-    def parse(self, data: bytes, package_length: int, time: int, game_time: int) -> DataFrame:
+    def parse(self, data: [bytes], package_length: int, time: int, game_time: int) -> DataFrame:
         """
         Parse data from camera sensor
 
@@ -60,18 +70,22 @@ class Camera(Sensor):
             raise ValueError('Camera channels type: {} not supported'.format(self.channels))
 
         # validate complete data
-        if len(data) != self.stream_dimensions.y * self.stream_dimensions.x * num_channels:
+        if len(data[0]) != self.stream_dimensions.y * self.stream_dimensions.x * num_channels:
             print("sensor:{} , received wrong image size".format(self.sensor_id))
             return frame
 
         # do parse
-        im = np.array(bytearray(data), dtype=np.uint8)
+        im = np.array(bytearray(data[0]), dtype=np.uint8)
         im = np.reshape(
             im,
             (int(self.stream_dimensions.y), int(self.stream_dimensions.x), num_channels)
         )
         im = im[:, :, :3]
         frame.image = im
+
+        if len(data) == 2:
+            json_raw = data[1].decode('utf8').replace("'", '"')
+            frame.annotation = json.loads(json_raw)
 
         return frame
 
