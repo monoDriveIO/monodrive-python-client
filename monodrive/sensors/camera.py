@@ -36,7 +36,7 @@ class AnnotationDetails(objectfactory.Serializable):
 class Camera(Sensor):
     """Camera sensor"""
     stream_dimensions = objectfactory.Nested(field_type=CameraStreamDimensions)
-    annotation = objectfactory.Nested(fieldType=AnnotationDetails, default=None)
+    annotation = objectfactory.Nested(field_type=AnnotationDetails, default=None)
     if annotation is not None:
         blocks_per_frame = 2
     channels = objectfactory.Field()
