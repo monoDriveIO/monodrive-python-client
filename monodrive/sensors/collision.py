@@ -40,7 +40,7 @@ class CollisionFrame(DataFrame, CollisionFrameTarget):
 class Collision(Sensor):
     """Collision sensor"""
 
-    def parse(self, data: bytes, package_length: int, time: int, game_time: int) -> DataFrame:
+    def parse(self, data: [bytes], package_length: int, time: int, game_time: int) -> DataFrame:
         """
         Parse data from collision sensor
 
@@ -53,6 +53,7 @@ class Collision(Sensor):
         Returns:
             parsed CollisionFrame object
         """
+        data = data[0]
         json_raw = data.decode('utf8').replace("'", '"')
         parsed_json = json.loads(json_raw)
         frame = CollisionFrame()

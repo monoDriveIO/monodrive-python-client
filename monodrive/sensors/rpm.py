@@ -23,7 +23,7 @@ class RPMFrame(DataFrame):
 class RPM(Sensor):
     """RPM sensor"""
 
-    def parse(self, data: bytes, package_length: int, time: int, game_time: int) -> DataFrame:
+    def parse(self, data: [bytes], package_length: int, time: int, game_time: int) -> DataFrame:
         """
         Parse data from RPM sensor
 
@@ -36,6 +36,7 @@ class RPM(Sensor):
         Returns:
             parsed RPMFrame object
         """
+        data = data[0]
         frame = RPMFrame()
         frame.wheel_number, frame.wheel_speed = list(struct.unpack('=if', data))
         frame.sensor_id = self.id

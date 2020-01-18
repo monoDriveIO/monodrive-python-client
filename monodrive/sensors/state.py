@@ -41,7 +41,7 @@ class StateFrame(DataFrame, objectfactory.Serializable):
 class State(Sensor):
     """State sensor"""
 
-    def parse(self, data: bytes, package_length: int, time: int, game_time: int) -> DataFrame:
+    def parse(self, data: [bytes], package_length: int, time: int, game_time: int) -> DataFrame:
         """
         Parse data from state sensor
 
@@ -54,6 +54,7 @@ class State(Sensor):
         Returns:
             parsed StateFrame object
         """
+        data = data[0]
         json_raw = data.decode('utf8').replace("'", '"')
         parsed_json = json.loads(json_raw)
         frame = StateFrame()

@@ -77,7 +77,7 @@ class Lidar(Sensor):
         number_packets = number_blocks / BLOCKS_PER_PACKET
         self.blocks_per_frame = math.ceil(number_packets)
 
-    def parse(self, data: bytes, package_length: int, time: int, game_time: int) -> DataFrame:
+    def parse(self, data: [bytes], package_length: int, time: int, game_time: int) -> DataFrame:
         """
         Parse data from lidar sensor
 
@@ -90,8 +90,6 @@ class Lidar(Sensor):
         Returns:
             parsed LidarFrame object
         """
-        data = b''.join(data)
-
         frame = LidarFrame()
         frame.sensor_id = self.id
         frame.timestamp = time
@@ -100,7 +98,7 @@ class Lidar(Sensor):
         laser_angles = self._get_laser_angles()
 
         # parse each received packet
-        for chunk in [data[i:i + PACKET_SIZE] for i in range(0, len(data), PACKET_SIZE)]:
+        for chunk in data:
             packet = self._parse_packet_data(chunk)
 
             for block in packet.blocks:

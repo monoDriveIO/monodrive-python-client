@@ -61,12 +61,12 @@ class Sensor(objectfactory.Serializable):
         """Function called after deserializing sensor to do any setup/config"""
         pass
 
-    def parse(self, data: bytes, package_length: int, time: int, game_time: int) -> DataFrame:
+    def parse(self, data: [bytes], package_length: int, time: int, game_time: int) -> DataFrame:
         """
         Parse raw data into data frame object
 
         Args:
-            data(bytes):
+            data([bytes]):
             package_length(int):
             time(int):
             game_time(int):
