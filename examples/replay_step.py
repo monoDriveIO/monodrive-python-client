@@ -71,7 +71,7 @@ def collision_on_update(frame: CollisionFrame):
     """
     if VERBOSE:
         collision = any([t.collision for t in frame.targets])
-        nearest = min([t.distance for t in frame.targets])
+        nearest = min([t.distance for t in frame.targets], default=-1.0)
         print("Collision sensor: collision {}, nearest: {:.2f}m".format(collision, nearest))
     with lock:
         global processing

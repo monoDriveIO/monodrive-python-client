@@ -4,6 +4,7 @@
   "server_port": 8999,
   "client_ip": "127.0.0.1",
   "simulation_mode": 2,
+  "map": "Almono_P",
   "ego_config": {},
   "phys_materials": {
     "Aluminum": {

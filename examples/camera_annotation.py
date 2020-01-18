@@ -18,14 +18,13 @@ from monodrive.sensors import *
 
 # constants
 VERBOSE = True
-DISPLAY = False
+DISPLAY = True
 
 # global
 lock = threading.RLock()
 processing = 0
 running = True
 camera_frame = None
-lidar_frame = None
 
 
 def camera_on_update(frame: CameraFrame):
@@ -34,7 +33,8 @@ def camera_on_update(frame: CameraFrame):
     """
     if VERBOSE:
         print("Perception system with image size {0}".format(frame.image.shape))
-        print("Annotation info: \n{0}").format(frame.annotation)
+        if frame.annotation:
+            print("Annotation info: \n{0}").format(frame.annotation)
     global camera_frame
     camera_frame = frame
     with lock:
@@ -92,27 +92,20 @@ def main():
 
         # setup display
         if DISPLAY:
-            fig = plt.figure('perception system', figsize=(10, 4))
-            ax_camera = fig.add_subplot(1, 2, 1)
-            ax_lidar = fig.add_subplot(1, 2, 2, projection='3d')
-            ax_lidar.set_xlim3d(-20000, 20000)
-            ax_lidar.set_ylim3d(-20000, 20000)
-            ax_lidar.set_zlim3d(-5000, 5000)
-
-            ax_lidar.set_axis_off()
+            fig = plt.figure('image annotations', figsize=(6, 6))
+            ax_camera = fig.gca()
             ax_camera.set_axis_off()
 
             fig.canvas.draw()
             data_camera = None
-            data_lidar = None
 
         for i in range(simulator.num_steps):
             start_time = time.time()
 
-            # expect 4 sensors to be processed
+            # expect 2 sensors to be processed
             with lock:
                 global processing
-                processing = 4
+                processing = 2
 
             # send step command
             response = simulator.step()
