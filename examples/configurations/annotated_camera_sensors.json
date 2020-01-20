@@ -26,58 +26,10 @@
     "max_shutter": 0.001400,
     "sensor_size": 9.07,
     "channels": "bgra",
+    "debug_draw": false,
     "annotation": {
-      "desired_tags": ["TrafficSigns"],
-      "far_plane": 7500.0
+      "desired_tags": ["TrafficSign"],
+      "far_plane": 10000.0
     }
-  },
-  {
-    "type": "State",
-    "listen_port": 8700,
-    "packet_size": 1472,
-    "debug_drawing": true,
-    "location": {
-      "x": 0.0,
-      "y": 0.0,
-      "z": 0.0
-    },
-    "rotation": {
-      "pitch": 0.0,
-      "yaw": 0.0,
-      "roll": 0.0
-    },
-    "desired_tags": [
-      "vehicle"
-    ],
-    "undesired_tags": [
-      "static"
-    ]
-  },
-  {
-    "type": "ViewportCamera",
-    "listen_port": 0,
-    "location": {
-      "x": -800.0,
-      "y": 0.0,
-      "z": 400.0
-    },
-    "rotation": {
-      "pitch": -15.0,
-      "yaw": 0.0,
-      "roll": 0.0
-    },
-    "stream_dimensions": {
-      "x": 512.0,
-      "y": 512.0
-    },
-    "max_distance": 50000.0,
-    "dynamic_range": 50,
-    "fov": 60.0,
-    "focal_length": 9.0,
-    "fstop": 1.4,
-    "min_shutter": 0.000500,
-    "max_shutter": 0.001400,
-    "sensor_size": 9.07,
-    "channels": "bgra"
   }
 ]

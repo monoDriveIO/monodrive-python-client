@@ -11,6 +11,7 @@ import numpy as np
 import matplotlib
 import matplotlib.pyplot as plt
 from mpl_toolkits.mplot3d import Axes3D
+import cv2
 
 # src
 from monodrive.simulator import Simulator
@@ -34,12 +35,14 @@ def camera_on_update(frame: CameraFrame):
     if VERBOSE:
         print("Perception system with image size {0}".format(frame.image.shape))
         if frame.annotation:
-            print("Annotation info: \n{0}").format(frame.annotation)
+            print("Annotation info: \n{0}".format(frame.annotation))
     global camera_frame
+
     camera_frame = frame
     with lock:
         global processing
         processing -= 1
+
 
 
 def state_on_update(frame: StateFrame):
@@ -71,7 +74,7 @@ def main():
 
     # Construct simulator from file
     simulator = Simulator.from_file(
-        os.path.join(root, 'configurations', 'simulator.json'),
+        os.path.join(root, 'configurations', 'annotated_camera_simulator.json'),
         trajectory=os.path.join(root, 'trajectories', 'tcd_replay_60mph_short.json'),
         sensors=os.path.join(root, 'configurations', 'annotated_camera_sensors.json'),
         weather=os.path.join(root, 'configurations', 'weather.json'),
@@ -85,7 +88,7 @@ def main():
     try:
         # Subscribe to sensors of interest
         simulator.subscribe_to_sensor('Camera_8000', camera_on_update)
-        simulator.subscribe_to_sensor('State_8700', state_on_update)
+        # simulator.subscribe_to_sensor('State_8700', state_on_update)
 
         # Start stepping the simulator
         time_steps = []
@@ -105,7 +108,7 @@ def main():
             # expect 2 sensors to be processed
             with lock:
                 global processing
-                processing = 2
+                processing = 1
 
             # send step command
             response = simulator.step()
@@ -122,11 +125,19 @@ def main():
                 global camera_frame
                 # update with camera data
                 if camera_frame:
-                    im = camera_frame.image[..., ::-1]
+                    img = np.array(camera_frame.image[..., ::-1])
+                    print(img.dtype, img.shape)
+                    for annotation in camera_frame.annotation:
+                        box = annotation["2d_bounding_box"]
+                        top_left = (int(box[0]), int(box[2]))
+                        bottom_right = (int(box[1]), int(box[3]))
+                        cv2.rectangle(img, top_left, bottom_right, (255, 0, 0), 1)
+                        print(top_left, bottom_right)
+
                     if data_camera is None:
-                        data_camera = ax_camera.imshow(im)
+                        data_camera = ax_camera.imshow(img)
                     else:
-                        data_camera.set_data(im)
+                        data_camera.set_data(img)
 
                 # do draw
                 fig.canvas.draw()

@@ -37,8 +37,6 @@ class Camera(Sensor):
     """Camera sensor"""
     stream_dimensions = objectfactory.Nested(field_type=CameraStreamDimensions)
     annotation = objectfactory.Nested(field_type=AnnotationDetails, default=None)
-    if annotation is not None:
-        blocks_per_frame = 2
     channels = objectfactory.Field()
 
     def parse(self, data: [bytes], package_length: int, time: int, game_time: int) -> DataFrame:
@@ -71,7 +69,7 @@ class Camera(Sensor):
 
         # validate complete data
         if len(data[0]) != self.stream_dimensions.y * self.stream_dimensions.x * num_channels:
-            print("sensor:{} , received wrong image size".format(self.sensor_id))
+            print("sensor:{} , received wrong image size".format(self.sensor.id))
             return frame
 
         # do parse
@@ -88,6 +86,10 @@ class Camera(Sensor):
             frame.annotation = json.loads(json_raw)
 
         return frame
+
+    def configure(self):
+        if self.annotation is not None:
+            self.blocks_per_frame = 2
 
 
 @objectfactory.Factory.register_class
