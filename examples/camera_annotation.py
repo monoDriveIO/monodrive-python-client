@@ -95,7 +95,8 @@ def main():
 
         # setup display
         if DISPLAY:
-            fig = plt.figure('image annotations', figsize=(6, 6))
+            fig = plt.figure('image annotations', figsize=(12, 12))
+            # fig = plt.figure('image annotations', figsize=(6, 6))
             ax_camera = fig.gca()
             ax_camera.set_axis_off()
 
