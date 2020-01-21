@@ -127,13 +127,12 @@ def main():
                 # update with camera data
                 if camera_frame:
                     img = np.array(camera_frame.image[..., ::-1])
-                    print(img.dtype, img.shape)
-                    for annotation in camera_frame.annotation:
-                        box = annotation["2d_bounding_box"]
-                        top_left = (int(box[0]), int(box[2]))
-                        bottom_right = (int(box[1]), int(box[3]))
-                        cv2.rectangle(img, top_left, bottom_right, (255, 0, 0), 1)
-                        print(top_left, bottom_right)
+                    for actor_annotation in camera_frame.annotation.values():
+                        for primitive_annotation in actor_annotation["2d_bounding_boxes"]:
+                            box = primitive_annotation["2d_bounding_box"]
+                            top_left = (int(box[0]), int(box[2]))
+                            bottom_right = (int(box[1]), int(box[3]))
+                            cv2.rectangle(img, top_left, bottom_right, (255, 0, 0), 1)
 
                     if data_camera is None:
                         data_camera = ax_camera.imshow(img)

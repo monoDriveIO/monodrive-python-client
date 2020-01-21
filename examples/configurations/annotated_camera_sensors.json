@@ -28,7 +28,7 @@
     "channels": "bgra",
     "debug_draw": false,
     "annotation": {
-      "desired_tags": ["TrafficSign"],
+      "desired_tags": ["traffic_sign"],
       "far_plane": 10000.0,
       "include_tags": true
     }
