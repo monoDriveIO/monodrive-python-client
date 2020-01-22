@@ -5,7 +5,7 @@
   "client_ip": "127.0.0.1",
   "simulation_mode": 2,
   "animation_replay": true,
-  "map": "TCD_Training_Map",
+  "map": "Almono_P",
   "ego_config": {},
   "phys_materials": {
     "Aluminum": {

@@ -1,5 +1,6 @@
 """
-helpful utilities and functions for interacting with cloud environment
+helpful utilities and functions for managing job assignments
+in cloud deployment and desktop environment
 """
 
 # lib
@@ -26,7 +27,7 @@ RESULTS_FILE = 'results.json'
 REPORT_FILE = 'results_full.json'
 
 
-class CloudJobState(enum.Enum):
+class JobState(enum.Enum):
     """
     enum for allowable job micro states during processing
     """
@@ -55,7 +56,7 @@ class Result(objectfactory.Serializable):
 
 def set_result(result: Result, path: str):
     """
-    helper to set the cloud result of UUT run
+    helper to set the result of UUT run
 
     Args:
         result: results data model
@@ -65,31 +66,31 @@ def set_result(result: Result, path: str):
         json.dump(result.serialize(), file, indent=4)
 
 
-def get_state() -> CloudJobState:
+def get_state() -> JobState:
     """
-    helper to get cloud job state
+    helper to get job state
 
     Returns:
-        enumerated CloudJobState
+        enumerated JobState
     """
     if not os.path.exists(os.path.join(ASSET_DIR, STATE_FILE)):
         return None
     with open(os.path.join(ASSET_DIR, STATE_FILE), 'r') as file:
         text_name = file.read()
     try:
-        state = CloudJobState[text_name]
+        state = JobState[text_name]
     except KeyError as e:
         print('Invalid state: {}'.format(e))
         return None
     return state
 
 
-def set_state(state: CloudJobState):
+def set_state(state: JobState):
     """
-    helper to set cloud job state
+    helper to set jobs job state
 
     Args:
-        state: enumerated cloud job state
+        state: enumerated jobs job state
     """
     with open(os.path.join(ASSET_DIR, STATE_FILE), 'w') as file:
         file.write(state.name)
@@ -100,15 +101,14 @@ def loop(
         verbose=False
 ):
     """
-    Main driver loop to enable execution of multiple UUT jobs on single
-    worker within monodrive cloud deployment
+    Main driver loop to enable execution of multiple UUT jobs on single node
 
     Returns:
 
     """
     while 1:
         if verbose:
-            print('Starting monoDrive cloud loop')
+            print('Starting monoDrive job loop')
 
         # wait until ready
         while 1:
@@ -120,7 +120,7 @@ def loop(
                 continue
             if verbose:
                 print('Status: {}'.format(state))
-            if state == CloudJobState.READY:
+            if state == JobState.READY:
                 break
 
         # create simulator
@@ -142,12 +142,12 @@ def loop(
             uut_main(simulator, results_path, results_full_path)
         except Exception as e:
             print('Error in UUT main: {}'.format(e))
-            set_state(CloudJobState.FAILED)
+            set_state(JobState.FAILED)
             if verbose:
-                print('Set job state: {}'.format(CloudJobState.FAILED))
+                print('Set job state: {}'.format(JobState.FAILED))
             continue
 
         # set done
-        set_state(CloudJobState.COMPLETED)
+        set_state(JobState.COMPLETED)
         if verbose:
-            print('Set job state: {}'.format(CloudJobState.COMPLETED))
+            print('Set job state: {}'.format(JobState.COMPLETED))
