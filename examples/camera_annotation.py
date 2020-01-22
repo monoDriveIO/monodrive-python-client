@@ -8,9 +8,7 @@ import time
 import signal
 import threading
 import numpy as np
-import matplotlib
 import matplotlib.pyplot as plt
-from mpl_toolkits.mplot3d import Axes3D
 import cv2
 
 # src
@@ -42,7 +40,6 @@ def camera_on_update(frame: CameraFrame):
     with lock:
         global processing
         processing -= 1
-
 
 
 def state_on_update(frame: StateFrame):
@@ -88,7 +85,6 @@ def main():
     try:
         # Subscribe to sensors of interest
         simulator.subscribe_to_sensor('Camera_8000', camera_on_update)
-        # simulator.subscribe_to_sensor('State_8700', state_on_update)
 
         # Start stepping the simulator
         time_steps = []
@@ -96,7 +92,6 @@ def main():
         # setup display
         if DISPLAY:
             fig = plt.figure('image annotations', figsize=(12, 12))
-            # fig = plt.figure('image annotations', figsize=(6, 6))
             ax_camera = fig.gca()
             ax_camera.set_axis_off()
 
@@ -127,8 +122,10 @@ def main():
                 # update with camera data
                 if camera_frame:
                     img = np.array(camera_frame.image[..., ::-1])
-                    for actor_annotation in camera_frame.annotation.values():
-                        for primitive_annotation in actor_annotation["2d_bounding_boxes"]:
+                    for cls in camera_frame.annotation.values():
+                        if "2d_bounding_boxes" not in cls:
+                            continue
+                        for primitive_annotation in cls["2d_bounding_boxes"]:
                             box = primitive_annotation["2d_bounding_box"]
                             top_left = (int(box[0]), int(box[2]))
                             bottom_right = (int(box[1]), int(box[3]))
