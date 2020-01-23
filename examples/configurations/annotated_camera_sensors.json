@@ -30,7 +30,8 @@
     "annotation": {
       "desired_tags": ["traffic_sign"],
       "far_plane": 10000.0,
-      "include_tags": true
+      "include_tags": true,
+      "include_obb": true
     }
   }
 ]

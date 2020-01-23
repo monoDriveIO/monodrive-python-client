@@ -127,7 +127,7 @@ def main():
                 # update with camera data
                 if camera_frame:
                     img = np.array(camera_frame.image[..., ::-1])
-                    for actor_annotation in camera_frame.annotation.values():
+                    for actor_annotation in camera_frame.annotation:
                         for primitive_annotation in actor_annotation["2d_bounding_boxes"]:
                             box = primitive_annotation["2d_bounding_box"]
                             top_left = (int(box[0]), int(box[2]))
