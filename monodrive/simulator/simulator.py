@@ -239,6 +239,17 @@ class Simulator:
         """
         self.__sensors[uid].subscribe(callback)
 
+    def get_sensor(self, uid):
+        """Get copy of a single sensor configuration by uid
+
+        Args:
+            uid(str): The uid of the sensor
+
+        Returns:
+            Sensor object
+        """
+        return self.__sensors[uid].get_sensor()
+
     def send_control(self, forward, right):
         self.send_command(
             mmsg.ApiMessage(

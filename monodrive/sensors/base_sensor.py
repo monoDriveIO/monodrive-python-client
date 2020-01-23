@@ -7,6 +7,7 @@ import struct
 import threading
 import traceback
 import rx
+import copy
 import objectfactory
 
 from monodrive.common.client import Client
@@ -178,3 +179,7 @@ class SensorThread(threading.Thread):
         # Log that this sensor has stopped running
         if self.__verbose:
             print("{0}: disconnected".format(self.__sensor.id))
+
+    def get_sensor(self) -> Sensor:
+        """Get copy of sensor configuration"""
+        return copy.deepcopy(self.__sensor)

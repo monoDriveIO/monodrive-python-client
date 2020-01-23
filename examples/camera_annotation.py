@@ -8,9 +8,7 @@ import time
 import signal
 import threading
 import numpy as np
-import matplotlib
 import matplotlib.pyplot as plt
-from mpl_toolkits.mplot3d import Axes3D
 import cv2
 
 # src
@@ -42,7 +40,6 @@ def camera_on_update(frame: CameraFrame):
     with lock:
         global processing
         processing -= 1
-
 
 
 def state_on_update(frame: StateFrame):
@@ -88,7 +85,6 @@ def main():
     try:
         # Subscribe to sensors of interest
         simulator.subscribe_to_sensor('Camera_8000', camera_on_update)
-        # simulator.subscribe_to_sensor('State_8700', state_on_update)
 
         # Start stepping the simulator
         time_steps = []
@@ -96,7 +92,6 @@ def main():
         # setup display
         if DISPLAY:
             fig = plt.figure('image annotations', figsize=(12, 12))
-            # fig = plt.figure('image annotations', figsize=(6, 6))
             ax_camera = fig.gca()
             ax_camera.set_axis_off()
 
