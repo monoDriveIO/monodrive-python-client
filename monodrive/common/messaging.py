@@ -39,6 +39,10 @@ ID_START_ALL_SENSORS_COMMAND = u"StartAllSensorsCommand_ID"
 ID_ACTIVATE_LICENSE = u"ActivateLicense"
 """Message ID to activate the server license"""
 ID_WEATHER_CONFIG_COMMAND = u"WeatherConfig"
+"""Message ID to reconfigure a sensor while the simulator is running.
+The sensor configuration sent tears down and recreates the port keyed
+sensor without destroying the connected data stream."""
+ID_REPLAY_RECONFIGURE_SENSOR_COMMAND = "REPLAY_ReConfigureSensorCommand_ID"
 """Message ID to configure the current weather in the scenario"""
 ID_REPLAY_CONFIGURE_SENSORS_COMMAND = "REPLAY_ConfigureSensorsCommand_ID"
 """Message ID to replay the current sensor configuration"""
