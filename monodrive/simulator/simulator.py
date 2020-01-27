@@ -151,6 +151,21 @@ class Simulator:
         )
         return self.send_command(message)
 
+    def reconfigure_sensor(self, config):
+        """Re-Configure the sensor included in the config file.
+
+        Args:
+            config(dict): The sensor config JSON to send to the server
+
+        Returns:
+            The response message from the simulator for this configuration.
+        """
+        message = mmsg.ApiMessage(
+            mmsg.ID_REPLAY_RECONFIGURE_SENSOR_COMMAND,
+            config
+        )
+        return self.send_command(message)
+
     def start(self):
         """Start the simulation """
         self.__running = True
