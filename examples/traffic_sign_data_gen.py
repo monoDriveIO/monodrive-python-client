@@ -10,7 +10,7 @@ import threading
 import numpy as np
 import matplotlib.pyplot as plt
 import cv2
-import datetime
+from datetime import datetime
 
 # src
 from monodrive.simulator import Simulator
@@ -60,6 +60,7 @@ def state_on_update(frame: StateFrame):
         global processing
         processing -= 1
 
+
 def get_actor_classification(annotation):
     actor_class = ""
     tags = annotation["tags"]
@@ -74,7 +75,11 @@ def get_actor_classification(annotation):
     for tag in tags:
         if tag == "TCD" or tag == "traffic_sign":
             continue
-        actor_class += tag
+        tag = tag.replace(':', '-')
+        actor_class += tag + "_"
+    if len(actor_class) > 0:
+        actor_class = actor_class[:-1]
+    print(actor_class)
     return actor_class
 
 
@@ -83,7 +88,8 @@ def save_images(dir_name, frame):
         return
     global class_map
 
-    img = np.array(frame.image[..., ::-1])
+    # img = np.array(frame.image[..., ::-1])
+    img = np.array(frame.image)
     for actor_annotation in camera_frame.annotation:
         actor_class = get_actor_classification(actor_annotation)
         if actor_class == "":
@@ -91,20 +97,23 @@ def save_images(dir_name, frame):
 
         for primitive_annotation in actor_annotation["2d_bounding_boxes"]:
             if primitive_annotation["name"] == "face":
-                bound_box = primitive_annotation["2d_bounding_box"]
+                bound_box = [int(x) for x in primitive_annotation["2d_bounding_box"]]
                 size = (bound_box[1] - bound_box[0], bound_box[3] - bound_box[2])
                 if size[0] * size[1] < MIN_BOX_SIZE or bound_box[1] < bound_box[0] or bound_box[3] < bound_box[2]:
                     continue
 
-                sign_face = img[bound_box[2]:bound_box[3], bound_box[0]:bound_box[1]]
+                print(img.shape, bound_box)
+                sign_face = img[bound_box[2]:bound_box[3], bound_box[0]:bound_box[1], ...]
                 if actor_class in class_map:
                     class_map[actor_class] += 1
                 else:
                     class_map[actor_class] = 0
-                class_dir = os.join(dir_name, actor_class)
+                id_number = class_map[actor_class]
+                class_dir = os.path.join(dir_name, actor_class)
                 if not os.path.exists(class_dir):
                     os.makedirs(class_dir)
-                file_path = os.join(class_dir, str(class_map) + ".png")
+                file_path = os.path.join(class_dir, str(id_number) + ".png")
+                print(file_path)
                 cv2.imwrite(file_path, sign_face)
 
 
@@ -126,7 +135,7 @@ def run_case(root, weather, sensor):
     print(json.dumps(weather_json))
 
 
-    dir_name = weather + "_" + os.path.splitext(sensor)[0] + "_" + str(datetime.datetime.today())
+    dir_name = weather + "_" + os.path.splitext(sensor)[0] + "_" + datetime.now().strftime('%Y-%m-%d_%H-%M-%S')
     instance_storage_path = os.path.join(data_storage_path, dir_name)
 
     # Start the simulation
