@@ -19,6 +19,7 @@ from monodrive.sensors import *
 # constants
 VERBOSE = True
 DISPLAY = True
+RECORD = True
 
 # global
 lock = threading.RLock()
@@ -29,7 +30,7 @@ camera_frame = None
 weathers = ["Clear1", "Clear2", "Rain1", "Rain2", "Twilight1", "Twilight2"]
 sensors = ["tcd_1.json", "tcd_2.json", "tcd_3.json"]
 data_storage_path = "D:/tcd_data"
-MIN_BOX_SIZE = 30*30
+MIN_BOX_SIZE = 32*32
 
 class_map = {}
 
@@ -82,7 +83,7 @@ def save_images(dir_name, frame):
         return
     global class_map
 
-    img = frame.image(np.array(camera_frame.image[..., ::-1]))
+    img = np.array(frame.image[..., ::-1])
     for actor_annotation in camera_frame.annotation:
         actor_class = get_actor_classification(actor_annotation)
         if actor_class == "":
@@ -117,12 +118,16 @@ def run_case(root, weather, sensor):
         verbose=VERBOSE
     )
 
-    weather_file = open(os.path.join(root, 'configurations', 'traffic_sign_weather.json'), "r"),
+    # weather_file = open(os.path.join(root, 'configurations', 'traffic_sign_weather.json'), 'r'),
+    weather_file = open(os.path.join(root, 'configurations', 'traffic_sign_weather.json'))
+    print(os.path.join(root, 'configurations', 'traffic_sign_weather.json'))
     weather_json = json.load(weather_file)
     weather_json["set_profile"] = weather
+    print(json.dumps(weather_json))
 
-    dir_name = weather + "_" + os.path.splitext(sensor)[0] + "_" + datetime.datetime.today()
-    instance_storage_path = os.join(data_storage_path, dir_name)
+
+    dir_name = weather + "_" + os.path.splitext(sensor)[0] + "_" + str(datetime.datetime.today())
+    instance_storage_path = os.path.join(data_storage_path, dir_name)
 
     # Start the simulation
     simulator.start()
@@ -144,8 +149,6 @@ def run_case(root, weather, sensor):
             fig.canvas.draw()
             data_camera = None
 
-
-
         for i in range(simulator.num_steps):
             start_time = time.time()
 
@@ -156,6 +159,7 @@ def run_case(root, weather, sensor):
 
             # send step command
             response = simulator.step()
+            print(response)
 
             # wait for processing to complete
             while running:
@@ -165,9 +169,10 @@ def run_case(root, weather, sensor):
                 time.sleep(0.05)
 
             # plot if needed
-            save_images(dir_name, camera_frame)
+            global camera_frame
+            if RECORD:
+                save_images(instance_storage_path, camera_frame)
             if DISPLAY:
-                global camera_frame
                 # update with camera data
                 if camera_frame:
                     img = np.array(camera_frame.image[..., ::-1])

@@ -115,9 +115,7 @@ class Simulator:
         """
         message = mmsg.ApiMessage(
             mmsg.ID_WEATHER_CONFIG_COMMAND,
-            {
-                'set_profile': config['id']
-            }
+            config
         )
         return self.send_command(message)
 
