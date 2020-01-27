@@ -17,8 +17,8 @@ from monodrive.simulator import Simulator
 from monodrive.sensors import *
 
 # constants
-VERBOSE = True
-DISPLAY = True
+VERBOSE = False
+DISPLAY = False
 RECORD = True
 
 # global
@@ -66,20 +66,20 @@ def get_actor_classification(annotation):
     tags = annotation["tags"]
     isTrafficSign = False
     for tag in tags:
-        if tag == "traffic_sign":
+        if "traffic" in tag and "sign" in tag:
             isTrafficSign = True
     if not isTrafficSign:
         return actor_class
 
     tags.sort()
     for tag in tags:
-        if tag == "TCD" or tag == "traffic_sign":
+        if "TCD" in tag or "traffic" in tag:
             continue
         tag = tag.replace(':', '-')
         actor_class += tag + "_"
     if len(actor_class) > 0:
         actor_class = actor_class[:-1]
-    print(actor_class)
+    # print(actor_class)
     return actor_class
 
 
@@ -102,7 +102,7 @@ def save_images(dir_name, frame):
                 if size[0] * size[1] < MIN_BOX_SIZE or bound_box[1] < bound_box[0] or bound_box[3] < bound_box[2]:
                     continue
 
-                print(img.shape, bound_box)
+                # print(img.shape, bound_box)
                 sign_face = img[bound_box[2]:bound_box[3], bound_box[0]:bound_box[1], ...]
                 if actor_class in class_map:
                     class_map[actor_class] += 1
@@ -113,7 +113,7 @@ def save_images(dir_name, frame):
                 if not os.path.exists(class_dir):
                     os.makedirs(class_dir)
                 file_path = os.path.join(class_dir, str(id_number) + ".png")
-                print(file_path)
+                # print(file_path)
                 cv2.imwrite(file_path, sign_face)
 
 
@@ -121,7 +121,7 @@ def run_case(root, weather, sensor):
     # Construct simulator from file
     simulator = Simulator.from_file(
         os.path.join(root, 'configurations', 'annotated_camera_simulator.json'),
-        trajectory=os.path.join(root, 'trajectories', 'tcd_replay_60mph_short.json'),
+        trajectory=os.path.join(root, 'trajectories', 'tcd_replay_60mph_full.json'),
         sensors=os.path.join(root, 'configurations', sensor),
         ego=os.path.join(root, 'configurations', 'vehicle.json'),
         verbose=VERBOSE
