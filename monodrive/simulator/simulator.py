@@ -160,6 +160,17 @@ class Simulator:
         Returns:
             The response message from the simulator for this configuration.
         """
+        config['_type'] = config['type']
+        sensor = objectfactory.Factory.create_object(config)
+        sensor.configure()
+        if not sensor.streamable:
+            return
+        if sensor.id not in self.__sensors:
+            raise Exception(
+                "{} does not yet exist and cannot be reconfigured".format(sensor.id)
+            )
+        self.__sensors[sensor.id].set_sensor(sensor)
+
         message = mmsg.ApiMessage(
             mmsg.ID_REPLAY_RECONFIGURE_SENSOR_COMMAND,
             config

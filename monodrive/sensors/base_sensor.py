@@ -8,6 +8,7 @@ import threading
 import traceback
 import rx
 import objectfactory
+import copy
 
 from monodrive.common.client import Client
 
@@ -179,3 +180,15 @@ class SensorThread(threading.Thread):
         # Log that this sensor has stopped running
         if self.__verbose:
             print("{0}: disconnected".format(self.__sensor.id))
+
+    def set_sensor(self, sensor: Sensor):
+        """Set sensor config for this thread"""
+        if sensor.sensor_type != self.__sensor.sensor_type:
+            raise ValueError('Sensor type cannot be updated {} -> {}'.format(
+                self.__sensor.sensor_type, sensor.sensor_type
+            ))
+        if sensor.listen_port != self.__sensor.listen_port:
+            raise ValueError('Sensor listen port cannot be updated {} -> {}'.format(
+                self.__sensor.listen_port, sensor.listen_port
+            ))
+        self.__sensor = copy.deepcopy(sensor)
