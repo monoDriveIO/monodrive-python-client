@@ -156,7 +156,7 @@ def main():
                 global camera_frame, lidar_frame
                 # update with camera data
                 if camera_frame:
-                    im = camera_frame.image[..., ::-1]
+                    im = np.squeeze(camera_frame.image[..., ::-1])
                     if data_camera is None:
                         data_camera = ax_camera.imshow(im)
                     else:

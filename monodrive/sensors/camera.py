@@ -69,7 +69,7 @@ class Camera(Sensor):
 
         # validate complete data
         if len(data[0]) != self.stream_dimensions.y * self.stream_dimensions.x * num_channels:
-            print("sensor:{} , received wrong image size".format(self.sensor.id))
+            print("sensor:{} , received wrong image size".format(self.id))
             return frame
 
         # do parse

@@ -24,6 +24,7 @@ lock = threading.RLock()
 processing = 0
 running = True
 camera_frame = None
+semantic_frame = None
 
 
 def camera_on_update(frame: CameraFrame):
@@ -31,23 +32,24 @@ def camera_on_update(frame: CameraFrame):
     callback to process parsed camera data
     """
     if VERBOSE:
-        print("Perception system with image size {0}".format(frame.image.shape))
+        print("Camera frame with RGB image size {0}".format(frame.image.shape))
         if frame.annotation:
             print("Annotation info: \n{0}".format(frame.annotation))
     global camera_frame
-
     camera_frame = frame
     with lock:
         global processing
         processing -= 1
 
 
-def state_on_update(frame: StateFrame):
+def semantic_on_update(frame: CameraFrame):
     """
-    callback to process parsed state sensor data
+    callback to process parsed semantic camera frame
     """
     if VERBOSE:
-        print("State sensor reporting {0} objects".format(len(frame.object_list)))
+        print("Camera frame with semantic image size {0}".format(frame.image.shape))
+    global semantic_frame
+    semantic_frame = frame
     with lock:
         global processing
         processing -= 1
@@ -85,18 +87,22 @@ def main():
     try:
         # Subscribe to sensors of interest
         simulator.subscribe_to_sensor('Camera_8000', camera_on_update)
+        simulator.subscribe_to_sensor('SemanticCamera_8001', semantic_on_update)
 
         # Start stepping the simulator
         time_steps = []
 
         # setup display
         if DISPLAY:
-            fig = plt.figure('image annotations', figsize=(12, 12))
-            ax_camera = fig.gca()
+            fig = plt.figure('image annotations', figsize=(16, 8))
+            ax_camera = fig.add_subplot(1, 2, 1)
+            ax_semantic = fig.add_subplot(1, 2, 2)
             ax_camera.set_axis_off()
+            ax_semantic.set_axis_off()
 
             fig.canvas.draw()
             data_camera = None
+            data_semantic = None
 
         for i in range(simulator.num_steps):
             start_time = time.time()
@@ -104,7 +110,7 @@ def main():
             # expect 2 sensors to be processed
             with lock:
                 global processing
-                processing = 1
+                processing = 2
 
             # send step command
             response = simulator.step()
@@ -127,12 +133,20 @@ def main():
                             box = primitive_annotation["2d_bounding_box"]
                             top_left = (int(box[0]), int(box[2]))
                             bottom_right = (int(box[1]), int(box[3]))
-                            cv2.rectangle(img, top_left, bottom_right, (255, 0, 0), 1)
+                            cv2.rectangle(img, top_left, bottom_right, (255, 0, 0), 2)
 
                     if data_camera is None:
                         data_camera = ax_camera.imshow(img)
                     else:
                         data_camera.set_data(img)
+
+                if semantic_frame:
+                    img = np.squeeze(semantic_frame.image)
+
+                    if data_semantic is None:
+                        data_semantic = ax_semantic.imshow(img)
+                    else:
+                        data_semantic.set_data(img)
 
                 # do draw
                 fig.canvas.draw()
