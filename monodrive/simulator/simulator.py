@@ -104,15 +104,18 @@ class Simulator:
             if self.__verbose:
                 print(res)
 
-    def configure_weather(self, config):
+    def configure_weather(self, config, set_profile=None):
         """Configure the weather from JSON representation.
 
         Args:
             config(dict): The configuration JSON to send to the server
+            set_profile(str): The profile id to be set
 
         Returns:
             The response message from the simulator for this configuration.
         """
+        if set_profile:
+            config['set_profile'] = set_profile
         message = mmsg.ApiMessage(
             mmsg.ID_WEATHER_CONFIG_COMMAND,
             config
