@@ -8,9 +8,8 @@ import time
 import signal
 import threading
 import numpy as np
-import matplotlib
 import matplotlib.pyplot as plt
-from mpl_toolkits.mplot3d import Axes3D
+import cv2
 
 # src
 from monodrive.simulator import Simulator
@@ -25,7 +24,7 @@ lock = threading.RLock()
 processing = 0
 running = True
 camera_frame = None
-lidar_frame = None
+semantic_frame = None
 
 
 def camera_on_update(frame: CameraFrame):
@@ -33,7 +32,9 @@ def camera_on_update(frame: CameraFrame):
     callback to process parsed camera data
     """
     if VERBOSE:
-        print("Perception system with image size {0}".format(frame.image.shape))
+        print("Camera frame with RGB image size {0}".format(frame.image.shape))
+        if frame.annotation:
+            print("Annotation info: \n{0}".format(frame.annotation))
     global camera_frame
     camera_frame = frame
     with lock:
@@ -41,38 +42,14 @@ def camera_on_update(frame: CameraFrame):
         processing -= 1
 
 
-def lidar_on_update(frame: LidarFrame):
+def semantic_on_update(frame: CameraFrame):
     """
-    callback to process parsed lidar data
-    """
-    if VERBOSE:
-        print("LiDAR point cloud with size {0}".format(len(frame.points)))
-    global lidar_frame
-    lidar_frame = frame
-    with lock:
-        global processing
-        processing -= 1
-
-
-def state_on_update(frame: StateFrame):
-    """
-    callback to process parsed state sensor data
+    callback to process parsed semantic camera frame
     """
     if VERBOSE:
-        print("State sensor reporting {0} objects".format(len(frame.object_list)))
-    with lock:
-        global processing
-        processing -= 1
-
-
-def collision_on_update(frame: CollisionFrame):
-    """
-    callback to process parsed collision sensor data
-    """
-    if VERBOSE:
-        collision = any([t.collision for t in frame.targets])
-        nearest = min([t.distance for t in frame.targets], default=-1.0)
-        print("Collision sensor: collision {}, nearest: {:.2f}m".format(collision, nearest))
+        print("Camera frame with semantic image size {0}".format(frame.image.shape))
+    global semantic_frame
+    semantic_frame = frame
     with lock:
         global processing
         processing -= 1
@@ -96,9 +73,9 @@ def main():
 
     # Construct simulator from file
     simulator = Simulator.from_file(
-        os.path.join(root, 'configurations', 'simulator.json'),
-        trajectory=os.path.join(root, 'trajectories', 'HighWayExitReplay.json'),
-        sensors=os.path.join(root, 'configurations', 'all_sensors.json'),
+        os.path.join(root, 'configurations', 'annotated_camera_simulator.json'),
+        trajectory=os.path.join(root, 'trajectories', 'tcd_replay_60mph_short.json'),
+        sensors=os.path.join(root, 'configurations', 'annotated_camera_sensors.json'),
         weather=os.path.join(root, 'configurations', 'weather.json'),
         ego=os.path.join(root, 'configurations', 'vehicle.json'),
         verbose=VERBOSE
@@ -110,36 +87,30 @@ def main():
     try:
         # Subscribe to sensors of interest
         simulator.subscribe_to_sensor('Camera_8000', camera_on_update)
-        simulator.subscribe_to_sensor('Lidar_8200', lidar_on_update)
-        simulator.subscribe_to_sensor('State_8700', state_on_update)
-        simulator.subscribe_to_sensor('Collision_8800', collision_on_update)
+        simulator.subscribe_to_sensor('SemanticCamera_8001', semantic_on_update)
 
         # Start stepping the simulator
         time_steps = []
 
         # setup display
         if DISPLAY:
-            fig = plt.figure('perception system', figsize=(10, 4))
+            fig = plt.figure('image annotations', figsize=(16, 8))
             ax_camera = fig.add_subplot(1, 2, 1)
-            ax_lidar = fig.add_subplot(1, 2, 2, projection='3d')
-            ax_lidar.set_xlim3d(-20000, 20000)
-            ax_lidar.set_ylim3d(-20000, 20000)
-            ax_lidar.set_zlim3d(-5000, 5000)
-
-            ax_lidar.set_axis_off()
+            ax_semantic = fig.add_subplot(1, 2, 2)
             ax_camera.set_axis_off()
+            ax_semantic.set_axis_off()
 
             fig.canvas.draw()
             data_camera = None
-            data_lidar = None
+            data_semantic = None
 
         for i in range(simulator.num_steps):
             start_time = time.time()
 
-            # expect 4 sensors to be processed
+            # expect 2 sensors to be processed
             with lock:
                 global processing
-                processing = 4
+                processing = 2
 
             # send step command
             response = simulator.step()
@@ -153,25 +124,29 @@ def main():
 
             # plot if needed
             if DISPLAY:
-                global camera_frame, lidar_frame
+                global camera_frame
                 # update with camera data
                 if camera_frame:
-                    im = np.squeeze(camera_frame.image[..., ::-1])
+                    img = np.array(camera_frame.image[..., ::-1])
+                    for actor_annotation in camera_frame.annotation:
+                        for primitive_annotation in actor_annotation["2d_bounding_boxes"]:
+                            box = primitive_annotation["2d_bounding_box"]
+                            top_left = (int(box[0]), int(box[2]))
+                            bottom_right = (int(box[1]), int(box[3]))
+                            cv2.rectangle(img, top_left, bottom_right, (255, 0, 0), 2)
+
                     if data_camera is None:
-                        data_camera = ax_camera.imshow(im)
+                        data_camera = ax_camera.imshow(img)
                     else:
-                        data_camera.set_data(im)
-                # update with lidar data
-                if lidar_frame:
-                    data = np.array([[pt.x, pt.y, pt.z, pt.intensity] for pt in lidar_frame.points])
-                    data = data[np.any(data != 0, axis=1)]
-                    if data_lidar is None:
-                        data_lidar = ax_lidar.scatter(
-                            data[:, 0], data[:, 1], data[:, 2],
-                            s=0.1
-                        )
+                        data_camera.set_data(img)
+
+                if semantic_frame:
+                    img = np.squeeze(semantic_frame.image)
+
+                    if data_semantic is None:
+                        data_semantic = ax_semantic.imshow(img)
                     else:
-                        data_lidar._offsets3d = (data[:, 0], data[:, 1], data[:, 2])
+                        data_semantic.set_data(img)
 
                 # do draw
                 fig.canvas.draw()

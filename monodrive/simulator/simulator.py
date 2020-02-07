@@ -104,20 +104,21 @@ class Simulator:
             if self.__verbose:
                 print(res)
 
-    def configure_weather(self, config):
+    def configure_weather(self, config, set_profile=None):
         """Configure the weather from JSON representation.
 
         Args:
             config(dict): The configuration JSON to send to the server
+            set_profile(str): The profile id to be set
 
         Returns:
             The response message from the simulator for this configuration.
         """
+        if set_profile:
+            config['set_profile'] = set_profile
         message = mmsg.ApiMessage(
             mmsg.ID_WEATHER_CONFIG_COMMAND,
-            {
-                'set_profile': config['id']
-            }
+            config
         )
         return self.send_command(message)
 
@@ -253,6 +254,17 @@ class Simulator:
                 def my_callback(data):
         """
         self.__sensors[uid].subscribe(callback)
+
+    def get_sensor(self, uid):
+        """Get copy of a single sensor configuration by uid
+
+        Args:
+            uid(str): The uid of the sensor
+
+        Returns:
+            Sensor object
+        """
+        return self.__sensors[uid].get_sensor()
 
     def send_control(self, forward, right):
         self.send_command(

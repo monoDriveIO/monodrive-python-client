@@ -7,6 +7,6 @@
       255,
       255
     ],
-    "type": "/Game/Vehicles_Vol1/VehicleBlueprints/Sedan4DBP.Sedan4DBP_C"
+    "type": "Blueprint'/Game/Vehicles/sedan_monoDrive_01.sedan_monoDrive_01_C'"
   }
 }

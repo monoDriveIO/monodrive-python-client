@@ -20,7 +20,7 @@ class ViewportCamera(Sensor):
         """
         self.streamable = False
 
-    def parse(self, data: bytes, package_length: int, time: int, game_time: int):
+    def parse(self, data: [bytes], package_length: int, time: int, game_time: int):
         """
         Parse data from ViewportCamera sensor
 

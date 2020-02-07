@@ -29,7 +29,7 @@ class GPSFrame(DataFrame):
 class GPS(Sensor):
     """GPS sensor"""
 
-    def parse(self, data: bytes, package_length: int, time: int, game_time: int) -> DataFrame:
+    def parse(self, data: [bytes], package_length: int, time: int, game_time: int) -> DataFrame:
         """
         Parse data from GPS sensor
 
@@ -42,6 +42,7 @@ class GPS(Sensor):
         Returns:
             parsed GPSFrame object
         """
+        data = data[0]
         fmt = '=chhcdddfffffffhhcch'
         preamble, MSG_POS_LLH, sensor_id, payload_length, lat, lng, elev, loc_x, loc_y, for_x, for_y, for_z, ego_yaw, speed, \
         h_ac, v_ac, sats, status, crc = list(struct.unpack(fmt, data))

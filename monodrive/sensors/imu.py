@@ -24,7 +24,7 @@ class IMUFrame(DataFrame):
 class IMU(Sensor):
     """IMU sensor"""
 
-    def parse(self, data: bytes, package_length: int, time: int, game_time: int) -> DataFrame:
+    def parse(self, data: [bytes], package_length: int, time: int, game_time: int) -> DataFrame:
         """
         Parse data from IMU sensor
 
@@ -37,6 +37,7 @@ class IMU(Sensor):
         Returns:
             parsed GPSFrame object
         """
+        data = data[0]
         fmt = '=ffffffih'
         data = list(struct.unpack(fmt, data[1:31]))
         accel_x = data[0]
