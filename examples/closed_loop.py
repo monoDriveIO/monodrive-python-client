@@ -15,7 +15,6 @@ from mpl_toolkits.mplot3d import Axes3D
 # src
 from monodrive.simulator import Simulator
 from monodrive.sensors import *
-import monodrive.common.messaging as mmsg
 
 # constants
 VERBOSE = True
@@ -151,14 +150,7 @@ def main():
             # compute and send vehicle control command
             forward, right, brake, drive_mode = perception_and_control()
             print("sending control: {0}, {1}, {2}, {3}".format(forward, right, brake, drive_mode))
-            response = simulator.send_command(mmsg.ApiMessage(
-                                                mmsg.ID_EGO_CONTROL,
-                                                {
-                                                    u'forward_amount': forward, # accelerator amount 0.0 ... 1.0
-                                                    u'right_amount': right,     # steering amount (left negative) -1.0 ... 0.0 ... 1.0
-                                                    u'brake_amount': brake,     # brake amount 0.0 ... 1.0
-                                                    u'drive_mode': drive_mode   # reverse(-1), neutral(0), drive(1)
-                                                }))
+            response = simulator.send_control(forward, right, brake, drive_mode)
             print(response)
 
             # wait for processing to complete
