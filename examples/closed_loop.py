@@ -149,9 +149,13 @@ def main():
 
             # compute and send vehicle control command
             forward, right, brake, drive_mode = perception_and_control()
-            print("sending control: {0}, {1}, {2}, {3}".format(forward, right, brake, drive_mode))
+            if VERBOSE:
+                print("sending control: {0}, {1}, {2}, {3}".format(forward, right, brake, drive_mode))
+
             response = simulator.send_control(forward, right, brake, drive_mode)
-            print(response)
+
+            if VERBOSE:
+                print(response)
 
             # wait for processing to complete
             while running:
