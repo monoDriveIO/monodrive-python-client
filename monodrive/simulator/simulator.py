@@ -266,15 +266,15 @@ class Simulator:
         """
         return self.__sensors[uid].get_sensor()
 
-    def send_control(self, forward, right):
+    def send_control(self, forward, right, brake=0, mode=1):
         self.send_command(
             mmsg.ApiMessage(
                 mmsg.ID_EGO_CONTROL,
                 {
                     u'forward_amount': forward,
                     u'right_amount': right,
-                    u'brake_amount': 0,
-                    u'drive_mode': 1
+                    u'brake_amount': brake,
+                    u'drive_mode': mode
                 }
             )
         )
