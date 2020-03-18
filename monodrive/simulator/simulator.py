@@ -193,6 +193,24 @@ class Simulator:
         )
         return response
 
+    def send_state(self, frame):
+        """Set the state of the simulator and step
+
+        Args:
+            frame(dict): The desired state of the simulator
+
+        Raises:
+            Exception if the simulator is not currently running
+        """
+        if not self.__running:
+            raise Exception("Simulator is not running")
+
+        message = mmsg.ApiMessage(
+            mmsg.ID_REPLAY_STATE_SIMULATION_COMMAND,
+            frame
+        )
+        return self.send_command(message)
+
     def stop(self):
         """Stop the simulation and all attached sensors."""
         for sensor_id in self.__sensors.keys():
