@@ -1,0 +1,29 @@
+site_name: "monoDrive Simulator Python Client"
+
+generate:
+- monodrive/common.md:
+  - monodrive.common:
+    - monodrive.common.client++
+    - monodrive.common.messaging++
+- monodrive/jobs.md:
+  - monodrive.jobs:
+    - monodrive.jobs.jobs++
+- monodrive/simulator.md:
+  - monodrive.simulator:
+    - monodrive.simulator.simulator++
+- monodrive/sensors.md:
+  - monodrive:
+    - monodrive.sensors.base_sensor++
+    - monodrive.sensors.camera++
+    - monodrive.sensors.collision++
+    - monodrive.sensors.gps++
+    - monodrive.sensors.imu++
+    - monodrive.sensors.lidar++
+    - monodrive.sensors.radar++
+    - monodrive.sensors.rpm++
+    - monodrive.sensors.state++
+    - monodrive.sensors.ultrasonic++
+    - monodrive.sensors.viewport_camera++
+
+pages:
+- Home: index.md << ./README.md
