@@ -12,7 +12,7 @@ generate:
   - monodrive.simulator:
     - monodrive.simulator.simulator++
 - monodrive/sensors.md:
-  - monodrive:
+  - monodrive.sensors:
     - monodrive.sensors.base_sensor++
     - monodrive.sensors.camera++
     - monodrive.sensors.collision++
@@ -24,6 +24,11 @@ generate:
     - monodrive.sensors.state++
     - monodrive.sensors.ultrasonic++
     - monodrive.sensors.viewport_camera++
+- monodrive/examples.md:
+  - examples:
+    - examples.camera_annotation++
+    - examples.closed_loop++
+    - examples.replay_step++
 
 pages:
-- Home: index.md << ./README.md
+- Home: monodrive/quickstart.md << ./README.md
