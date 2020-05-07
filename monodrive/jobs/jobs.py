@@ -55,6 +55,7 @@ class Result(objectfactory.Serializable):
     """data model for results of UUT run"""
     pass_result = objectfactory.Field(name='pass')
     metrics = objectfactory.List(field_type=ResultMetric)
+    message = objectfactory.Field()
 
 
 def set_result(result: Result, path: str = None):
