@@ -8,6 +8,7 @@ import os
 import time
 import enum
 import json
+import argparse
 from typing import Callable
 import objectfactory
 
@@ -25,6 +26,8 @@ VEHICLE_FILE = 'vehicle.json'
 SENSORS_FILE = 'sensors.json'
 RESULTS_FILE = 'results.json'
 REPORT_FILE = 'results_full.json'
+ASSET_DIR_FLAG = '_md_assets'
+RESULTS_FLAG = '_md_results'
 
 
 class JobState(enum.Enum):
@@ -54,7 +57,7 @@ class Result(objectfactory.Serializable):
     metrics = objectfactory.List(field_type=ResultMetric)
 
 
-def set_result(result: Result, path: str):
+def set_result(result: Result, path: str = None):
     """
     helper to set the result of UUT run
 
@@ -62,6 +65,11 @@ def set_result(result: Result, path: str):
         result: results data model
         path: results path
     """
+    if path is None:
+        args = parse_md_arguments()
+        path = args[RESULTS_FLAG]
+    if path is None:
+        raise ValueError('no results path provided')
     with open(path, 'w') as file:
         json.dump(result.serialize(), file, indent=4)
 
@@ -151,3 +159,11 @@ def loop(
         set_state(JobState.COMPLETED)
         if verbose:
             print('Set job state: {}'.format(JobState.COMPLETED))
+
+
+def parse_md_arguments():
+    """internal command line parser for monodrive job arguments"""
+    parser = argparse.ArgumentParser()
+    parser.add_argument(RESULTS_FLAG)
+    args = vars(parser.parse_args())
+    return args
