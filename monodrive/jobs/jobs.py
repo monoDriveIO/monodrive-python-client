@@ -164,6 +164,6 @@ def loop(
 def parse_md_arguments():
     """internal command line parser for monodrive job arguments"""
     parser = argparse.ArgumentParser()
-    parser.add_argument(RESULTS_FLAG, required=False)
+    parser.add_argument('--{}'.format(RESULTS_FLAG), required=False)
     args = vars(parser.parse_args())
     return args
