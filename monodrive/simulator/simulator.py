@@ -162,15 +162,22 @@ class Simulator:
             The response message from the simulator for this configuration.
         """
         config['_type'] = config['type']
-        sensor = objectfactory.Factory.create_object(config)
+        uid = '{}_{}'.format(config['type'], config['listen_port'])
+        try:
+            updated_config = self.get_sensor(uid).serialize()
+        except KeyError:
+            updated_config = {}
+        updated_config.update(config)
+
+        sensor = objectfactory.Factory.create_object(updated_config)
         sensor.configure()
-        if not sensor.streamable:
-            return
-        if sensor.id not in self.__sensors:
-            raise Exception(
-                "{} does not yet exist and cannot be reconfigured".format(sensor.id)
-            )
-        self.__sensors[sensor.id].set_sensor(sensor)
+        if sensor.streamable:
+            if sensor.id not in self.__sensors:
+                raise Exception(
+                    "{} does not yet exist and cannot be reconfigured".format(sensor.id)
+                )
+
+            self.__sensors[sensor.id].set_sensor(sensor)
 
         message = mmsg.ApiMessage(
             mmsg.ID_REPLAY_RECONFIGURE_SENSOR_COMMAND,
