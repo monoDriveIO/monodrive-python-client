@@ -62,12 +62,12 @@ class Sensor(objectfactory.Serializable):
         """Function called after deserializing sensor to do any setup/config"""
         pass
 
-    def parse(self, data: bytes, package_length: int, time: int, game_time: int) -> DataFrame:
+    def parse(self, data: [bytes], package_length: int, time: int, game_time: int) -> DataFrame:
         """
         Parse raw data into data frame object
 
         Args:
-            data(bytes):
+            data([bytes]):
             package_length(int):
             time(int):
             game_time(int):
@@ -166,8 +166,7 @@ class SensorThread(threading.Thread):
                 # Parse and publish to subscribers
                 if (self.__sensor.blocks_per_frame == 1
                         or self.__sensor.blocks_per_frame == len(self.data_buffer)):
-                    raw = b''.join(self.data_buffer)
-                    frame = self.__sensor.parse(raw, package_length, t, game_time)
+                    frame = self.__sensor.parse(self.data_buffer, package_length, t, game_time)
 
                     self.observer.on_next(frame)
                     self.data_buffer = []
@@ -180,6 +179,10 @@ class SensorThread(threading.Thread):
         # Log that this sensor has stopped running
         if self.__verbose:
             print("{0}: disconnected".format(self.__sensor.id))
+
+    def get_sensor(self) -> Sensor:
+        """Get copy of sensor configuration"""
+        return copy.deepcopy(self.__sensor)
 
     def set_sensor(self, sensor: Sensor):
         """Set sensor config for this thread"""

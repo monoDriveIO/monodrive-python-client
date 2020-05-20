@@ -22,7 +22,7 @@ class UltrasonicFrame(DataFrame):
 class Ultrasonic(Sensor):
     """Ultrasonic sensor"""
 
-    def parse(self, data: bytes, package_length: int, time: int, game_time: int) -> DataFrame:
+    def parse(self, data: [bytes], package_length: int, time: int, game_time: int) -> DataFrame:
         """
         Parse data from ultrasonic sensor
 
@@ -35,6 +35,7 @@ class Ultrasonic(Sensor):
         Returns:
             parsed UltrasonicFrame object
         """
+        data = data[0]
         json_raw = data.decode('utf8').replace("'", '"')
         parsed_json = json.loads(json_raw)
 

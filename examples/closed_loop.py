@@ -78,6 +78,11 @@ def collision_on_update(frame: CollisionFrame):
         processing -= 1
 
 
+def perception_and_control():
+    # TODO, process sensor data and determine control values to send to ego
+    return 1,0,0,1 # fwd, right, brake, mode
+
+
 def main():
     """
     main driver function
@@ -96,8 +101,8 @@ def main():
 
     # Construct simulator from file
     simulator = Simulator.from_file(
-        os.path.join(root, 'configurations', 'simulator.json'),
-        trajectory=os.path.join(root, 'trajectories', 'HighWayExitReplay.json'),
+        os.path.join(root, 'configurations', 'simulator_closed_loop.json'),
+        trajectory=os.path.join(root, 'trajectories', 'Closed_Loop.json'),
         sensors=os.path.join(root, 'configurations', 'all_sensors.json'),
         weather=os.path.join(root, 'configurations', 'weather.json'),
         ego=os.path.join(root, 'configurations', 'vehicle.json'),
@@ -133,7 +138,8 @@ def main():
             data_camera = None
             data_lidar = None
 
-        for i in range(simulator.num_steps):
+        i = 0
+        while(running):
             start_time = time.time()
 
             # expect 4 sensors to be processed
@@ -141,8 +147,15 @@ def main():
                 global processing
                 processing = 4
 
-            # send step command
-            response = simulator.step()
+            # compute and send vehicle control command
+            forward, right, brake, drive_mode = perception_and_control()
+            if VERBOSE:
+                print("sending control: {0}, {1}, {2}, {3}".format(forward, right, brake, drive_mode))
+
+            response = simulator.send_control(forward, right, brake, drive_mode)
+
+            if VERBOSE:
+                print(response)
 
             # wait for processing to complete
             while running:
@@ -190,7 +203,7 @@ def main():
 
         fps = 1.0 / (sum(time_steps) / len(time_steps))
         print('Average FPS: {}'.format(fps))
-
+        i = i + 1
     except Exception as e:
         print(e)
 

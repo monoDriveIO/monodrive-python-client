@@ -25,7 +25,7 @@ class RadarFrame(DataFrame):
 class Radar(Sensor):
     """Radar sensor"""
 
-    def parse(self, data: bytes, package_length: int, time: int, game_time: int) -> DataFrame:
+    def parse(self, data: [bytes], package_length: int, time: int, game_time: int) -> DataFrame:
         """
         Parse data from radar sensor
 
@@ -38,6 +38,7 @@ class Radar(Sensor):
         Returns:
             parsed RadarFrame object
         """
+        data = data[0]
         json_raw = data.decode('utf8').replace("'", '"')
         parsed_json = json.loads(json_raw)
 

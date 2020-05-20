@@ -104,20 +104,21 @@ class Simulator:
             if self.__verbose:
                 print(res)
 
-    def configure_weather(self, config):
+    def configure_weather(self, config, set_profile=None):
         """Configure the weather from JSON representation.
 
         Args:
             config(dict): The configuration JSON to send to the server
+            set_profile(str): The profile id to be set
 
         Returns:
             The response message from the simulator for this configuration.
         """
+        if set_profile:
+            config['set_profile'] = set_profile
         message = mmsg.ApiMessage(
             mmsg.ID_WEATHER_CONFIG_COMMAND,
-            {
-                'set_profile': config['id']
-            }
+            config
         )
         return self.send_command(message)
 
@@ -203,6 +204,24 @@ class Simulator:
         )
         return response
 
+    def send_state(self, frame):
+        """Set the state of the simulator and step
+
+        Args:
+            frame(dict): The desired state of the simulator
+
+        Raises:
+            Exception if the simulator is not currently running
+        """
+        if not self.__running:
+            raise Exception("Simulator is not running")
+
+        message = mmsg.ApiMessage(
+            mmsg.ID_REPLAY_STATE_SIMULATION_COMMAND,
+            frame
+        )
+        return self.send_command(message)
+
     def stop(self):
         """Stop the simulation and all attached sensors."""
         for sensor_id in self.__sensors.keys():
@@ -265,15 +284,26 @@ class Simulator:
         """
         self.__sensors[uid].subscribe(callback)
 
-    def send_control(self, forward, right):
+    def get_sensor(self, uid):
+        """Get copy of a single sensor configuration by uid
+
+        Args:
+            uid(str): The uid of the sensor
+
+        Returns:
+            Sensor object
+        """
+        return self.__sensors[uid].get_sensor()
+
+    def send_control(self, forward, right, brake=0, mode=1):
         self.send_command(
             mmsg.ApiMessage(
                 mmsg.ID_EGO_CONTROL,
                 {
                     u'forward_amount': forward,
                     u'right_amount': right,
-                    u'brake_amount': 0,
-                    u'drive_mode': 1
+                    u'brake_amount': brake,
+                    u'drive_mode': mode
                 }
             )
         )
