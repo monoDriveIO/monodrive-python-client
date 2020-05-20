@@ -141,57 +141,6 @@
     ]
   },
   {
-    "type": "Radar",
-    "packet_size": 64000,
-    "gpu_number": 0,
-    "listen_port": 8301,
-    "synchronized_display": true,
-    "paint_targets": false,
-    "target_paint_lifetime": 0.5,
-    "send_radar_cube": false,
-    "location": {
-      "x": 250.0,
-      "y": 0.0,
-      "z": 50.0
-    },
-    "rotation": {
-      "pitch": 0.0,
-      "yaw": 0.0,
-      "roll": 0.0
-    },
-    "num_samples_per_sweep": 345,
-    "fs": 50000000,
-    "fc": 77000000000.0,
-    "num_sweeps": 32,
-    "sweep_time": 0.0000069,
-    "bandwidth": 172500000,
-    "max_targets": 250,
-    "elements": 8,
-    "transmitter": {
-      "peak_power": 5.0,
-      "aperture": 0.000859,
-      "gain": 13.50
-    },
-    "receiver": {
-      "aperture": 0.000798,
-      "nf": 10.0,
-      "noise_temp": 290.0,
-      "nb": 74000000.0,
-      "gain": 10.0
-    },
-    "sbr": {
-      "long_range_scan_distance": 150.0,
-      "short_range_scan_distance": 60.0,
-      "long_range_fov": 20.0,
-      "short_range_fov": 60.0,
-      "elevation_fov": 10.0,
-      "rescan_density": 20.0,
-      "debug_frustum": false,
-      "debug_scan": false,
-      "debug_rescan": false
-    }
-  },
-  {
     "type": "ViewportCamera",
     "listen_port": 0,
     "location": {
