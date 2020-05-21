@@ -6,6 +6,11 @@ import random
 import struct
 import sys
 
+HEADER_CONTROL = 0x6d6f6e6f
+"""The message prefix header for control messages to the server"""
+HEADER_RESPONSE = 0x6f6e6f6d
+"""The message prefix header for response messages from the server"""
+
 ID_STATUS = u"Status_ID"
 """Message ID for status commands"""
 ID_SIMULATOR_CONFIG = u"SimulatorConfig_ID"
@@ -52,12 +57,10 @@ ID_REPLAY_STEP_SIMULATION_COMMAND = "REPLAY_StepSimulationCommand_ID"
 """Message ID to replay the current step in the simulation."""
 ID_REPLAY_STATE_SIMULATION_COMMAND = "REPLAY_StateStepSimulationCommand_ID"
 """Message ID to replay the current state in the simulation."""
-HEADER_CONTROL = 0x6d6f6e6f
-"""The message prefix header for control messages to the server"""
-HEADER_RESPONSE = 0x6f6e6f6d
-"""The message prefix header for response messages from the server"""
-
 ID_GET_MAP_COMMAND = u"GetMap"
+"""Message ID to get map from server"""
+ID_VEHICLE_LIGHTS_CONFIG_COMMAND = "VehicleLightsConfig_ID"
+"""Message ID to configure vehicle lights"""
 
 
 class ApiMessage:

@@ -185,6 +185,21 @@ class Simulator:
         )
         return self.send_command(message)
 
+    def configure_lights(self, config):
+        """Configure vehicle lights
+
+        Args:
+            config(dict): the vehicle lights config JSON body
+
+        Returns:
+            response message from the simulator
+        """
+        message = mmsg.ApiMessage(
+            mmsg.ID_VEHICLE_LIGHTS_CONFIG_COMMAND,
+            config
+        )
+        return self.send_command(message)
+
     def start(self):
         """Start the simulation """
         self.__running = True
