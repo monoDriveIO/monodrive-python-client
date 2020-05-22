@@ -28,13 +28,13 @@ REPORT_FILE = 'results_full.json'
 
 POLL_INTERVAL = 3
 
-ASSET_DIR_FLAG = 'md-assets'
-SIMULATOR_FLAG = 'md-simulator'
-SCENARIO_FLAG = 'md-scenario'
-WEATHER_FLAG = 'md-weather'
-VEHICLE_FLAG = 'md-vehicle'
-SENSORS_FLAG = 'md-sensors'
-RESULTS_FLAG = 'md-results'
+ASSET_DIR_FLAG = 'md_assets'
+SIMULATOR_FLAG = 'md_simulator'
+SCENARIO_FLAG = 'md_scenario'
+WEATHER_FLAG = 'md_weather'
+VEHICLE_FLAG = 'md_vehicle'
+SENSORS_FLAG = 'md_sensors'
+RESULTS_FLAG = 'md_results'
 
 
 class JobState(enum.Enum):
