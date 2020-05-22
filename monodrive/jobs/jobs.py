@@ -18,7 +18,6 @@ from monodrive.simulator import Simulator
 # constants
 ASSET_DIR = '/mdassets'
 STATE_FILE = 'STATUS'
-POLL_INTERVAL = 3
 SIMULATOR_FILE = 'simulator.json'
 SCENARIO_FILE = 'scenario.json'
 WEATHER_FILE = 'weather.json'
@@ -26,8 +25,16 @@ VEHICLE_FILE = 'vehicle.json'
 SENSORS_FILE = 'sensors.json'
 RESULTS_FILE = 'results.json'
 REPORT_FILE = 'results_full.json'
-ASSET_DIR_FLAG = '_md_assets'
-RESULTS_FLAG = '_md_results'
+
+POLL_INTERVAL = 3
+
+ASSET_DIR_FLAG = 'md-assets'
+SIMULATOR_FLAG = 'md-simulator'
+SCENARIO_FLAG = 'md-scenario'
+WEATHER_FLAG = 'md-weather'
+VEHICLE_FLAG = 'md-vehicle'
+SENSORS_FLAG = 'md-sensors'
+RESULTS_FLAG = 'md-results'
 
 
 class JobState(enum.Enum):
@@ -68,7 +75,10 @@ def set_result(result: Result, path: str = None):
     """
     if path is None:
         args = parse_md_arguments()
-        path = args[RESULTS_FLAG]
+        if args[ASSET_DIR_FLAG]:
+            path = os.path.join(args[ASSET_DIR_FLAG], RESULTS_FILE)
+        if args[RESULTS_FLAG]:
+            path = args[RESULTS_FLAG]
     if path is None:
         raise ValueError('no results path provided')
     with open(path, 'w') as file:
@@ -165,6 +175,12 @@ def loop(
 def parse_md_arguments():
     """internal command line parser for monodrive job arguments"""
     parser = argparse.ArgumentParser()
+    parser.add_argument('--{}'.format(ASSET_DIR_FLAG), required=False)
+    parser.add_argument('--{}'.format(SIMULATOR_FLAG), required=False)
+    parser.add_argument('--{}'.format(SCENARIO_FLAG), required=False)
+    parser.add_argument('--{}'.format(WEATHER_FLAG), required=False)
+    parser.add_argument('--{}'.format(VEHICLE_FLAG), required=False)
+    parser.add_argument('--{}'.format(SENSORS_FLAG), required=False)
     parser.add_argument('--{}'.format(RESULTS_FLAG), required=False)
     args = vars(parser.parse_args())
     return args
