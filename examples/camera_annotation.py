@@ -73,9 +73,9 @@ def main():
 
     # Construct simulator from file
     simulator = Simulator.from_file(
-        os.path.join(root, 'configurations', 'annotated_camera_simulator.json'),
-        trajectory=os.path.join(root, 'trajectories', 'tcd_replay_60mph_short.json'),
-        sensors=os.path.join(root, 'configurations', 'annotated_camera_sensors.json'),
+        os.path.join(root, 'configurations', 'simulator_annotated_camera.json'),
+        trajectory=os.path.join(root, 'scenarios', 'replay_tcd_60mph_short.json'),
+        sensors=os.path.join(root, 'configurations', 'sensors_annotated_camera.json'),
         weather=os.path.join(root, 'configurations', 'weather.json'),
         ego=os.path.join(root, 'configurations', 'vehicle.json'),
         verbose=VERBOSE
