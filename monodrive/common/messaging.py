@@ -52,6 +52,8 @@ ID_REPLAY_STEP_SIMULATION_COMMAND = "REPLAY_StepSimulationCommand_ID"
 """Message ID to replay the current step in the simulation."""
 ID_REPLAY_STATE_SIMULATION_COMMAND = "REPLAY_StateStepSimulationCommand_ID"
 """Message ID to replay the current state in the simulation."""
+ID_SAMPLE_SENSORS_COMMAND = "SampleSensorsCommand_ID"
+"""Message ID to sample all sensors in the simulation."""
 HEADER_CONTROL = 0x6d6f6e6f
 """The message prefix header for control messages to the server"""
 

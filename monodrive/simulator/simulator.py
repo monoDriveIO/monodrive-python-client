@@ -199,6 +199,9 @@ class Simulator:
 
         Raises:
             Exception if the simulator is not currently running
+
+        Returns:
+            dict: The response message from the simulator
         """
         if not self.__running:
             raise Exception("Simulator is not running")
@@ -219,6 +222,9 @@ class Simulator:
 
         Raises:
             Exception if the simulator is not currently running
+
+        Returns:
+            dict: The response message from the simulator
         """
         if not self.__running:
             raise Exception("Simulator is not running")
@@ -241,6 +247,9 @@ class Simulator:
 
         Args:
             command(ApiMessage): The command to send to the server.
+
+        Returns:
+            dict: The command response message from the simulator
         """
         if not self.__client.connected:
             self.__client.connect()
@@ -314,6 +323,24 @@ class Simulator:
                 }
             )
         )
+
+    def sample_sensors(self):
+        """Send command to sample all sensors
+
+        Raises:
+            Exception if the simulator is not currently running
+
+        Returns:
+            dict: The command response message from the simulator
+        """
+        if not self.__running:
+            raise Exception("Simulator is not running")
+
+        message = mmsg.ApiMessage(
+            mmsg.ID_SAMPLE_SENSORS_COMMAND,
+            {}
+        )
+        return self.send_command(message)
 
     @classmethod
     def from_file(
