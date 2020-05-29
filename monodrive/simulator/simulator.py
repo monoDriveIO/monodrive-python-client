@@ -30,7 +30,7 @@ class Simulator:
     def __init__(
             self,
             config,
-            trajectory=None,
+            scenario=None,
             sensors=None,
             weather=None,
             ego=None,
@@ -40,7 +40,7 @@ class Simulator:
 
         Args:
             config(dict): The configuration JSON for this simulator instance
-            trajectory(dict): The configuration JSON for the trajectory to replay
+            scenario(dict): The configuration JSON for the trajectory to replay
             in Modes.MODE_REPLAY
             sensors(dict): The configuration JSON for the suite of sensors for
             this simulator instance.
@@ -49,7 +49,7 @@ class Simulator:
             verbose(bool):
         """
         self.__config = config
-        self.__trajectory = trajectory
+        self.__scenario = scenario
         self.__sensor_config = sensors
         self.__weather = weather
         self.__ego = ego
@@ -91,8 +91,8 @@ class Simulator:
             print(res)
 
         # configure other options if set
-        if self.__trajectory:
-            res = self.configure_trajectory(self.__trajectory)
+        if self.__scenario:
+            res = self.configure_scenario(self.__scenario)
             if self.__verbose:
                 print(res)
         if self.__sensor_config:
@@ -122,19 +122,25 @@ class Simulator:
         )
         return self.send_command(message)
 
-    def configure_trajectory(self, config):
-        """Configure the scenario trajectory from JSON representation.
+    def configure_scenario(self, config):
+        """Configure the scenario from JSON representation.
 
         Args:
-            config(dict): The trajectory JSON to send to the server
+            config(dict): The scenario configuration to send to the server
 
         Returns:
             The response message from the simulator for this configuration.
         """
-        message = mmsg.ApiMessage(
-            mmsg.ID_REPLAY_CONFIGURE_TRAJECTORY_COMMAND,
-            config
-        )
+        if self.mode == Mode.MODE_CLOSED_LOOP.value:
+            message = mmsg.ApiMessage(
+                mmsg.ID_CLOSED_LOOP_CONFIG_COMMAND,
+                config
+            )
+        else:
+            message = mmsg.ApiMessage(
+                mmsg.ID_REPLAY_CONFIGURE_TRAJECTORY_COMMAND,
+                config
+            )
         return self.send_command(message)
 
     def configure_sensors(self, config):
@@ -185,11 +191,22 @@ class Simulator:
         )
         return self.send_command(message)
 
-    def start(self):
-        """Start the simulation """
+    def start(self, start_listening=True, initial_controls=(0, 0, 0, 1)):
+        """
+        Start the simulation
+
+        Args:
+            start_listening(bool): begin sensor threads for listening
+            initial_controls(tuple): initial controls to send if
+              closed loop mode. set None to skip.
+        """
         self.__running = True
         self.configure()
-        self.start_sensor_listening()
+        if self.mode == Mode.MODE_CLOSED_LOOP.value and initial_controls is not None:
+            res = self.send_control(*initial_controls)
+            print(res)
+        if start_listening:
+            self.start_sensor_listening()
 
     def step(self, steps=1):
         """Step the simulation the specified number of steps.
@@ -284,10 +301,11 @@ class Simulator:
     @property
     def num_steps(self):
         """Get number of steps in trajectory"""
-        if self.__trajectory:
-            return len(self.__trajectory)
-        else:
+        if self.mode == Mode.MODE_CLOSED_LOOP.value:
             return 0
+        if self.__scenario is None:
+            return 0
+        return len(self.__scenario)
 
     def subscribe_to_sensor(self, uid, callback):
         """Subscribe to a single sensor's data ouput in the simulator.
@@ -312,17 +330,27 @@ class Simulator:
         return self.__sensors[uid].get_sensor()
 
     def send_control(self, forward, right, brake=0, mode=1):
-        self.send_command(
-            mmsg.ApiMessage(
-                mmsg.ID_EGO_CONTROL,
-                {
-                    u'forward_amount': forward,
-                    u'right_amount': right,
-                    u'brake_amount': brake,
-                    u'drive_mode': mode
-                }
-            )
+        """Send controls to ego vehicle
+
+        Args:
+            forward:
+            right:
+            brake:
+            mode:
+
+        Returns:
+            dict: The command response message from the simulator
+        """
+        message = mmsg.ApiMessage(
+            mmsg.ID_EGO_CONTROL,
+            {
+                u'forward_amount': forward,
+                u'right_amount': right,
+                u'brake_amount': brake,
+                u'drive_mode': mode
+            }
         )
+        return self.send_command(message)
 
     def sample_sensors(self):
         """Send command to sample all sensors
@@ -346,7 +374,7 @@ class Simulator:
     def from_file(
             cls,
             simulator: str,
-            trajectory: str = None,
+            scenario: str = None,
             sensors: str = None,
             weather: str = None,
             ego: str = None,
@@ -356,9 +384,9 @@ class Simulator:
         with open(simulator) as file:
             config = json.load(file)
             simulator = cls(config, verbose=verbose)
-        if trajectory:
-            with open(trajectory) as file:
-                simulator.__trajectory = json.load(file)
+        if scenario:
+            with open(scenario) as file:
+                simulator.__scenario = json.load(file)
         if sensors:
             with open(sensors) as file:
                 simulator.__sensor_config = json.load(file)

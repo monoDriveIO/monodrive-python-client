@@ -54,6 +54,8 @@ ID_REPLAY_STATE_SIMULATION_COMMAND = "REPLAY_StateStepSimulationCommand_ID"
 """Message ID to replay the current state in the simulation."""
 ID_SAMPLE_SENSORS_COMMAND = "SampleSensorsCommand_ID"
 """Message ID to sample all sensors in the simulation."""
+ID_CLOSED_LOOP_CONFIG_COMMAND = "ClosedLoopConfigCommand_ID"
+"""Message ID to configure initial conditions for closed loop mode"""
 HEADER_CONTROL = 0x6d6f6e6f
 """The message prefix header for control messages to the server"""
 

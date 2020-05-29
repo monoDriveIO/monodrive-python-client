@@ -80,7 +80,7 @@ def collision_on_update(frame: CollisionFrame):
 
 def perception_and_control():
     # TODO, process sensor data and determine control values to send to ego
-    return 1,0,0,1 # fwd, right, brake, mode
+    return 0, 0, 1, 1  # fwd, right, brake, mode
 
 
 def main():
@@ -102,7 +102,7 @@ def main():
     # Construct simulator from file
     simulator = Simulator.from_file(
         os.path.join(root, 'configurations', 'simulator_closed_loop.json'),
-        trajectory=os.path.join(root, 'scenarios', 'closed_loop.json'),
+        scenario=os.path.join(root, 'scenarios', 'closed_loop.json'),
         sensors=os.path.join(root, 'configurations', 'sensors.json'),
         weather=os.path.join(root, 'configurations', 'weather.json'),
         ego=os.path.join(root, 'configurations', 'vehicle.json'),
@@ -139,7 +139,7 @@ def main():
             data_lidar = None
 
         i = 0
-        while(running):
+        while running:
             start_time = time.time()
 
             # expect 4 sensors to be processed
@@ -153,7 +153,10 @@ def main():
                 print("sending control: {0}, {1}, {2}, {3}".format(forward, right, brake, drive_mode))
 
             response = simulator.send_control(forward, right, brake, drive_mode)
+            if VERBOSE:
+                print(response)
 
+            response = simulator.sample_sensors()
             if VERBOSE:
                 print(response)
 
