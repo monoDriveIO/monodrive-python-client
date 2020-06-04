@@ -1,5 +1,8 @@
-"""example.py
-An example of creating a simulator and processing the sensor outputs.
+"""
+Replay example
+
+An example which configures the simulator in replay mode, steps through
+frame by frame, and processes the sensor output.
 """
 # lib
 import json
