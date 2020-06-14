@@ -59,7 +59,10 @@ def state_on_update(frame: StateFrame):
     callback to process parsed state sensor data
     """
     if VERBOSE:
-        print("State sensor reporting {0} objects".format(len(frame.object_list)))
+        print("State sensor reporting {} vehicles and {} objects".format(
+            len(frame.frame.vehicles),
+            len(frame.frame.objects)
+        ))
     with lock:
         global processing
         processing -= 1
@@ -150,7 +153,9 @@ def main():
             # compute and send vehicle control command
             forward, right, brake, drive_mode = perception_and_control()
             if VERBOSE:
-                print("sending control: {0}, {1}, {2}, {3}".format(forward, right, brake, drive_mode))
+                print("sending control: {0}, {1}, {2}, {3}".format(
+                    forward, right, brake, drive_mode
+                ))
 
             response = simulator.send_control(forward, right, brake, drive_mode)
             if VERBOSE:
