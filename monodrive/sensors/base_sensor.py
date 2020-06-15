@@ -12,7 +12,7 @@ import copy
 
 from monodrive.common.client import Client
 
-HEADER_SIZE = 12
+HEADER_SIZE = 16
 
 
 class DataFrame(object):
@@ -156,7 +156,7 @@ class SensorThread(threading.Thread):
                     continue
                 # Read the header and data of the message
                 header = self.__client.read(HEADER_SIZE)
-                length, t, game_time = struct.unpack("!IIf", header)
+                length, t, game_time, sample_count = struct.unpack("!IIfI", header)
                 data = self.__client.read(length - HEADER_SIZE)
                 package_length = length - HEADER_SIZE
                 self.data_buffer.append(data)

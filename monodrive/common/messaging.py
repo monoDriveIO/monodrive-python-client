@@ -52,10 +52,12 @@ ID_REPLAY_STEP_SIMULATION_COMMAND = "REPLAY_StepSimulationCommand_ID"
 """Message ID to replay the current step in the simulation."""
 ID_REPLAY_STATE_SIMULATION_COMMAND = "REPLAY_StateStepSimulationCommand_ID"
 """Message ID to replay the current state in the simulation."""
+ID_SAMPLE_SENSORS_COMMAND = "SampleSensorsCommand_ID"
+"""Message ID to sample all sensors in the simulation."""
+ID_CLOSED_LOOP_CONFIG_COMMAND = "ClosedLoopConfigCommand_ID"
+"""Message ID to configure initial conditions for closed loop mode"""
 HEADER_CONTROL = 0x6d6f6e6f
 """The message prefix header for control messages to the server"""
-HEADER_RESPONSE = 0x6f6e6f6d
-"""The message prefix header for response messages from the server"""
 
 ID_GET_MAP_COMMAND = u"GetMap"
 
@@ -140,7 +142,7 @@ class ApiMessage:
         data = client.read(8)
         magic, size = struct.unpack("!II", data)
         # Only read if the message was a response
-        if magic == HEADER_RESPONSE and size > 0:
+        if magic == HEADER_CONTROL and size > 0:
             # Read the rest of the message and return
             data = client.read(size - 8)
             return json.loads(data.decode("utf-8"))

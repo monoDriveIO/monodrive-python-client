@@ -59,7 +59,10 @@ def state_on_update(frame: StateFrame):
     callback to process parsed state sensor data
     """
     if VERBOSE:
-        print("State sensor reporting {0} objects".format(len(frame.object_list)))
+        print("State sensor reporting {} vehicles and {} objects".format(
+            len(frame.frame.vehicles),
+            len(frame.frame.objects)
+        ))
     with lock:
         global processing
         processing -= 1
@@ -80,7 +83,7 @@ def collision_on_update(frame: CollisionFrame):
 
 def perception_and_control():
     # TODO, process sensor data and determine control values to send to ego
-    return 1,0,0,1 # fwd, right, brake, mode
+    return 0, 0, 1, 1  # fwd, right, brake, mode
 
 
 def main():
@@ -102,8 +105,8 @@ def main():
     # Construct simulator from file
     simulator = Simulator.from_file(
         os.path.join(root, 'configurations', 'simulator_closed_loop.json'),
-        trajectory=os.path.join(root, 'trajectories', 'Closed_Loop.json'),
-        sensors=os.path.join(root, 'configurations', 'all_sensors.json'),
+        scenario=os.path.join(root, 'scenarios', 'closed_loop.json'),
+        sensors=os.path.join(root, 'configurations', 'sensors.json'),
         weather=os.path.join(root, 'configurations', 'weather.json'),
         ego=os.path.join(root, 'configurations', 'vehicle.json'),
         verbose=VERBOSE
@@ -139,7 +142,7 @@ def main():
             data_lidar = None
 
         i = 0
-        while(running):
+        while running:
             start_time = time.time()
 
             # expect 4 sensors to be processed
@@ -150,10 +153,15 @@ def main():
             # compute and send vehicle control command
             forward, right, brake, drive_mode = perception_and_control()
             if VERBOSE:
-                print("sending control: {0}, {1}, {2}, {3}".format(forward, right, brake, drive_mode))
+                print("sending control: {0}, {1}, {2}, {3}".format(
+                    forward, right, brake, drive_mode
+                ))
 
             response = simulator.send_control(forward, right, brake, drive_mode)
+            if VERBOSE:
+                print(response)
 
+            response = simulator.sample_sensors()
             if VERBOSE:
                 print(response)
 

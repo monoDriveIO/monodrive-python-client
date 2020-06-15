@@ -1,12 +1,7 @@
 {
   "vehicle_dynamics": "physx",
   "body": {
-    "color": [
-      255,
-      255,
-      255,
-      255
-    ],
+    "color": "Carpaint_White",
     "type": "Blueprint'/Game/Vehicles/sedan_monoDrive_01.sedan_monoDrive_01_C'"
   }
 }

@@ -72,9 +72,12 @@ class Lidar(Sensor):
         """
         configure framing and calculate expected frames per step
         """
-        number_blocks = (360. / self.horizontal_resolution
-                         * self.n_lasers / CHANNELS_PER_BLOCK)
-        number_packets = number_blocks / BLOCKS_PER_PACKET
+        rotations_per_scan = int(360.0 / self.horizontal_resolution)
+        packet_coeff = 2 if self.n_lasers == 16 else 1
+        number_packets = int(
+            math.ceil(
+                float(rotations_per_scan) / \
+                (BLOCKS_PER_PACKET * packet_coeff)))
         self.blocks_per_frame = math.ceil(number_packets)
 
     def parse(self, data: [bytes], package_length: int, time: int, game_time: int) -> DataFrame:
@@ -134,7 +137,7 @@ class Lidar(Sensor):
         Returns:
             Parsed lidar packet object
         """
-        lidar_data = struct.unpack("=" + 12 * ("HH" + 32 * "HB") + "IH", packet_data)
+        lidar_data = struct.unpack("<" + 12 * ("HH" + 32 * "HB") + "IH", packet_data)
         lp = LidarPacket()
         lp.flag = lidar_data[-1]
         lp.timestamp = lidar_data[-2]

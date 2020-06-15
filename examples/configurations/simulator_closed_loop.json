@@ -4,7 +4,7 @@
   "server_port": 8999,
   "client_ip": "127.0.0.1",
   "simulation_mode": 0,
-  "ego_config": {},
+  "map": "Straightaway5k",
   "phys_materials": {
     "Aluminum": {
       "specular_exponent": 15.0,
@@ -85,7 +85,7 @@
     }
   },
   "traffic_configuration": {
-    "max_vehicles": 40,
+    "max_vehicles": 0,
     "spawn_rate": 0.25
   },
   "client_settings": {

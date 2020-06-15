@@ -8,6 +8,7 @@ import os
 import time
 import enum
 import json
+import argparse
 from typing import Callable
 import objectfactory
 
@@ -17,7 +18,6 @@ from monodrive.simulator import Simulator
 # constants
 ASSET_DIR = '/mdassets'
 STATE_FILE = 'STATUS'
-POLL_INTERVAL = 3
 SIMULATOR_FILE = 'simulator.json'
 SCENARIO_FILE = 'scenario.json'
 WEATHER_FILE = 'weather.json'
@@ -25,6 +25,16 @@ VEHICLE_FILE = 'vehicle.json'
 SENSORS_FILE = 'sensors.json'
 RESULTS_FILE = 'results.json'
 REPORT_FILE = 'results_full.json'
+
+POLL_INTERVAL = 3
+
+ASSET_DIR_FLAG = 'md_assets'
+SIMULATOR_FLAG = 'md_simulator'
+SCENARIO_FLAG = 'md_scenario'
+WEATHER_FLAG = 'md_weather'
+VEHICLE_FLAG = 'md_vehicle'
+SENSORS_FLAG = 'md_sensors'
+RESULTS_FLAG = 'md_results'
 
 
 class JobState(enum.Enum):
@@ -52,9 +62,10 @@ class Result(objectfactory.Serializable):
     """data model for results of UUT run"""
     pass_result = objectfactory.Field(name='pass')
     metrics = objectfactory.List(field_type=ResultMetric)
+    message = objectfactory.Field()
 
 
-def set_result(result: Result, path: str):
+def set_result(result: Result, path: str = None):
     """
     helper to set the result of UUT run
 
@@ -62,6 +73,14 @@ def set_result(result: Result, path: str):
         result: results data model
         path: results path
     """
+    if path is None:
+        args = parse_md_arguments()
+        if args[ASSET_DIR_FLAG]:
+            path = os.path.join(args[ASSET_DIR_FLAG], RESULTS_FILE)
+        if args[RESULTS_FLAG]:
+            path = args[RESULTS_FLAG]
+    if path is None:
+        raise ValueError('no results path provided')
     with open(path, 'w') as file:
         json.dump(result.serialize(), file, indent=4)
 
@@ -151,3 +170,17 @@ def loop(
         set_state(JobState.COMPLETED)
         if verbose:
             print('Set job state: {}'.format(JobState.COMPLETED))
+
+
+def parse_md_arguments():
+    """internal command line parser for monodrive job arguments"""
+    parser = argparse.ArgumentParser()
+    parser.add_argument('--{}'.format(ASSET_DIR_FLAG), required=False)
+    parser.add_argument('--{}'.format(SIMULATOR_FLAG), required=False)
+    parser.add_argument('--{}'.format(SCENARIO_FLAG), required=False)
+    parser.add_argument('--{}'.format(WEATHER_FLAG), required=False)
+    parser.add_argument('--{}'.format(VEHICLE_FLAG), required=False)
+    parser.add_argument('--{}'.format(SENSORS_FLAG), required=False)
+    parser.add_argument('--{}'.format(RESULTS_FLAG), required=False)
+    args = vars(parser.parse_args())
+    return args

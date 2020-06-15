@@ -30,6 +30,7 @@ class CameraStreamDimensions(objectfactory.Serializable):
 @objectfactory.Factory.register_class
 class AnnotationDetails(objectfactory.Serializable):
     desired_tags = objectfactory.Field(default=[])
+    include_annotation = objectfactory.Field(default=False)
 
 
 @objectfactory.Factory.register_class
@@ -69,7 +70,7 @@ class Camera(Sensor):
 
         # validate complete data
         if len(data[0]) != self.stream_dimensions.y * self.stream_dimensions.x * num_channels:
-            print("sensor:{} , received wrong image size".format(self.id))
+            print('sensor: {}, received wrong image size: {}'.format(self.id, len(data[0])))
             return frame
 
         # do parse
@@ -88,7 +89,9 @@ class Camera(Sensor):
         return frame
 
     def configure(self):
-        if self.annotation is not None:
+        if self.annotation is None:
+            return
+        if self.annotation.include_annotation:
             self.blocks_per_frame = 2
 
 

@@ -10,15 +10,28 @@ import objectfactory
 from monodrive.sensors import Sensor, DataFrame
 
 
-class RadarFrame(DataFrame):
-    def __init__(self):
-        self.sensor_id = None
-        self.timestamp = None
-        self.game_time = None
-        self.ranges = None
-        self.velocities = None
-        self.aoa_list = None
-        self.rcs_list = None
+@objectfactory.Factory.register_class
+class RadarFrameTarget(objectfactory.Serializable):
+    range = objectfactory.Field()
+    aoa = objectfactory.Field()
+    velocity = objectfactory.Field()
+    rcs = objectfactory.Field()
+    target_ids = objectfactory.Field()
+
+
+@objectfactory.Factory.register_class
+class RadarFrame(DataFrame, objectfactory.Serializable):
+    sensor_id = objectfactory.Field()
+    time = objectfactory.Field()
+    game_time = objectfactory.Field()
+    targets = objectfactory.List(
+        name='target_list',
+        field_type=RadarFrameTarget
+    )
+    groundtruth_targets = objectfactory.List(
+        name='gt_targets',
+        field_type=RadarFrameTarget
+    )
 
 
 @objectfactory.Factory.register_class
@@ -43,13 +56,9 @@ class Radar(Sensor):
         parsed_json = json.loads(json_raw)
 
         frame = RadarFrame()
+        frame.deserialize(parsed_json)
+        frame.time = time
+        frame.game_time = game_time
         frame.sensor_id = self.id
-        frame.timestamp = parsed_json['time']
-        frame.game_time = parsed_json['game_time']
-        message = parsed_json['message']
-        frame.ranges = message['ranges']
-        frame.velocities = message['velocities']
-        frame.aoa_list = message['aoas']
-        frame.rcs_list = message['rcs']
 
         return frame
