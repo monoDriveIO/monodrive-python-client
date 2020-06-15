@@ -204,7 +204,8 @@ class Simulator:
         self.configure()
         if self.mode == Mode.MODE_CLOSED_LOOP.value and initial_controls is not None:
             res = self.send_control(*initial_controls)
-            print(res)
+            if self.__verbose:
+                print(res)
         if start_listening:
             self.start_sensor_listening()
 
