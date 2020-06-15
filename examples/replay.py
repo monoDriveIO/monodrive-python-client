@@ -62,7 +62,10 @@ def state_on_update(frame: StateFrame):
     callback to process parsed state sensor data
     """
     if VERBOSE:
-        print("State sensor reporting {0} objects".format(len(frame.object_list)))
+        print("State sensor reporting {} vehicles and {} objects".format(
+            len(frame.frame.vehicles),
+            len(frame.frame.objects)
+        ))
     with lock:
         global processing
         processing -= 1
