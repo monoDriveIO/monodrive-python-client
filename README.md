@@ -9,12 +9,12 @@ more performant, production-ready client, consider using the
 [monoDrive LabVIEW Client](https://monodrive.readthedocs.io/en/latest/LV_client/quick_start/LabVIEW_client_quick_start/).
 
 ## Installation
-We recommend using an Anaconda environment for the simulator client. Instructions and download for the "Miniconda" 
-version of Anaconda can be found [here](https://docs.conda.io/en/latest/miniconda.html). To setup a new environment
-simply
+Use [pip](https://pip.pypa.io/en/stable/installing/) for installation. We recommend using a virtual environment such as 
+Anaconda. Instructions and download for the "Miniconda" version of Anaconda can be found 
+[here](https://docs.conda.io/en/latest/miniconda.html). To setup a new environment simply
 
 ```bash
-$ conda create --name simulator-python-client python=3.7
+$ conda create --name simulator-python-client python=3
 $ conda activate simulator-python-client
 (simulator-python-client) $
 ```
@@ -31,7 +31,7 @@ Or to install it from the cloned repo:
 (simulator-python-client) $ pip install -e .
 ```
 
-## Usage
+## Running Examples
 
 To run a simple closed loop example, start the monoDrive Simulator or Scenario Editor in PIE mode locally, then from
 the activated and installed environment:
@@ -41,13 +41,3 @@ the activated and installed environment:
 ```
 
 More detailed examples can be found in the `examples/` directory.
-
-## Tips and Troubleshooting
-
-- If the simulator is running on another machine, you will need to update the
-host information in `simulator.json`
-
-```json
-"simulator_ip": <IP OF SIMULATOR MACHINE>
-```
-
