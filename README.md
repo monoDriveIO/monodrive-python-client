@@ -3,6 +3,11 @@
 This repository contains a Python implementation of a client that can connect
 to the monoDrive simulator, configure scenarios, and process sensor data.
 
+**NOTE:** The monoDrive Python client is intended for rapid prototype development and algorithm investigation. For a 
+more performant, production-ready client, consider using the 
+[monoDrive C++ Client](https://github.com/monoDriveIO/monodrive-client) or 
+[monoDrive LabVIEW Client](https://monodrive.readthedocs.io/en/latest/LV_client/quick_start/LabVIEW_client_quick_start/).
+
 ## Installation
 We recommend using an Anaconda environment for the simulator client. Instructions and download for the "Miniconda" 
 version of Anaconda can be found [here](https://docs.conda.io/en/latest/miniconda.html). To setup a new environment
