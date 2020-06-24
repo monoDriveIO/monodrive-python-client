@@ -25,7 +25,7 @@ To install the monoDrive client from the remote github repo (where `mycommit` is
 (simulator-python-client) $ pip install git+git://github.com/monodriveIO/python_client.git@mycommit#egg=monodrive
 ```
 
-Of to install it from the cloned repo:
+Or to install it from the cloned repo:
 
 ```
 (simulator-python-client) $ pip install -e .
