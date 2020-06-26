@@ -182,5 +182,5 @@ def parse_md_arguments():
     parser.add_argument('--{}'.format(VEHICLE_FLAG), required=False)
     parser.add_argument('--{}'.format(SENSORS_FLAG), required=False)
     parser.add_argument('--{}'.format(RESULTS_FLAG), required=False)
-    args = vars(parser.parse_args())
+    args = vars(parser.parse_known_args()[0])
     return args
