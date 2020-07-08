@@ -1,5 +1,9 @@
-"""example.py
-An example of creating a simulator and processing the sensor outputs.
+"""
+Closed Loop HUD example
+An example of creating a viewport camera on the simulator with the vehicle
+HUD enabled. The HUD is displayed on the simulator viewport only.
+The values on the HUD can be updated with the ID_AUTOPILOT_CONTROL_COMMAND
+command as shown below.
 """
 # lib
 import json
@@ -27,7 +31,6 @@ lock = threading.RLock()
 processing = 0
 running = True
 camera_frame = None
-lidar_frame = None
 
 
 def camera_on_update(frame: CameraFrame):
@@ -43,49 +46,9 @@ def camera_on_update(frame: CameraFrame):
         processing -= 1
 
 
-def lidar_on_update(frame: LidarFrame):
-    """
-    callback to process parsed lidar data
-    """
-    if VERBOSE:
-        print("LiDAR point cloud with size {0}".format(len(frame.points)))
-    global lidar_frame
-    lidar_frame = frame
-    with lock:
-        global processing
-        processing -= 1
-
-
-def state_on_update(frame: StateFrame):
-    """
-    callback to process parsed state sensor data
-    """
-    if VERBOSE:
-        print("State sensor reporting {} vehicles and {} objects".format(
-            len(frame.frame.vehicles),
-            len(frame.frame.objects)
-        ))
-    with lock:
-        global processing
-        processing -= 1
-
-
-def collision_on_update(frame: CollisionFrame):
-    """
-    callback to process parsed collision sensor data
-    """
-    if VERBOSE:
-        collision = any([t.collision for t in frame.targets])
-        nearest = min([t.distance for t in frame.targets], default=-1.0)
-        print("Collision sensor: collision {}, nearest: {:.2f}m".format(collision, nearest))
-    with lock:
-        global processing
-        processing -= 1
-
-
 def perception_and_control():
     # TODO, process sensor data and determine control values to send to ego
-    return 0, 0, 1, 1  # fwd, right, brake, mode
+    return 1, 0, 0, 1  # fwd, right, brake, mode
 
 
 def main():
@@ -120,9 +83,6 @@ def main():
     try:
         # Subscribe to sensors of interest
         simulator.subscribe_to_sensor('Camera_8000', camera_on_update)
-        simulator.subscribe_to_sensor('Lidar_8200', lidar_on_update)
-        simulator.subscribe_to_sensor('State_8700', state_on_update)
-        simulator.subscribe_to_sensor('Collision_8800', collision_on_update)
 
         # Start stepping the simulator
         time_steps = []
@@ -131,12 +91,6 @@ def main():
         if DISPLAY:
             fig = plt.figure('perception system', figsize=(10, 4))
             ax_camera = fig.add_subplot(1, 2, 1)
-            ax_lidar = fig.add_subplot(1, 2, 2, projection='3d')
-            ax_lidar.set_xlim3d(-20000, 20000)
-            ax_lidar.set_ylim3d(-20000, 20000)
-            ax_lidar.set_zlim3d(-5000, 5000)
-
-            ax_lidar.set_axis_off()
             ax_camera.set_axis_off()
 
             fig.canvas.draw()
@@ -144,13 +98,13 @@ def main():
             data_lidar = None
 
         i = 0
-        while running:
+        while running and i < 100:
             start_time = time.time()
 
-            # expect 4 sensors to be processed
+            # expect 1 sensor to be processed
             with lock:
                 global processing
-                processing = 4
+                processing = 1
 
             # compute and send vehicle control command
             forward, right, brake, drive_mode = perception_and_control()
@@ -176,7 +130,7 @@ def main():
 
             # plot if needed
             if DISPLAY:
-                global camera_frame, lidar_frame
+                global camera_frame
                 # update with camera data
                 if camera_frame:
                     im = np.squeeze(camera_frame.image[..., ::-1])
@@ -184,24 +138,13 @@ def main():
                         data_camera = ax_camera.imshow(im)
                     else:
                         data_camera.set_data(im)
-                # update with lidar data
-                if lidar_frame:
-                    data = np.array([[pt.x, pt.y, pt.z, pt.intensity] for pt in lidar_frame.points])
-                    data = data[np.any(data != 0, axis=1)]
-                    if data_lidar is None:
-                        data_lidar = ax_lidar.scatter(
-                            data[:, 0], data[:, 1], data[:, 2],
-                            s=0.1
-                        )
-                    else:
-                        data_lidar._offsets3d = (data[:, 0], data[:, 1], data[:, 2])
 
                 # do draw
                 fig.canvas.draw()
                 fig.canvas.flush_events()
                 plt.pause(0.0001)
 
-            # send autopilot command every twenty frames
+            # send autopilot command every twenty frames to update the HUD
             if i % 20 == 0:
                 set_speed = random.randrange(1000, 4000)
                 negotiated_speed = random.randrange(1000, 4000)
@@ -227,10 +170,14 @@ def main():
             # time.sleep(1)
             if running is False:
                 break
+    
+            i = i + 1
+
+        # brake!
+        simulator.send_control(0, 0, 1, 1)
 
         fps = 1.0 / (sum(time_steps) / len(time_steps))
         print('Average FPS: {}'.format(fps))
-        i = i + 1
     except Exception as e:
         print(e)
 
