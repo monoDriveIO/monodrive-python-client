@@ -56,10 +56,12 @@ ID_SAMPLE_SENSORS_COMMAND = "SampleSensorsCommand_ID"
 """Message ID to sample all sensors in the simulation."""
 ID_CLOSED_LOOP_CONFIG_COMMAND = "ClosedLoopConfigCommand_ID"
 """Message ID to configure initial conditions for closed loop mode"""
+ID_GET_MAP_COMMAND = u"GetMap"
+"""Message ID to get the current map lane information"""
+ID_AUTOPILOT_CONTROL_COMMAND = u"AutopilotControl"
+"""Message ID for controlling the autopilot controller"""
 HEADER_CONTROL = 0x6d6f6e6f
 """The message prefix header for control messages to the server"""
-
-ID_GET_MAP_COMMAND = u"GetMap"
 
 
 class ApiMessage:
