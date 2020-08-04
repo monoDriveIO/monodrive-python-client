@@ -149,15 +149,22 @@ def main():
                 set_speed = random.randrange(1000, 4000)
                 negotiated_speed = random.randrange(1000, 4000)
                 autopilot_engaged = True if random.random() > 0.4 else False
-                headway = random.randrange(1000, 4000)
-                response = simulator.send_command(mmsg.ApiMessage(mmsg.ID_AUTOPILOT_CONTROL_COMMAND, 
-                    {
-                        "set_speed": set_speed,
-                        "negotiated_speed": negotiated_speed,
-                        "lane_change": 0,
-                        "headway" : headway,
-                        "autopilot_engaged": autopilot_engaged
-                    }))
+                gear = random.choice(["1", "2", "3", "4"])
+                lane_change = random.choice([-1, 0, 1])
+                drive_mode = random.choice(["D", "R", "N", "P"])
+                manual = not autopilot_engaged
+                response = simulator.send_command(
+                    mmsg.ApiMessage(
+                        mmsg.ID_AUTOPILOT_CONTROL_COMMAND,
+                        {
+                            "set_speed": set_speed,
+                            "negotiated_speed": negotiated_speed,
+                            "autopilot_engaged": autopilot_engaged,
+                            "gear": gear,
+                            "lane_change": lane_change,
+                            "drive_mode": drive_mode,
+                            "manual_override": manual
+                        }))
                 if VERBOSE:
                     print(response)
 
@@ -170,7 +177,7 @@ def main():
             # time.sleep(1)
             if running is False:
                 break
-    
+
             i = i + 1
 
         # brake!
