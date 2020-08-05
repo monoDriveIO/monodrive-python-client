@@ -1,0 +1,13 @@
+name: uut-collision
+channels:
+  - conda-forge
+  - defaults
+dependencies:
+  - certifi=2019.11.28
+  - pip=19.3.1
+  - python=3.6.7
+  - setuptools=42.0.2
+  - wheel=0.33.6
+  - pip:
+    - git+ssh://git@github.com/monoDriveIO/python_client.git@34011b3#egg=monodrive
+prefix: /home/devin/miniconda3/envs/uut-collision
