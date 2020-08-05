@@ -1,6 +1,6 @@
 """
-Simple collision prediction system being tested against the monodrive simulator
-in replay step mode
+Simple collision avoidance system being tested against the monodrive simulator
+in closed loop mode
 """
 
 # lib
@@ -80,8 +80,10 @@ def collision_on_update(frame: CollisionFrame):
         processing -= 1
 
 
-def main_uut(simulator: Simulator, results_path: str, results_full_path: str):
+def main(simulator: Simulator, results_path: str, results_full_path: str):
     """main uut driver function"""
+
+    args = parse_arguments()
 
     # setup globals
     global collision_occurred, collision_predicted
@@ -94,7 +96,7 @@ def main_uut(simulator: Simulator, results_path: str, results_full_path: str):
     simulator.subscribe_to_sensor('Lidar_8200', lidar_on_update)
 
     # UUT code
-    for n in range(simulator.num_steps):
+    for n in range(100):
         print("**************************{0}******************************".format(n))
 
         # expect 2 sensors to be processed
@@ -103,7 +105,7 @@ def main_uut(simulator: Simulator, results_path: str, results_full_path: str):
             processing = 2
 
         # send step command
-        res = simulator.step()
+        res = simulator.send_control(1, 0, 0, 1)
 
         # wait for processing to complete
         while True:
@@ -157,55 +159,13 @@ def main_uut(simulator: Simulator, results_path: str, results_full_path: str):
     set_result(result, results_path)
 
 
-def main():
-    """main"""
-    args = parse_arguments()
-    if args['cloud']:
-        # just pass main UUT function to cloud loop
-        loop(main_uut, verbose=True)
-    else:
-        # local test for development
-        asset_dir = args['assets']
-        scenario_file = 'scenario_collision.json' if args['collision'] else 'scenario.json'
-
-        # create simulator
-        simulator = Simulator.from_file(
-            os.path.join(asset_dir, 'simulator.json'),
-            trajectory=os.path.join(asset_dir, scenario_file),
-            weather=os.path.join(asset_dir, 'weather.json'),
-            ego=os.path.join(asset_dir, 'vehicle.json'),
-            sensors=os.path.join(asset_dir, 'sensors.json')
-        )
-
-        # where to write results
-        results_path = os.path.join(asset_dir, 'results.json')
-        results_full_path = os.path.join(asset_dir, 'results_full.json')
-
-        # run
-        main_uut(simulator, results_path, results_full_path)
-
-
 def parse_arguments():
     """helper function to parse command line arguments"""
     parser = argparse.ArgumentParser()
-    parser.add_argument(
-        '-a', '--assets',
-        help='Directory containing configuration files for simulator',
-        default='config'
-    )
-    parser.add_argument(
-        '-c', '--cloud',
-        help='Indicates that we are running in the monoDrive cloud deployment',
-        default=False, action='store_true'
-    )
-    parser.add_argument(
-        '--collision',
-        help='Flag to run collision version of NCAP scenario',
-        default=False, action='store_true'
-    )
+
     args = vars(parser.parse_args())
     return args
 
 
 if __name__ == '__main__':
-    main()
+    pass

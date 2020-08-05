@@ -1,4 +1,6 @@
 # Simple collision UUT example
+
+### Replay - prediction
 Simple collision prediction system being tested against the monodrive simulator
 in replay step mode
 
@@ -7,9 +9,18 @@ which is then validated by the Collision sensor as ground truth.
 The Collision sensor is also used to trigger early stopping
 of the job.
 
-The two example scenarios included here are
+The two example replays included here are
 - Car-to-Car Rear Moving, Noncollision at 30km/h
 - Car-to-Car Rear Moving, Collision at 30km/h
+
+### Closed loop - AEBS
+Simple collision avoidance system being tested against the monodrive simulator
+in closed loop mode
+
+The Lidar sensor is used to predict whether a collision will occur,
+which triggers emergency braking.
+The system is validated by the Collision sensor as ground truth.
+
 
 ## Requirements
 Use [Conda](https://docs.conda.io/projects/conda/en/latest/)
@@ -26,19 +37,11 @@ conda activate uut-collision
 ## Run
 Run driver script
 ```
-python main.py
+python replay_prediction.py
 ```
 
 ## Build docker image
-Enable new docker build kit
-```powershell
-$env:DOCKER_BUILDKIT=1
+Build image
 ```
-
-Build image, passing in credentials for ssh-forwarding
-```powershell
-docker build --ssh default=C:\Users\devin\.ssh\id_rsa -t uut_examples/collision:0.0  .
+docker build -t monodrive-examples/collision:0.0  .
 ```
-
-*Note: the extra steps/args for ssh authentication are only temporary until the python client
-is hosted on public pip*
