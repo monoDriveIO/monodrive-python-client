@@ -176,6 +176,7 @@ def main():
             ego=os.path.join(asset_dir, 'vehicle.json'),
             sensors=os.path.join(asset_dir, 'sensors.json')
         )
+        simulator.map = 'Straightaway5k'
 
         # where to write results
         results_path = os.path.join(asset_dir, 'results.json')
