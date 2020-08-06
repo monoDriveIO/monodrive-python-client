@@ -102,7 +102,7 @@ def get_state() -> JobState:
     state_path = get_state_path()
     if not os.path.exists(state_path):
         raise ValueError('path does not exist: {}'.format(state_path))
-    with open(os.path.join(ASSET_DIR, STATE_FILE), 'r') as file:
+    with open(state_path, 'r') as file:
         text_name = file.read()
     try:
         state = JobState[text_name]
