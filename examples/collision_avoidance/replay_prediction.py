@@ -10,7 +10,6 @@ import json
 import threading
 import argparse
 import numpy as np
-from monodrive.simulator.simulator import Simulator
 from monodrive.sensors import *
 from monodrive.jobs import run_job, get_simulator, set_result, Result, ResultMetric
 
@@ -92,6 +91,7 @@ def main():
     # create simulator object
     simulator = get_simulator(args['verbose'])
     simulator.map = 'Straightaway5k'
+    simulator.mode = 2
 
     # start simulator and subscribe to sensors
     res = simulator.start()
@@ -152,7 +152,7 @@ def main():
     )
     result.metrics.append(
         ResultMetric(
-            name='time_collision_occured',
+            name='time_collision_occurred',
             score=collision_occurred
         )
     )

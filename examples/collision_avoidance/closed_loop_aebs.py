@@ -10,9 +10,8 @@ import json
 import threading
 import argparse
 import numpy as np
-from monodrive.simulator.simulator import Simulator
 from monodrive.sensors import *
-from monodrive.jobs import loop, set_result, Result, ResultMetric
+from monodrive.jobs import run_job, get_simulator, set_result, Result, ResultMetric
 
 # constants
 PREDICT_WINDOW_MIN = 0.01  # 10ms
@@ -80,7 +79,7 @@ def collision_on_update(frame: CollisionFrame):
         processing -= 1
 
 
-def main(simulator: Simulator, results_path: str, results_full_path: str):
+def main():
     """main uut driver function"""
 
     args = parse_arguments()
@@ -89,6 +88,11 @@ def main(simulator: Simulator, results_path: str, results_full_path: str):
     global collision_occurred, collision_predicted
     collision_occurred = None
     collision_predicted = None
+
+    # create simulator object
+    simulator = get_simulator()
+    simulator.map = 'Straightaway5k'
+    simulator.mode = 0
 
     # start simulator and subscribe to sensors
     res = simulator.start()
@@ -137,10 +141,6 @@ def main(simulator: Simulator, results_path: str, results_full_path: str):
 
     print('Test result: {}'.format('PASS' if pass_result else 'FAIL'))
 
-    # write out full results
-    with open(results_full_path, 'w') as file:
-        file.write(json.dumps([f.serialize() for f in full_frames], indent=4))
-
     # write a summary results
     result = Result()
     result.pass_result = pass_result
@@ -152,20 +152,20 @@ def main(simulator: Simulator, results_path: str, results_full_path: str):
     )
     result.metrics.append(
         ResultMetric(
-            name='time_collision_occured',
+            name='time_collision_occurred',
             score=collision_occurred
         )
     )
-    set_result(result, results_path)
+    set_result(result)
 
 
 def parse_arguments():
     """helper function to parse command line arguments"""
     parser = argparse.ArgumentParser()
 
-    args = vars(parser.parse_args())
+    args = vars(parser.parse_known_args()[0])
     return args
 
 
 if __name__ == '__main__':
-    pass
+    run_job(main, verbose=True)
