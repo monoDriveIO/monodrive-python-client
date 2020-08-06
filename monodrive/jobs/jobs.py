@@ -5,6 +5,7 @@ in cloud deployment and desktop environment
 
 # lib
 import os
+import sys
 import time
 import enum
 import json
@@ -36,6 +37,7 @@ VEHICLE_FLAG = 'md_vehicle'
 SENSORS_FLAG = 'md_sensors'
 RESULTS_FLAG = 'md_results'
 LOOP_FLAG = 'md_loop'
+HELP_FLAG = 'md_help'
 
 
 class JobState(enum.Enum):
@@ -66,6 +68,10 @@ class Result(objectfactory.Serializable):
     message = objectfactory.Field()
 
 
+class JobConfigException(ValueError):
+    pass
+
+
 def set_result(result: Result, path: str = None):
     """
     helper to set the result of UUT run
@@ -81,7 +87,7 @@ def set_result(result: Result, path: str = None):
         if args[RESULTS_FLAG]:
             path = args[RESULTS_FLAG]
     if path is None:
-        raise ValueError('no results path provided')
+        raise JobConfigException('no results path provided')
     with open(path, 'w') as file:
         json.dump(result.serialize(), file, indent=4)
 
@@ -127,7 +133,7 @@ def get_state_path() -> str:
     args = parse_md_arguments()
 
     if args[ASSET_DIR_FLAG] is None:
-        raise ValueError('no assets directory provided to locate state file')
+        raise JobConfigException('no assets directory provided to locate state file')
 
     return os.path.join(args[ASSET_DIR_FLAG], STATE_FILE)
 
@@ -168,7 +174,7 @@ def get_simulator(verbose: bool = False):
         sensors_path = args[SENSORS_FLAG]
 
     if config_path is None:
-        raise ValueError('no simulator config path provided')
+        raise JobConfigException('no simulator config path provided')
 
     # create simulator
     simulator = Simulator.from_file(
@@ -194,7 +200,12 @@ def run_job(uut_main: Callable[[], None], verbose: bool = False):
     args = parse_md_arguments()
 
     if not args[LOOP_FLAG]:
-        uut_main()
+        try:
+            uut_main()
+        except JobConfigException as e:
+            print('Error configuring job: {}'.format(e))
+            parse_md_arguments(print_help=True)
+        return
 
     while 1:
         if verbose:
@@ -205,6 +216,10 @@ def run_job(uut_main: Callable[[], None], verbose: bool = False):
             time.sleep(POLL_INTERVAL)
             try:
                 state = get_state()
+            except JobConfigException as e:
+                print('Error configuring job: {}'.format(e))
+                parse_md_arguments(print_help=True)
+                return
             except ValueError as e:
                 if verbose:
                     print('State file could not be parsed: {}'.format(e))
@@ -217,6 +232,10 @@ def run_job(uut_main: Callable[[], None], verbose: bool = False):
         # run uut
         try:
             uut_main()
+        except JobConfigException as e:
+            print('Error configuring job: {}'.format(e))
+            parse_md_arguments(print_help=True)
+            return
         except Exception as e:
             print('Error in UUT main: {}'.format(e))
             set_state(JobState.FAILED)
@@ -230,7 +249,7 @@ def run_job(uut_main: Callable[[], None], verbose: bool = False):
             print('Set job state: {}'.format(JobState.COMPLETED))
 
 
-def parse_md_arguments():
+def parse_md_arguments(print_help: bool = False):
     """internal command line parser for monodrive job arguments"""
     parser = argparse.ArgumentParser()
     parser.add_argument('--{}'.format(ASSET_DIR_FLAG), required=False)
@@ -241,5 +260,12 @@ def parse_md_arguments():
     parser.add_argument('--{}'.format(SENSORS_FLAG), required=False)
     parser.add_argument('--{}'.format(RESULTS_FLAG), required=False)
     parser.add_argument('--{}'.format(LOOP_FLAG), required=False, action='store_true')
+    parser.add_argument('--{}'.format(HELP_FLAG), required=False, action='store_true')
+
     args = vars(parser.parse_known_args()[0])
+
+    if print_help or args[HELP_FLAG]:
+        parser.print_usage()
+        sys.exit(1)
+
     return args

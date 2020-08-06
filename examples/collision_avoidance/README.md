@@ -37,7 +37,7 @@ conda activate uut-collision
 ## Run
 Run single job for development
 ```
-python replay_prediction.py --md_simulator ../configurations/simulator.json --md_scenario ../configurations/replay_ncap_ccrm_collision_30km.json --md_weather ../configurations/weather.json
+python replay_prediction.py --md_simulator ../configurations/simulator.json --md_scenario ../configurations/replay_ncap_ccrm_collision_30km.json --md_weather ../configurations/weather.json --md_sensors ../configurations/sensors.json
 ```
 
 Run continuously for local batch processing
