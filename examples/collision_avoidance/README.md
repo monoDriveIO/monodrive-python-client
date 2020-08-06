@@ -39,7 +39,7 @@ conda activate uut-collision
 ## Run
 Run single replay prediction job for development
 ```
-python replay_prediction.py --md_simulator ../configurations/simulator.json --md_scenario ../scenarios/replay_ncap_ccrm_collision_30km.json --md_weather ../configurations/weather.json --md_sensors ../configurations/sensors.json --md_results ./test_results.json
+python replay_prediction.py --md_simulator ../configurations/simulator.json --md_scenario ../scenarios/replay_ncap_ccrm_collision_30km.json --md_weather ../configurations/weather.json --md_sensors ../configurations/sensors_collision.json --md_results ./test_results.json
 ```
 Run single AEBS job for development
 ```

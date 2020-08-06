@@ -31,10 +31,10 @@ def ultrasonic_on_update(frame: UltrasonicFrame):
     Callback to process a parsed Ultrasonic frame
 
     Attempt to predict when a collision will occur based on 3d point cloud
-    information parsed from the Lidar data
+    information parsed from the Ultrasonic data
 
     Args:
-        frame: parsed Lidar frame
+        frame: parsed Ultrasonic frame
     """
     # compute nearest point
     ranges = [t.range for t in frame.targets if t.range != -1.0]
@@ -174,7 +174,6 @@ def parse_arguments():
         '-v', '--verbose',
         help='Do verbose logging',
         default=False, action='store_true'
-
     )
     args = vars(parser.parse_known_args()[0])
     return args
