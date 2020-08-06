@@ -9,5 +9,5 @@ dependencies:
   - setuptools=42.0.2
   - wheel=0.33.6
   - pip:
-    - git+https://github.com/monoDriveIO/monodrive-python-client.git@befd5b3#egg=monodrive
+    - git+https://github.com/monoDriveIO/monodrive-python-client.git@c8f1a6c#egg=monodrive
 prefix: /home/devin/miniconda3/envs/uut-collision
