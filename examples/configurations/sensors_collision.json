@@ -42,24 +42,28 @@
     ]
   },
   {
-    "type": "Lidar",
+    "type": "Ultrasonic",
     "packet_size": 1472,
-    "listen_port": 8200,
+    "listen_port": 8300,
     "location": {
-      "x": 25.0,
+      "x": 300.0,
       "y": 0.0,
-      "z": 200.0
+      "z": 50.0
     },
     "rotation": {
-      "pitch": -10.0,
+      "pitch": 0.0,
       "yaw": 0.0,
       "roll": 0.0
     },
-    "max_distance": 8000.0,
-    "horizontal_resolution": 0.4,
-    "rpms": 300.0,
-    "n_lasers": 16,
-    "reset_angle": 0.0
+    "fc": 40000.0,
+    "pwm_factor": 2.5,
+    "max_ultrasonic_returns": 93,
+    "send_processed_data": true,
+    "sbr": {
+      "scan_distance": 4.0,
+      "azimuth_fov": 30.0,
+      "elevation_fov": 0.5
+    }
   },
   {
     "type": "ViewportCamera",
