@@ -181,7 +181,7 @@ def get_simulator(verbose: bool = False):
     return simulator
 
 
-def run_job(uut_main: Callable, verbose: bool = False):
+def run_job(uut_main: Callable[[], None], verbose: bool = False):
     """
     main entry point to run a monodrive job
 
@@ -203,10 +203,11 @@ def run_job(uut_main: Callable, verbose: bool = False):
         # wait until ready
         while 1:
             time.sleep(POLL_INTERVAL)
-            state = get_state()
-            if state is None:
+            try:
+                state = get_state()
+            except ValueError as e:
                 if verbose:
-                    print('State file could not be parsed')
+                    print('State file could not be parsed: {}'.format(e))
                 continue
             if verbose:
                 print('Status: {}'.format(state))

@@ -35,9 +35,14 @@ conda activate uut-collision
 ```
 
 ## Run
-Run driver script
+Run single job for development
 ```
-python replay_prediction.py
+python replay_prediction.py --md_simulator ../configurations/simulator.json --md_scenario ../configurations/replay_ncap_ccrm_collision_30km.json --md_weather ../configurations/weather.json
+```
+
+Run continuously for local batch processing
+```
+python replay_prediction.py --md_assets ./assets_dir --md_loop
 ```
 
 ## Build docker image
