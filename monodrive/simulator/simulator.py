@@ -348,7 +348,7 @@ class Simulator:
         """
         return self.__sensors[uid].get_sensor()
 
-    def send_control(self, forward, right, brake=0, mode=1):
+    def send_control(self, forward: float, right: float, brake: float = 0.0, mode: int = 1):
         """Send controls to ego vehicle
 
         Args:

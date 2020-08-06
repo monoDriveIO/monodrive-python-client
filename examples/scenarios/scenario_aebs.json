@@ -1,0 +1,104 @@
+{
+  "trigger_boxes": [],
+  "vehicles": [
+    {
+      "body_color": "Carpaint_DarkGrey",
+      "class_path": "/Game/Vehicles/sedan_monoDrive_02.sedan_monoDrive_02_C",
+      "delayed_start": 0.0,
+      "desired_speed": 0.0,
+      "destroy_on_collision": false,
+      "distance_to_stop_sign": 400.0,
+      "ignore_lane_change_boxes": false,
+      "ignore_other_vehicles": false,
+      "ignore_traffic_signals": false,
+      "initial_speed": 0.0,
+      "initial_speed_is_delta": true,
+      "lane_offset": 0.0,
+      "limit_speed_in_curves": true,
+      "location": {
+        "x": 6500.0,
+        "y": 140.0,
+        "z": 45.0
+      },
+      "name": "sedan_monoDrive_02_2",
+      "obey_road_speed_limits": true,
+      "overtake_slower_vehicles": false,
+      "randomize_turn_preferences": true,
+      "rolling_stop_speed": 0.0010000000474974513,
+      "rotation": {
+        "pitch": 0.0,
+        "roll": 0.0,
+        "yaw": 0.0
+      },
+      "scale": {
+        "x": 1.0,
+        "y": 1.0,
+        "z": 1.0
+      },
+      "search_forward_distance": 10000.0,
+      "snap_to_lane": true,
+      "spawn_offset": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": 0.0
+      },
+      "steer_forward_distance": 600.0,
+      "steer_forward_distance_lane_change": 1500.0,
+      "tags": [
+        "vehicle",
+        "dynamic",
+        "car",
+        "ego"
+      ]
+    },
+    {
+      "body_color": "Carpaint_DarkGrey",
+      "class_path": "/Game/Vehicles/SUV_monoDrive_01.SUV_monoDrive_01_C",
+      "delayed_start": 0.0,
+      "desired_speed": 0.0,
+      "destroy_on_collision": false,
+      "distance_to_stop_sign": 400.0,
+      "ignore_lane_change_boxes": false,
+      "ignore_other_vehicles": false,
+      "ignore_traffic_signals": false,
+      "initial_speed": 0.0,
+      "initial_speed_is_delta": true,
+      "lane_offset": 0.0,
+      "limit_speed_in_curves": true,
+      "location": {
+        "x": 8500.0,
+        "y": 140.0,
+        "z": 45.0
+      },
+      "name": "SUV_monoDrive_01_2",
+      "obey_road_speed_limits": false,
+      "overtake_slower_vehicles": false,
+      "randomize_turn_preferences": true,
+      "rolling_stop_speed": 0.0010000000474974513,
+      "rotation": {
+        "pitch": 0.0,
+        "roll": 0.0,
+        "yaw": 0.0
+      },
+      "scale": {
+        "x": 1.0,
+        "y": 1.0,
+        "z": 1.0
+      },
+      "search_forward_distance": 10000.0,
+      "snap_to_lane": true,
+      "spawn_offset": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": 0.0
+      },
+      "steer_forward_distance": 600.0,
+      "steer_forward_distance_lane_change": 1500.0,
+      "tags": [
+        "vehicle",
+        "dynamic",
+        "car"
+      ]
+    }
+  ]
+}
