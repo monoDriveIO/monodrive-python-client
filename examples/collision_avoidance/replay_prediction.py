@@ -21,13 +21,14 @@ PREDICT_WINDOW_MAX = 1.0  # 1s
 lock = threading.RLock()
 collision_occurred = None
 collision_predicted = None
+prediction_threshold = 200
 processing = 0
 full_frames = []
 
 
-def lidar_on_update(frame: LidarFrame):
+def ultrasonic_on_update(frame: UltrasonicFrame):
     """
-    Callback to process a parsed Lidar frame
+    Callback to process a parsed Ultrasonic frame
 
     Attempt to predict when a collision will occur based on 3d point cloud
     information parsed from the Lidar data
@@ -36,13 +37,14 @@ def lidar_on_update(frame: LidarFrame):
         frame: parsed Lidar frame
     """
     # compute nearest point
-    points = np.array([[pt.x, pt.y, pt.z] for pt in frame.points])
-    points = points[np.any(points != 0, axis=1)]
-    distances = np.linalg.norm(points, axis=1)
-    nearest = np.min(distances)
+    ranges = [t.range for t in frame.targets if t.range != -1.0]
+    nearest = None
+    if ranges:
+        nearest = min(ranges)
 
     # predict
-    if nearest < 3000.0:
+    global prediction_threshold
+    if nearest and nearest < prediction_threshold:
         global collision_predicted
         if collision_predicted is None:
             collision_predicted = frame.game_time
@@ -84,9 +86,10 @@ def main():
     args = parse_arguments()
 
     # setup globals
-    global collision_occurred, collision_predicted
+    global collision_occurred, collision_predicted, prediction_threshold
     collision_occurred = None
     collision_predicted = None
+    prediction_threshold = args['distance']
 
     # create simulator object
     simulator = get_simulator(args['verbose'])
@@ -96,7 +99,7 @@ def main():
     # start simulator and subscribe to sensors
     res = simulator.start()
     simulator.subscribe_to_sensor('Collision_8800', collision_on_update)
-    simulator.subscribe_to_sensor('Lidar_8200', lidar_on_update)
+    simulator.subscribe_to_sensor('Ultrasonic_8300', ultrasonic_on_update)
 
     # UUT code
     for n in range(simulator.num_steps):
@@ -165,7 +168,7 @@ def parse_arguments():
     parser.add_argument(
         '-d', '--distance',
         help='Distance at which to trigger collision prediction',
-        type=float, default=3000
+        type=float, default=200
     )
     parser.add_argument(
         '-v', '--verbose',

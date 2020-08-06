@@ -1,10 +1,12 @@
 # Simple collision UUT example
 
+This example uses the `jobs` module to support local and cloud batch processing.
+
 ### Replay - prediction
 Simple collision prediction system being tested against the monodrive simulator
 in replay step mode
 
-The Lidar sensor is used to predict whether a collision will occur,
+The Ultrasonic sensor is used to predict whether a collision will occur,
 which is then validated by the Collision sensor as ground truth.
 The Collision sensor is also used to trigger early stopping
 of the job.
@@ -17,7 +19,7 @@ The two example replays included here are
 Simple collision avoidance system being tested against the monodrive simulator
 in closed loop mode
 
-The Lidar sensor is used to predict whether a collision will occur,
+The Ultrasonic sensor is used to predict whether a collision will occur,
 which triggers emergency braking.
 The system is validated by the Collision sensor as ground truth.
 
@@ -43,6 +45,11 @@ python replay_prediction.py --md_simulator ../configurations/simulator.json --md
 Run continuously for local batch processing
 ```
 python replay_prediction.py --md_assets ./assets_dir --md_loop
+```
+
+For more usage info on the `monodrive.jobs` module
+```
+python replay_prediction --md_help
 ```
 
 ## Build docker image
