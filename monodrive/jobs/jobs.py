@@ -203,7 +203,7 @@ def run_job(uut_main: Callable[[], None], verbose: bool = False):
         try:
             uut_main()
         except JobConfigException as e:
-            print('Error configuring job: {}'.format(e))
+            print('Job config error: {}'.format(e))
             parse_md_arguments(print_help=True)
         return
 
@@ -217,7 +217,7 @@ def run_job(uut_main: Callable[[], None], verbose: bool = False):
             try:
                 state = get_state()
             except JobConfigException as e:
-                print('Error configuring job: {}'.format(e))
+                print('Job config error: {}'.format(e))
                 parse_md_arguments(print_help=True)
                 return
             except ValueError as e:
@@ -233,7 +233,7 @@ def run_job(uut_main: Callable[[], None], verbose: bool = False):
         try:
             uut_main()
         except JobConfigException as e:
-            print('Error configuring job: {}'.format(e))
+            print('Job config error: {}'.format(e))
             parse_md_arguments(print_help=True)
             return
         except Exception as e:

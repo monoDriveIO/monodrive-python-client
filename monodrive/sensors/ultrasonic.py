@@ -10,17 +10,28 @@ import objectfactory
 from monodrive.sensors import Sensor, DataFrame
 
 
-class UltrasonicFrame(DataFrame):
-    def __init__(self):
-        self.sensor_id = None
-        self.timestamp = None
-        self.game_time = None
-        self.ranges = None
+@objectfactory.Factory.register_class
+class UltrasonicFrameTarget(objectfactory.Serializable):
+    range = objectfactory.Field()
+
+
+@objectfactory.Factory.register_class
+class UltrasonicFrame(DataFrame, objectfactory.Serializable):
+    sensor_id = objectfactory.Field()
+    time = objectfactory.Field()
+    game_time = objectfactory.Field()
+    targets = objectfactory.List(field_type=UltrasonicFrameTarget)
 
 
 @objectfactory.Factory.register_class
 class Ultrasonic(Sensor):
     """Ultrasonic sensor"""
+
+    send_processed_data = objectfactory.Field()
+
+    def configure(self):
+        if self.send_processed_data:
+            self.blocks_per_frame = 2
 
     def parse(self, data: [bytes], package_length: int, time: int, game_time: int) -> DataFrame:
         """
@@ -36,15 +47,16 @@ class Ultrasonic(Sensor):
             parsed UltrasonicFrame object
         """
         data = data[0]
-        json_raw = data.decode('utf8').replace("'", '"')
-        parsed_json = json.loads(json_raw)
 
         frame = UltrasonicFrame()
-        frame.sensor_id = self.id
-        frame.timestamp = time
-        frame.game_time = game_time
-        frame.ranges = parsed_json['ranges']
 
-        # TODO -- finish parsing method
+        if self.send_processed_data:
+            json_raw = data.decode('utf8').replace("'", '"')
+            parsed_json = json.loads(json_raw)
+            frame.deserialize(parsed_json)
+
+        frame.time = time
+        frame.game_time = game_time
+        frame.sensor_id = self.id
 
         return frame
