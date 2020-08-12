@@ -72,7 +72,7 @@ class Result(objectfactory.Serializable):
         force new copy of nested metrics list
         """
         self.metrics = []
-        super().__init__(args, kwargs)
+        super().__init__(*args, **kwargs)
 
 
 class JobConfigException(ValueError):

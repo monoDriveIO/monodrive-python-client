@@ -54,7 +54,7 @@ class Sensor(objectfactory.Serializable):
             *args:
             **kwargs: any class member can be set by keyword during construction
         """
-        super().__init__(args, kwargs)
+        super().__init__(*args, **kwargs)
         self.blocks_per_frame = 1
         self.streamable = True
 
