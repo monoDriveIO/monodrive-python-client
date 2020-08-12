@@ -163,18 +163,19 @@ def main():
     print('Test result: {}'.format('PASS' if pass_result else 'FAIL'))
 
     # write a summary results
-    result = Result(
-        pass_result = pass_result,
-        metrics=[
-            ResultMetric(
-                name='time_collision_predicted',
-                score=collision_predicted
-            ),
-            ResultMetric(
-                name='time_collision_occurred',
-                score=collision_occurred
-            )
-        ]
+    result = Result()
+    result.pass_result = pass_result
+    result.metrics.append(
+        ResultMetric(
+            name='time_collision_predicted',
+            score=collision_predicted
+        )
+    )
+    result.metrics.append(
+        ResultMetric(
+            name='time_collision_occurred',
+            score=collision_occurred
+        )
     )
     set_result(result)
 

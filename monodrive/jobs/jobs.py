@@ -67,6 +67,18 @@ class Result(objectfactory.Serializable):
     metrics = objectfactory.List(field_type=ResultMetric)
     message = objectfactory.Field()
 
+    def __init__(self, *args, **kwargs):
+        """
+        force new copy of nested metrics list
+        """
+        self.metrics = []
+        super().__init__(args, kwargs)
+
+
+
+
+
+
 
 class JobConfigException(ValueError):
     pass
@@ -103,7 +115,7 @@ def get_state() -> JobState:
     if not os.path.exists(state_path):
         raise ValueError('path does not exist: {}'.format(state_path))
     with open(state_path, 'r') as file:
-        text_name = file.read()
+        text_name = file.read().rstrip()
     try:
         state = JobState[text_name]
     except KeyError as e:
