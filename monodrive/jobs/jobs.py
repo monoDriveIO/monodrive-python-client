@@ -75,11 +75,6 @@ class Result(objectfactory.Serializable):
         super().__init__(args, kwargs)
 
 
-
-
-
-
-
 class JobConfigException(ValueError):
     pass
 
