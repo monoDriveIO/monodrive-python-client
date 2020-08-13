@@ -1,0 +1,95 @@
+[
+  {
+    "type": "GPS",
+    "packet_size": 1472,
+    "listen_port": 8400,
+    "location": {
+      "x": -75.0,
+      "y": -25.0,
+      "z": 245.0
+    },
+    "rotation": {
+      "pitch": 0.0,
+      "yaw": 0.0,
+      "roll": 0.0
+    }
+  },
+  {
+    "type": "IMU",
+    "packet_size": 1472,
+    "listen_port": 8500,
+    "location": {
+      "x": -75.0,
+      "y": -25.0,
+      "z": 245.0
+    },
+    "rotation": {
+      "pitch": 0.0,
+      "yaw": 0.0,
+      "roll": 0.0
+    }
+  },
+  {
+    "type": "Collision",
+    "listen_port": 8800,
+    "packet_size": 1472,
+    "desired_tags": [
+      "vt",
+      "vehicle"
+    ],
+    "undesired_tags": [
+      "static"
+    ]
+  },
+  {
+    "type": "Ultrasonic",
+    "packet_size": 1472,
+    "listen_port": 8300,
+    "location": {
+      "x": 300.0,
+      "y": 0.0,
+      "z": 50.0
+    },
+    "rotation": {
+      "pitch": 0.0,
+      "yaw": 0.0,
+      "roll": 0.0
+    },
+    "fc": 40000.0,
+    "pwm_factor": 2.5,
+    "max_ultrasonic_returns": 93,
+    "send_processed_data": true,
+    "sbr": {
+      "scan_distance": 4.0,
+      "azimuth_fov": 30.0,
+      "elevation_fov": 0.5
+    }
+  },
+  {
+    "type": "ViewportCamera",
+    "listen_port": 0,
+    "location": {
+      "x": -800.0,
+      "y": 0.0,
+      "z": 400.0
+    },
+    "rotation": {
+      "pitch": -15.0,
+      "yaw": 0.0,
+      "roll": 0.0
+    },
+    "stream_dimensions": {
+      "x": 512.0,
+      "y": 512.0
+    },
+    "max_distance": 50000.0,
+    "dynamic_range": 50,
+    "fov": 60.0,
+    "focal_length": 9.0,
+    "fstop": 1.4,
+    "min_shutter": 0.000500,
+    "max_shutter": 0.001400,
+    "sensor_size": 9.07,
+    "channels": "bgra"
+  }
+]

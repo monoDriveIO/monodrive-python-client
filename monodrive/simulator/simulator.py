@@ -76,6 +76,24 @@ class Simulator:
             """
         self.__config['simulation_mode'] = mode
 
+    @property
+    def map(self):
+        """Get the current simulator map name
+
+        Returns:
+            str: simulator map name
+        """
+        return self.__config['map']
+
+    @map.setter
+    def map(self, map_name):
+        """Set the simulator config map name
+
+        Args:
+            map_name(str): new simulator config map name
+        """
+        self.__config['map'] = map_name
+
     def configure(self):
         """Configure the server with the current simulator settings"""
 
@@ -330,7 +348,7 @@ class Simulator:
         """
         return self.__sensors[uid].get_sensor()
 
-    def send_control(self, forward, right, brake=0, mode=1):
+    def send_control(self, forward: float, right: float, brake: float = 0.0, mode: int = 1):
         """Send controls to ego vehicle
 
         Args:
