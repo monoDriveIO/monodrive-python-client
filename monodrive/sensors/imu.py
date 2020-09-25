@@ -38,7 +38,7 @@ class IMU(Sensor):
             parsed GPSFrame object
         """
         data = data[0]
-        fmt = '=ffffffih'
+        fmt = '>ffffffih'
         data = list(struct.unpack(fmt, data[1:31]))
         accel_x = data[0]
         accel_y = data[1]

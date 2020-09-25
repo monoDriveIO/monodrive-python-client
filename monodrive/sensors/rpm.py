@@ -38,7 +38,7 @@ class RPM(Sensor):
         """
         data = data[0]
         frame = RPMFrame()
-        frame.wheel_number, frame.wheel_speed = list(struct.unpack('=if', data))
+        frame.wheel_number, frame.wheel_speed = list(struct.unpack('>if', data))
         frame.sensor_id = self.id
         frame.timestamp = time
         frame.game_time = game_time

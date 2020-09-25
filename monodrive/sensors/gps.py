@@ -43,7 +43,7 @@ class GPS(Sensor):
             parsed GPSFrame object
         """
         data = data[0]
-        fmt = '=chhcdddfffffffhhcch'
+        fmt = '>chhcdddfffffffhhcch'
         preamble, MSG_POS_LLH, sensor_id, payload_length, lat, lng, elev, loc_x, loc_y, for_x, for_y, for_z, ego_yaw, speed, \
         h_ac, v_ac, sats, status, crc = list(struct.unpack(fmt, data))
         forward_vector = np.array([for_x, for_y, for_z])
