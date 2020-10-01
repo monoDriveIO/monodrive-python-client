@@ -81,9 +81,23 @@ def collision_on_update(frame: CollisionFrame):
         processing -= 1
 
 
+def rpm_on_update(frame: RPMFrame):
+    """
+    callback to process parsed RPM sensor data
+    """
+    if VERBOSE:
+        print('RPM sensor: wheel index {}, wheel speed: {:.2f}'.format(
+            frame.wheel_number, frame.wheel_speed
+        ))
+
+    with lock:
+        global processing
+        processing -= 1
+
+
 def perception_and_control():
     # TODO, process sensor data and determine control values to send to ego
-    return 0, 0, 1, 1  # fwd, right, brake, mode
+    return 0.4, 0, 0, 1  # fwd, right, brake, mode
 
 
 def main():
@@ -108,7 +122,6 @@ def main():
         scenario=os.path.join(root, 'scenarios', 'closed_loop.json'),
         sensors=os.path.join(root, 'configurations', 'sensors.json'),
         weather=os.path.join(root, 'configurations', 'weather.json'),
-        ego=os.path.join(root, 'configurations', 'vehicle.json'),
         verbose=VERBOSE
     )
 
@@ -119,6 +132,7 @@ def main():
         # Subscribe to sensors of interest
         simulator.subscribe_to_sensor('Camera_8000', camera_on_update)
         simulator.subscribe_to_sensor('Lidar_8200', lidar_on_update)
+        simulator.subscribe_to_sensor('RPM_8600', rpm_on_update)
         simulator.subscribe_to_sensor('State_8700', state_on_update)
         simulator.subscribe_to_sensor('Collision_8800', collision_on_update)
 
@@ -141,14 +155,13 @@ def main():
             data_camera = None
             data_lidar = None
 
-        i = 0
         while running:
             start_time = time.time()
 
             # expect 4 sensors to be processed
             with lock:
                 global processing
-                processing = 4
+                processing = 5
 
             # compute and send vehicle control command
             forward, right, brake, drive_mode = perception_and_control()
@@ -203,7 +216,7 @@ def main():
             dt = time.time() - start_time
             time_steps.append(dt)
             if VERBOSE:
-                print("Step = {0} completed in {1:.2f}ms".format(i, (dt * 1000), 2))
+                print("Step = {0} completed in {1:.2f}ms".format(len(time_steps), (dt * 1000), 2))
                 print("------------------")
             # time.sleep(1)
             if running is False:
@@ -211,7 +224,6 @@ def main():
 
         fps = 1.0 / (sum(time_steps) / len(time_steps))
         print('Average FPS: {}'.format(fps))
-        i = i + 1
     except Exception as e:
         print(e)
 

@@ -195,7 +195,7 @@ class Simulator:
 
         sensor = objectfactory.Factory.create_object(updated_config)
         sensor.configure()
-        if sensor.streamable:
+        if sensor.enable_streaming:
             if sensor.id not in self.__sensors:
                 raise Exception(
                     "{} does not yet exist and cannot be reconfigured".format(sensor.id)
@@ -298,7 +298,7 @@ class Simulator:
             sc['_type'] = sc['type']
             sensor = objectfactory.Factory.create_object(sc)
             sensor.configure()
-            if not sensor.streamable:
+            if not sensor.enable_streaming:
                 continue
             sensor_thread = SensorThread(
                 self.__config['server_ip'],

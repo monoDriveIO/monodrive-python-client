@@ -18,7 +18,7 @@ class ViewportCamera(Sensor):
         """
         Configure ViewportCamera sensor
         """
-        self.streamable = False
+        self.enable_streaming = False
 
     def parse(self, data: [bytes], package_length: int, time: int, game_time: int):
         """

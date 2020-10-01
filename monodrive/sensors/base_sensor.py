@@ -42,7 +42,8 @@ class Sensor(objectfactory.Serializable):
     sensor_type = objectfactory.Field(name='type')
     listen_port = objectfactory.Field()
     packet_size = objectfactory.Field()
-    fps = objectfactory.Field()
+    enable_streaming = objectfactory.Field(default=True)
+    wait_for_fresh_frame = objectfactory.Field(default=True)
     location = objectfactory.Nested(field_type=SensorLocation)
     rotation = objectfactory.Nested(field_type=SensorRotation)
 
@@ -56,7 +57,6 @@ class Sensor(objectfactory.Serializable):
         """
         super().__init__(*args, **kwargs)
         self.blocks_per_frame = 1
-        self.streamable = True
 
     def configure(self):
         """Function called after deserializing sensor to do any setup/config"""
@@ -124,7 +124,7 @@ class SensorThread(threading.Thread):
             the data arrived, the second element is the game time the data
             occurred, and the third element is the data message.
         """
-        if not self.__sensor.streamable:
+        if not self.__sensor.enable_streaming:
             print('Error: cannot subscribe to sensor of type: {}'.format(self.__sensor.sensor_type))
             return
         self.__source.subscribe(lambda data: callback(data))

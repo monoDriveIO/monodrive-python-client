@@ -25,7 +25,26 @@
     "min_shutter": 0.000500,
     "max_shutter": 0.001400,
     "sensor_size": 9.07,
-    "channels": "bgra"
+    "channels": "bgra",
+    "annotation": {
+      "include_annotation": false,
+      "desired_tags": [
+        "traffic_sign"
+      ],
+      "far_plane": 10000.0,
+      "include_tags": true,
+      "include_obb": true
+    },
+    "viewport": {
+      "enable_viewport": false,
+      "fullscreen": false,
+      "monitor_name": "",
+      "monitor_number": -1,
+      "window_offset": {
+        "x": 0,
+        "y": 0
+      }
+    }
   },
   {
     "type": "Lidar",

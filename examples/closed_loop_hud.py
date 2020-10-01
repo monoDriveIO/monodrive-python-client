@@ -48,7 +48,7 @@ def camera_on_update(frame: CameraFrame):
 
 def perception_and_control():
     # TODO, process sensor data and determine control values to send to ego
-    return 1, 0, 0, 1  # fwd, right, brake, mode
+    return 0.4, 0, 0, 1  # fwd, right, brake, mode
 
 
 def main():
@@ -73,7 +73,6 @@ def main():
         scenario=os.path.join(root, 'scenarios', 'closed_loop.json'),
         sensors=os.path.join(root, 'configurations', 'sensors_hud.json'),
         weather=os.path.join(root, 'configurations', 'weather.json'),
-        ego=os.path.join(root, 'configurations', 'vehicle.json'),
         verbose=VERBOSE
     )
 
@@ -89,13 +88,12 @@ def main():
 
         # setup display
         if DISPLAY:
-            fig = plt.figure('perception system', figsize=(10, 4))
-            ax_camera = fig.add_subplot(1, 2, 1)
+            fig = plt.figure('perception system', figsize=(5, 5))
+            ax_camera = fig.add_subplot(1, 1, 1)
             ax_camera.set_axis_off()
 
             fig.canvas.draw()
             data_camera = None
-            data_lidar = None
 
         i = 0
         while running and i < 100:

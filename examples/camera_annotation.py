@@ -77,7 +77,6 @@ def main():
         scenario=os.path.join(root, 'scenarios', 'replay_tcd_60mph_short.json'),
         sensors=os.path.join(root, 'configurations', 'sensors_annotated_camera.json'),
         weather=os.path.join(root, 'configurations', 'weather.json'),
-        ego=os.path.join(root, 'configurations', 'vehicle.json'),
         verbose=VERBOSE
     )
 
