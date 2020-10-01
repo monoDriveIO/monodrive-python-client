@@ -6,7 +6,6 @@
   "simulation_mode": 2,
   "animation_replay": true,
   "map": "Almono",
-  "ego_config": {},
   "phys_materials": {
     "Aluminum": {
       "specular_exponent": 15.0,

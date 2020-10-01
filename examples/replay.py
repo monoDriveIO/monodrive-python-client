@@ -106,7 +106,6 @@ def main():
         scenario=os.path.join(root, 'scenarios', 'replay_highway_exit.json'),
         sensors=os.path.join(root, 'configurations', 'sensors.json'),
         weather=os.path.join(root, 'configurations', 'weather.json'),
-        ego=os.path.join(root, 'configurations', 'vehicle.json'),
         verbose=VERBOSE
     )
 
