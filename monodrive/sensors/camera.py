@@ -104,3 +104,20 @@ class SemanticCamera(Camera):
         configure semantic camera
         """
         self.channels = 'gray'
+
+
+@objectfactory.Factory.register_class
+class Camera360(Camera):
+    """360 Camera sensor"""
+
+    def configure(self):
+        """
+        no support for annotation
+        """
+        pass
+
+
+@objectfactory.Factory.register_class
+class FisheyeCamera(Camera360):
+    """Fisheye Camera sensor"""
+    pass
