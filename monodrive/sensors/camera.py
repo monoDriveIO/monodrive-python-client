@@ -124,6 +124,6 @@ class Poly1FisheyeCamera(Camera360):
 
 
 @objectfactory.Factory.register_class
-class EquidistantFisheyeCameraConfig(Camera360):
+class EquidistantFisheyeCamera(Camera360):
     """Equidistant Fisheye Camera sensor"""
     pass
