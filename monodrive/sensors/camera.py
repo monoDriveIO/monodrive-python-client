@@ -118,6 +118,12 @@ class Camera360(Camera):
 
 
 @objectfactory.Factory.register_class
-class FisheyeCamera(Camera360):
-    """Fisheye Camera sensor"""
+class Poly1FisheyeCamera(Camera360):
+    """Poly1 Fisheye Camera sensor"""
+    pass
+
+
+@objectfactory.Factory.register_class
+class EquidistantFisheyeCameraConfig(Camera360):
+    """Equidistant Fisheye Camera sensor"""
     pass
