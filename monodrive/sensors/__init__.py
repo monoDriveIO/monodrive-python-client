@@ -8,6 +8,7 @@ from .collision import Collision, CollisionFrame
 from .gps import GPS, GPSFrame
 from .imu import IMU, IMUFrame
 from .lidar import Lidar, LidarFrame, SemanticLidar
+from .m1 import RSM1Lidar, M1Frame
 from .radar import Radar, RadarFrame
 from .rpm import RPM, RPMFrame
 from .state import State, StateFrame

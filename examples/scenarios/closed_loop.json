@@ -48,7 +48,7 @@
         "z": 30.0
       },
       "name": "subcompact_monoDrive_01_C_0",
-      "obey_road_speed_limits": true,
+      "obey_road_speed_limits": false,
       "overtake_slower_vehicles": false,
       "randomize_turn_preferences": true,
       "rolling_stop_speed": 0.00100000004749745,
