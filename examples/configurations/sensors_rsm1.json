@@ -10,11 +10,19 @@
       "z": 190.0
     },
     "rotation": {
-      "pitch": -40.0,
+      "pitch": 0.0,
       "yaw": 0.0,
       "roll": 0.0
     },
-    "max_distance": 8000.0
+    "max_distance": 10000.0,
+    "beam_divergence_horizontal": 3,
+    "beam_divergence_vertical": 12.0,
+    "beam_size_horizontal": 12.7,
+    "beam_size_vertical": 9.5,
+    "distance_error": 5.0,
+    "num_threads": 5,
+    "intensity_error": 0.05,
+    "debug_draw": false
   },
   {
     "type": "ViewportCamera",

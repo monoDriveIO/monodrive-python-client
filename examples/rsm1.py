@@ -42,8 +42,10 @@ def lidar_on_update(frame: M1Frame):
     if VERBOSE:
         print("LiDAR point cloud with size {0}".format(len(frame.points)))
     global points, colors, cmap
-    pts = [[x.x/10, x.y/10, x.z/10] for x in frame.points]
-    cs = [cmap((c.laser_id + 1) / 5)[:3] for c in frame.points]
+    pts = [[x.x/100, -x.y/100, x.z/100] for x in frame.points]
+    # cs = [cmap((c.laser_id + 1) / 5)[:3] for c in frame.points]
+    cs = [cmap((c.intensity*5) / 255)[:3] for c in frame.points]
+    # cs = [[c.intensity / 255, 0 ,0] for c in frame.points]
     # cs = [cmap(c.laser_id)[:3] for c in frame.points]
     colors = o3d.utility.Vector3dVector(cs)
     points = o3d.utility.Vector3dVector(pts)
@@ -55,7 +57,8 @@ def lidar_on_update(frame: M1Frame):
 
 def perception_and_control():
     # TODO, process sensor data and determine control values to send to ego
-    return 0.4, 0, 0, 1  # fwd, right, brake, mode
+    # return 1, 0, 0, 1  # fwd, right, brake, mode
+    return 0.0, 0, 0, 1  # fwd, right, brake, mode
 
 
 def main():
@@ -96,7 +99,7 @@ def main():
         # setup display
         if DISPLAY:
             global vis, rendered_pc, cmap
-            cmap = cm.get_cmap("viridis")
+            cmap = cm.get_cmap("jet")
             # vis = o3d.visualization.Visualizer()
             # vis.create_window()
             # origin_mesh = o3d.geometry.TriangleMesh.create_coordinate_frame()
@@ -153,7 +156,7 @@ def main():
                     # vis.update_geometry(rendered_pc)
                     # vis.update_renderer()
                     origin_mesh = o3d.geometry.TriangleMesh.create_coordinate_frame()
-                    origin_mesh.scale(100, (0, 0, 0))
+                    # origin_mesh.scale(100, (0, 0, 0))
                     o3d.visualization.draw_geometries([rendered_pc, origin_mesh])
                     print("Finished updating render")
 

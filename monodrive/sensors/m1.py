@@ -64,9 +64,7 @@ class RSM1Lidar(Sensor):
         frame.game_time = game_time
 
         point_count, = struct.unpack(">I", data[0][:4])
-        # lidar_data = struct.unpack("!"+point_count*"IfffBB", data[0][4:])
-        data = data[0][4:]
-        frame.points = [LidarPoint(b[0], b[1], b[2], b[3], b[4], b[5]) for b in struct.iter_unpack("IfffBB", data)]
+        frame.points = [LidarPoint(b[0], b[1], b[2], b[3], b[4], b[5]) for b in struct.iter_unpack("IfffBB", data[0][4:])]
         # stride = 4*4+2
         # stride = 6
         # for i in range(point_count):
