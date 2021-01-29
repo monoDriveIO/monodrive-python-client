@@ -1,8 +1,8 @@
 [
   {
-    "type": "RSM1Lidar",
+    "type": "LidarArray",
     "packet_size": 1472,
-    "listen_port": 8200,
+    "listen_port": 8201,
     "synchronized_display": true,
     "location": {
       "x": 150.0,
@@ -20,9 +20,10 @@
     "beam_size_horizontal": 12.7,
     "beam_size_vertical": 9.5,
     "distance_error": 5.0,
-    "num_threads": 5,
+    "num_threads": 10,
     "intensity_error": 0.05,
-    "debug_draw": false
+    "debug_draw": false,
+    "lidar_model": 0
   },
   {
     "type": "ViewportCamera",

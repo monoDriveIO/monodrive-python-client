@@ -43,10 +43,7 @@ def lidar_on_update(frame: M1Frame):
         print("LiDAR point cloud with size {0}".format(len(frame.points)))
     global points, colors, cmap
     pts = [[x.x/100, -x.y/100, x.z/100] for x in frame.points]
-    # cs = [cmap((c.laser_id + 1) / 5)[:3] for c in frame.points]
     cs = [cmap((c.intensity*5) / 255)[:3] for c in frame.points]
-    # cs = [[c.intensity / 255, 0 ,0] for c in frame.points]
-    # cs = [cmap(c.laser_id)[:3] for c in frame.points]
     colors = o3d.utility.Vector3dVector(cs)
     points = o3d.utility.Vector3dVector(pts)
     # with lock:
@@ -91,7 +88,7 @@ def main():
     print('Starting simulator')
     try:
         # Subscribe to sensors of interest
-        simulator.subscribe_to_sensor('RSM1Lidar_8200', lidar_on_update)
+        simulator.subscribe_to_sensor('LidarArray_8201', lidar_on_update)
 
         # Start stepping the simulator
         time_steps = []

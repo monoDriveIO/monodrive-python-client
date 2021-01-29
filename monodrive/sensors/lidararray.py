@@ -36,8 +36,8 @@ class LidarPoint:
 
 
 @objectfactory.Factory.register_class
-class RSM1Lidar(Sensor):
-    """RSM1 sensor"""
+class LidarArray(Sensor):
+    """LidarArray sensor"""
 
     def configure(self):
         """
@@ -65,17 +65,6 @@ class RSM1Lidar(Sensor):
 
         point_count, = struct.unpack(">I", data[0][:4])
         frame.points = [LidarPoint(b[0], b[1], b[2], b[3], b[4], b[5]) for b in struct.iter_unpack("IfffBB", data[0][4:])]
-        # stride = 4*4+2
-        # stride = 6
-        # for i in range(point_count):
-        #     point = LidarPoint()
-        #     point.time = lidar_data[i*stride]
-        #     point.x = lidar_data[i*stride+1]
-        #     point.y = lidar_data[i*stride+2]
-        #     point.z = lidar_data[i*stride+3]
-        #     point.intensity = lidar_data[i*stride+4]
-        #     point.laser_id = lidar_data[i*stride+5]
-        #     frame.points.append(point)
 
         return frame
 
