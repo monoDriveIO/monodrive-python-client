@@ -11,6 +11,7 @@ import objectfactory
 from monodrive.common.client import Client
 from monodrive.sensors import SensorThread
 import monodrive.common.messaging as mmsg
+from monodrive.jobs.observer import Observer
 
 
 class Mode(Enum):
@@ -34,6 +35,7 @@ class Simulator:
             sensors=None,
             weather=None,
             ego=None,
+            observers=None,
             verbose=False
     ):
         """Constructor.
@@ -45,6 +47,7 @@ class Simulator:
             sensors(dict): The configuration JSON for the suite of sensors for
             this simulator instance.
             weather(dict): The configuration JSON for weather conditions
+            observers(dict): The configuration JSON for job observers
             ego(dict): The configuration JSON for the ego vehicle
             verbose(bool):
         """
@@ -53,8 +56,10 @@ class Simulator:
         self.__sensor_config = sensors
         self.__weather = weather
         self.__ego = ego
+        self.__observer_config = observers
         self.__verbose = verbose
         self.__sensors = dict()
+        self.__observers = []
         self.__client = Client(config['server_ip'], config['server_port'])
         self.__running = False
 
@@ -101,6 +106,19 @@ class Simulator:
         if self.__ego:
             self.__config['ego_config'] = self.__ego
 
+        # load observers
+        if self.__observer_config:
+            elastic_host = self.__observer_config.get('elastic_host', 'http://localhost')
+            elastic_port = self.__observer_config.get('elastic_port', 9200)
+            job_id = self.__observer_config['job_id']
+            batch_id = self.__observer_config['batch_id']
+            self.__observers = []
+            for body in self.__observer_config['observers']:
+                obs: Observer = objectfactory.Factory.create_object(body)
+                obs.configure(job_id, batch_id, elastic_host, elastic_port)
+                self.__observers.append(obs)
+                self.__sensor_config.append(obs.sensor())
+
         # do simulator config
         res = self.send_command(
             mmsg.ApiMessage(mmsg.ID_SIMULATOR_CONFIG, self.__config)
@@ -121,6 +139,11 @@ class Simulator:
             res = self.configure_weather(self.__weather)
             if self.__verbose:
                 print(res)
+
+        # setup observers
+        for obs in self.__observers:
+            sensor_id = '{}_{}'.format(obs.sensor()['type'], obs.sensor()['listen_port'])
+            self.subscribe_to_sensor(sensor_id, obs.callback)
 
     def configure_weather(self, config, set_profile=None):
         """Configure the weather from JSON representation.
@@ -397,6 +420,7 @@ class Simulator:
             sensors: str = None,
             weather: str = None,
             ego: str = None,
+            observers: str = None,
             verbose: bool = False
     ):
         """Helper method to construct simulator object from config file paths"""
@@ -415,4 +439,7 @@ class Simulator:
         if ego:
             with open(ego) as file:
                 simulator.__ego = json.load(file)
+        if observers:
+            with open(observers) as file:
+                simulator.__observer_config = json.load(file)
         return simulator

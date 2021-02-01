@@ -24,6 +24,7 @@ SCENARIO_FILE = 'scenario.json'
 WEATHER_FILE = 'weather.json'
 VEHICLE_FILE = 'vehicle.json'
 SENSORS_FILE = 'sensors.json'
+OBSERVERS_FILE = 'observers.json'
 RESULTS_FILE = 'results.json'
 REPORT_FILE = 'results_full.json'
 
@@ -35,6 +36,7 @@ SCENARIO_FLAG = 'md_scenario'
 WEATHER_FLAG = 'md_weather'
 VEHICLE_FLAG = 'md_vehicle'
 SENSORS_FLAG = 'md_sensors'
+OBSERVERS_FLAG = 'md_observers'
 RESULTS_FLAG = 'md_results'
 LOOP_FLAG = 'md_loop'
 HELP_FLAG = 'md_help'
@@ -162,6 +164,7 @@ def get_simulator(verbose: bool = False):
     scenario_path = None
     weather_path = None
     sensors_path = None
+    observers_path = None
 
     # set paths from assets directory if provided
     if args[ASSET_DIR_FLAG]:
@@ -169,6 +172,7 @@ def get_simulator(verbose: bool = False):
         scenario_path = os.path.join(args[ASSET_DIR_FLAG], SCENARIO_FILE)
         weather_path = os.path.join(args[ASSET_DIR_FLAG], WEATHER_FILE)
         sensors_path = os.path.join(args[ASSET_DIR_FLAG], SENSORS_FILE)
+        observers_path = os.path.join(args[ASSET_DIR_FLAG], OBSERVERS_FILE)
 
     # set/update with individual flags
     if args[SIMULATOR_FLAG]:
@@ -179,6 +183,8 @@ def get_simulator(verbose: bool = False):
         weather_path = args[WEATHER_FLAG]
     if args[SENSORS_FLAG]:
         sensors_path = args[SENSORS_FLAG]
+    if args[OBSERVERS_FLAG]:
+        observers_path = args[OBSERVERS_FLAG]
 
     if config_path is None:
         raise JobConfigException('no simulator config path provided')
@@ -189,6 +195,7 @@ def get_simulator(verbose: bool = False):
         scenario=scenario_path,
         weather=weather_path,
         sensors=sensors_path,
+        observers=observers_path,
         verbose=verbose
     )
     return simulator
@@ -265,6 +272,7 @@ def parse_md_arguments(print_help: bool = False):
     parser.add_argument('--{}'.format(WEATHER_FLAG), required=False)
     parser.add_argument('--{}'.format(VEHICLE_FLAG), required=False)
     parser.add_argument('--{}'.format(SENSORS_FLAG), required=False)
+    parser.add_argument('--{}'.format(OBSERVERS_FLAG), required=False)
     parser.add_argument('--{}'.format(RESULTS_FLAG), required=False)
     parser.add_argument('--{}'.format(LOOP_FLAG), required=False, action='store_true')
     parser.add_argument('--{}'.format(HELP_FLAG), required=False, action='store_true')
